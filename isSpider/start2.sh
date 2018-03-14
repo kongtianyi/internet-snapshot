@@ -1,0 +1,1 @@
+nohup celery -A tasks -Q default_queue worker --loglevel=info --hostname=beijing_default --without-heartbeat >> default_queue.log 2>&1 &
