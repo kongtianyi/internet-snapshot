@@ -109,7 +109,7 @@ class Parser:
         dup_set_name = "engine:dup_set:" + str(self.downloader_item.task_id)
         queue_name = "engine:queue:" + str(self.downloader_item.task_id)
         for inner_chain in inner_chains:
-            if self.redis_conn.exists(dup_set_name):
+            if isinstance(self.redis_conn.ttl(dup_set_name), int):
                 sadd_re = self.redis_conn.sadd(dup_set_name, inner_chain)
                 if sadd_re == 1:  # 等于1说明上条插入成功，没有重复，省了一次查重
                     new_main_item = MainItem(inner_chain, refer=self.downloader_item.final_url,
