@@ -49,6 +49,13 @@ class UrlUtil:
             return True
         return False
 
+    @classmethod
+    def top_domain_is_gov_or_edu(cls, top_domain):
+        """判断主域名是否是政府或教育机构"""
+        if top_domain in ("gov.cn", "edu.cn"):
+            return True
+        return False
+
 
 if __name__ == "__main__":
     # url = "http://www.shandong.gov.cn"

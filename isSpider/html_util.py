@@ -96,9 +96,38 @@ class HtmlUtil:
         return out_chains
 
     @classmethod
+    def get_unsafe_out_chains(cls, format_html, top_domain):
+        out_chains = HtmlUtil.get_out_chains(format_html, top_domain)
+        unsafe_out_chains = set()
+
+        # 过滤一下安全外链
+        safe_chains = set()
+        connection = pymysql.connect(**mysql_config)
+        # 拿到公共安全外链主域名
+        with connection.cursor() as cursor:
+            sql = 'SELECT mydomain FROM public_safe_out_chains;'
+            cursor.execute(sql)
+            pubsocs = cursor.fetchall()
+            for pubsoc in pubsocs:
+                safe_chains.add(pubsoc["mydomain"])
+        # 拿到私有安全外链主域名
+        with connection.cursor() as cursor:
+            sql = 'SELECT mydomain FROM private_safe_out_chains WHERE owner=%s;'
+            cursor.execute(sql, (top_domain,))
+            pubsocs = cursor.fetchall()
+            for pubsoc in pubsocs:
+                safe_chains.add(pubsoc["mydomain"])
+        for out_chain in out_chains:
+            if UrlUtil.get_top_domain(out_chain) not in safe_chains and not UrlUtil.is_gov_or_edu(out_chain):
+                # 主域名不在白名单里而且不是政府或教育机构网站
+                unsafe_out_chains.add(out_chain)
+
+        return unsafe_out_chains
+
+    @classmethod
     def diff_out_chains(cls, htmls, urls):
         """
-        多个页面中不同的外链
+        多个页面中不同的不安全外链
         htmls: html列表
         urls: 与html列表对应的url列表
         return: 各个html中存在的独有的外链，最后一项是所有外链集合的差集
@@ -109,7 +138,7 @@ class HtmlUtil:
                 logging.error("None object has no out chains!")
                 return []
             format_html = HtmlUtil.get_format_html(html, url)
-            out_chains = HtmlUtil.get_out_chains(format_html, UrlUtil.get_top_domain(url))
+            out_chains = HtmlUtil.get_unsafe_out_chains(format_html, UrlUtil.get_top_domain(url))
             out_chainss.append(out_chains)
         # 并集减交集为差集
         diff = get_union(out_chainss) - get_intersection(out_chainss)

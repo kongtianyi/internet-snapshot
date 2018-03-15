@@ -163,6 +163,7 @@ class CompareParser:
             for id_html_list_item in id_html_list:
                 htmls.append(id_html_list_item[1])
             diff_out_chains = HtmlUtil.diff_out_chains_from_same_url(htmls=htmls, url=url)
+
             logging.info(diff_out_chains)
             for i in range(0, len(id_html_list)):
                 sql = "INSERT INTO private_out_chain_records (ss_id, out_chain, checked, result, check_time) " \
@@ -176,6 +177,7 @@ class CompareParser:
                         result = cursor.execute(sql, private_out_chain_record_item.save_tuple())
                         if result != 1:
                             logging.error("private_out_chain_records插入记录" + private_out_chain_record_item.save_tuple() + "失败！")
+            logging.info("url: "+url+"compare over.")
         connection.commit()
         connection.close()
 
@@ -198,7 +200,7 @@ def href_clean(hrefs):
 
 
 if __name__ == "__main__":
-    CompareParser.parse_by_task_id("0")
+    CompareParser.parse_by_task_id("d010c3ee-2781-11e8-991f-28d244bc1efd")
 
 
 

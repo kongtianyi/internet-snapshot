@@ -3,7 +3,7 @@
 
 from selenium.webdriver import Firefox, Chrome
 from selenium.webdriver.firefox.options import Options
-from selenium.common.exceptions import TimeoutException, UnexpectedAlertPresentException
+from selenium.common.exceptions import TimeoutException, UnexpectedAlertPresentException, WebDriverException
 from items import MainItem
 from tools import Singleton
 import time
@@ -95,7 +95,6 @@ class SingletonDownloader(metaclass=Singleton):
 
     def download(self, main_item, after_scroll_time=1):
         """下载一个web页面"""
-
         if not isinstance(main_item, MainItem):
             logging.error("Received param must items.MainItem, but get " + str(type(main_item)))
             return None
@@ -109,6 +108,8 @@ class SingletonDownloader(metaclass=Singleton):
         except TimeoutException as e:
             logging.info("Get url:" + main_item.request_url + ", msg: " + e.msg)
             self.driver.execute_script("window.stop()")
+        except WebDriverException as e:
+            logging.error(e.msg)
         finally:
             load_time = time.time() - start_time
             logging.info("Get url:" + main_item.request_url + " spend " + str(load_time) + "s.")
@@ -122,6 +123,7 @@ class SingletonDownloader(metaclass=Singleton):
         self.driver.execute_script(js_scroll)  # 执行翻页
         time.sleep(after_scroll_time)  # 执行了翻页后等待页面加载nS
 
+        current_url = None
         try:
             current_url = self.driver.current_url
         except UnexpectedAlertPresentException as e:
@@ -130,7 +132,11 @@ class SingletonDownloader(metaclass=Singleton):
         finally:
             if not current_url:
                 current_url = "Unknown except error occur."
-        page_source = self.driver.page_source
+        try:
+            page_source = self.driver.page_source
+        except WebDriverException as e:
+            logging.error(e.msg)
+            page_source = e.msg
 
         # 填充现有信息
         main_item.final_url = current_url
