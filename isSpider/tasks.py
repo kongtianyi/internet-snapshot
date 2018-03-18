@@ -4,6 +4,7 @@ from celery import Celery
 from downloader import SingletonDownloader
 from items import MainItem, main_item_to_json, json_to_main_item
 from my_parser import Parser
+from engine import Engine
 import redis
 import json
 import logging
@@ -17,23 +18,21 @@ app.config_from_object('celeryconfig')
 
 
 @app.task
+def snapshot(start_url, exist_time, deepth, max_num):
+    engine = Engine(start_url, exist_time, deepth, max_num)
+    engine.run()
+
+
+@app.task
 def download(request_url, refer, task_id):
     """下载页面"""
     main_item = MainItem(request_url, refer=refer, task_id=task_id)
     if not isinstance(main_item, MainItem):
         logging.error("Received param must items.MainItem, but get " + str(type(main_item)))
-    # with Downloader(driver="Firefox") as downloader:
-    #     download_item = downloader.download(url)
     downloader = SingletonDownloader(driver="Firefox")
     download_item = downloader.download(main_item)
-    with open("./ext_conf.json", "r") as f:
-        ext_conf = json.load(f)
-        download_item.send_ip = ext_conf["local_ip"]
-    download_item.server_ip = ""
     download_item = main_item_to_json(download_item)
     app.send_task("tasks.parse", args=(download_item,))
-    # parser = Parser(download_item)
-    # parser.parse()
 
 
 @app.task

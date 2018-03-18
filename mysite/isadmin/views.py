@@ -1,3 +1,4 @@
+from django.db.models import F
 from django.db.models import QuerySet
 from django.http import QueryDict
 from django.shortcuts import render
@@ -45,20 +46,6 @@ def suspicious_records_list(request):
     return render(request, 'isadmin/suspicious_records_list.html')
 
 
-def add_pubsoc(request):
-    """增加公共正常外链主域名页面"""
-    if request.method != 'GET':
-        return render(request, 'isadmin/error-404.html')
-    return render(request, 'isadmin/add_pubsoc.html')
-
-
-def add_prisoc(request):
-    """增加私有正常外链主域名页面"""
-    if request.method != 'GET':
-        return render(request, 'isadmin/error-404.html')
-    return render(request, 'isadmin/add_prisoc.html')
-
-
 def show_snapshot(request, id=None):
     if request.method != "GET":
         return render(request, 'isadmin/error-404.html')
@@ -90,6 +77,18 @@ def dashboard(request):
     if request.method != "GET":
         return render(request, 'isadmin/error-404.html')
     return render(request, 'isadmin/dashboard.htm')
+
+
+def redirect_records(request):
+    if request.method != "GET":
+        return render(request, 'isadmin/error-404.html')
+    return render(request, 'isadmin/report/redirect_records.html')
+
+
+def compare_unique(request):
+    if request.method != "GET":
+        return render(request, 'isadmin/error-404.html')
+    return render(request, 'isadmin/report/compare_unique.html')
 
 
 @csrf_exempt
@@ -343,11 +342,22 @@ def suspicious_records(request, id=None):
             result = json_result("success", "添加可疑外链记录成功:-)")
         return HttpResponse(result, content_type="application/json;charset=utf-8")
     elif request.method == 'DELETE':
-        obj = SuspiciousRecords.objects.filter(id=id).delete()
-        if not obj or obj[0] == 0:
-            result = json_result("error", "删除可疑外链记录失败:-(")
+        if isinstance(id, str) and id.find(',') != -1:
+            ids = id.split(',')
+            result_msg = ""
+            for item in ids:
+                obj = SuspiciousRecords.objects.filter(id=item).delete()
+                if not obj or obj[0] == 0:
+                    result_msg += "删除可疑外链记录id" + item + "失败:-("
+                else:
+                    result_msg += "删除可疑外链记录id" + item + "成功:-)"
+            result = json_result("success", result_msg)
         else:
-            result = json_result("success", "删除可疑外链记录成功:-)")
+            obj = SuspiciousRecords.objects.filter(id=id).delete()
+            if not obj or obj[0] == 0:
+                result = json_result("error", "删除可疑外链记录失败:-(")
+            else:
+                result = json_result("success", "删除可疑外链记录成功:-)")
         return HttpResponse(result, content_type="application/json;charset=utf-8")
     elif request.method == 'PUT':
         put = QueryDict(request.body)
@@ -436,6 +446,36 @@ def suspicious_records_jqgrid(request):
         return render(request, 'isadmin/error-404.html')
 
 
+@csrf_exempt
+def redirect_records_datas(request):
+    draw = request.GET.get("draw")
+    start = int(request.GET.get("start"))
+    length = int(request.GET.get("length"))
+    objs = Snapshot.objects.exclude(request_url=F("final_url")).\
+        values("id", "request_url", "final_url", "task_id", "send_ip")
+    print(len(objs))
+    redirect_objs = list()
+    for obj in objs:
+        if UrlUtil.get_top_domain(obj["request_url"]) != UrlUtil.get_top_domain(obj["final_url"]) \
+                and obj["final_url"] != "Unknown except error occur.":
+            redirect_objs.append(obj)
+    data = redirect_objs[start: start+length]
+    records_total = len(redirect_objs)
+    records_filtered = len(data)
+    result = json_result("success", "查询成功:-)", draw=draw, data=data, recordsTotal=records_total,
+                         recordsFiltered=records_filtered)
+    return HttpResponse(result, content_type="application/json;charset=utf-8")
+
+
+@csrf_exempt
+def compare_unique_datas(request):
+    draw = request.GET.get("draw")
+    start = request.GET.get("start")
+    length = request.GET.get("length")
+
+    return json_result("success", "查询成功:-)", draw=draw)
+
+
 def leveled_json_result(status, message, data=None):
     """将返回对象序列化成层次化的json串"""
     return json.dumps({
@@ -453,3 +493,5 @@ def json_result(status, message, **kwargs):
     for key in kwargs.keys():
         result[key] = kwargs[key]
     return json.dumps(result, ensure_ascii=False)
+
+

@@ -1,15 +1,17 @@
 # !/usr/bin/python
 # -*- encoding: utf-8 -*-
 
-from lxml import etree
-from items import MainItem, SuspiciousItem, SsHtmlItem, PrivateOutChainRecordItem, main_item_to_json
-from url_util import UrlUtil
-from html_util import HtmlUtil
 import json
-import pymysql
-import redis
 import logging
 import re
+
+import pymysql
+import redis
+from lxml import etree
+
+from items import MainItem, SuspiciousItem, SsHtmlItem, PrivateOutChainRecordItem, main_item_to_json
+from tools.html_util import HtmlUtil, get_html_from_mysql
+from tools.url_util import UrlUtil
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s %(message)s',
@@ -143,36 +145,33 @@ class CompareParser:
     @classmethod
     def parse_by_task_id(cls, task_id):
         connection = pymysql.connect(**mysql_config)  # 建立数据库链接
-        sql = "SELECT snapshot.id,snapshot.request_url,ss_html.html FROM snapshot INNER JOIN" \
-              " ss_html on snapshot.id=ss_html.ss_id WHERE snapshot.task_id=%s;"
+        sql = "SELECT id,request_url FROM snapshot WHERE task_id=%s;"
         with connection.cursor() as cursor:
             cursor.execute(sql, (task_id,))
             items = cursor.fetchall()
-        urls = dict()
+        urls = dict()  # 用url作键值，将同一url不同地区的下载结果id聚类
         for item in items:
             id = item["id"]
             request_url = item["request_url"]
-            html = item["html"]
             if request_url not in urls.keys():
-                urls[request_url] = list([(id, html),])
+                urls[request_url] = list([id, ])
             else:
-                urls[request_url].append((id, html))
+                urls[request_url].append(id)
         for url in urls.keys():
             htmls = list()
-            id_html_list = urls.get(url)
-            for id_html_list_item in id_html_list:
-                htmls.append(id_html_list_item[1])
+            for html_id in urls.get(url):
+                html, final_url = get_html_from_mysql(html_id=html_id)
+                format_html = HtmlUtil.get_format_html(html=html, final_url=final_url)
+                htmls.append(format_html)
             diff_out_chains = HtmlUtil.diff_out_chains_from_same_url(htmls=htmls, url=url)
 
-            logging.info(diff_out_chains)
-            for i in range(0, len(id_html_list)):
+            for i in range(0, len(urls.get(url))):
                 sql = "INSERT INTO private_out_chain_records (ss_id, out_chain, checked, result, check_time) " \
                       "VALUES (%s, %s, %s, %s, %s)"
-                diff_out_chains_this_id = diff_out_chains[i]
-                for diff_out_chains_this_id_item in diff_out_chains_this_id:
+                for diff_out_chain in diff_out_chains[i]:
                     with connection.cursor() as cursor:
-                        private_out_chain_record_item = PrivateOutChainRecordItem(id_html_list[i][0],
-                                                                                  diff_out_chains_this_id_item,
+                        private_out_chain_record_item = PrivateOutChainRecordItem(urls.get(url)[i],
+                                                                                  diff_out_chain,
                                                                                   0, -1, 0)
                         result = cursor.execute(sql, private_out_chain_record_item.save_tuple())
                         if result != 1:
@@ -200,7 +199,7 @@ def href_clean(hrefs):
 
 
 if __name__ == "__main__":
-    CompareParser.parse_by_task_id("d010c3ee-2781-11e8-991f-28d244bc1efd")
+    CompareParser.parse_by_task_id("35f9cd80-280e-11e8-8c5e-28d244bc1efd")
 
 
 

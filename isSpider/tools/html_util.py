@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from url_util import UrlUtil
-from lxml import etree
-import re
-import pymysql
 import logging
+import re
 
+import pymysql
+from lxml import etree
+
+from tools.url_util import UrlUtil
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s %(message)s',

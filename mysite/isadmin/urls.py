@@ -9,11 +9,13 @@ urlpatterns = {
     url(r'^prisoc_list$', views.prisoc_list, name='prisoc_list'),
     url(r'^snapshot_list', views.snapshot_list, name='snapshot_list'),
     url(r'^suspicious_records_list', views.suspicious_records_list, name='suspicious_record_list'),
-    url(r'^add_pubsoc$', views.add_pubsoc, name='add_pubsoc'),
-    url(r'^add_prisoc$', views.add_prisoc, name='add_prisoc'),
     url(r'^show_snapshot$', views.show_snapshot, name='show_snapshot'),
     url(r'^show_snapshot/(?P<id>[0-9]+)$', views.show_snapshot, name='show_snapshot'),
     url(r'^dashboard$', views.dashboard, name='dashboard'),
+    # 数据报表
+    url(r'^report/redirect_records$', views.redirect_records, name='redirect_records'),
+    url(r'^report/compare_unique$', views.compare_unique, name='compare_unique'),
+
 
     # CURD
     url(r'^pubsocs$', views.pubsocs, name='pubsocs'),
@@ -28,4 +30,8 @@ urlpatterns = {
     url(r'^suspicious_records$', views.suspicious_records, name='suspicious_records'),
     url(r'^suspicious_records/(?P<id>[0-9]+)$', views.suspicious_records, name='suspicious_records'),
     url(r'^suspicious_records_jqgrid$', views.suspicious_records_jqgrid, name='suspicious_records_jqgrid'),
+    # 数据报表
+    url('^redirect_records_datas$', views.redirect_records_datas, name="redirect_records_datas"),
+    url('^compare_unique_datas$', views.compare_unique_datas, name="compare_unique_datas"),
+
 }

@@ -1,14 +1,18 @@
 # !/usr/bin/python
 # -*- encoding: utf-8 -*-
 
+import json
+import logging
+import socket
+import time
+
+from selenium.common.exceptions import TimeoutException, UnexpectedAlertPresentException, WebDriverException
 from selenium.webdriver import Firefox, Chrome
 from selenium.webdriver.firefox.options import Options
-from selenium.common.exceptions import TimeoutException, UnexpectedAlertPresentException, WebDriverException
-from items import MainItem
-from tools import Singleton
-import time
-import logging
 
+from items import MainItem
+from tools.singleton import Singleton
+from tools.url_util import UrlUtil
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s %(message)s',
@@ -113,6 +117,7 @@ class SingletonDownloader(metaclass=Singleton):
         finally:
             load_time = time.time() - start_time
             logging.info("Get url:" + main_item.request_url + " spend " + str(load_time) + "s.")
+        server_ip = socket.gethostbyname(UrlUtil.get_domain(main_item.request_url))
         js_scroll = """
                     function go_down() {
                         var h = document.documentElement.scrollHeight || document.body.scrollHeight;
@@ -124,19 +129,20 @@ class SingletonDownloader(metaclass=Singleton):
         time.sleep(after_scroll_time)  # 执行了翻页后等待页面加载nS
 
         current_url = None
+        page_source = None
         try:
             current_url = self.driver.current_url
+            page_source = self.driver.page_source
         except UnexpectedAlertPresentException as e:
             logging.info("点击弹出框")
             self.driver.switch_to.alert.accept()
-        finally:
-            if not current_url:
-                current_url = "Unknown except error occur."
-        try:
-            page_source = self.driver.page_source
         except WebDriverException as e:
             logging.error(e.msg)
-            page_source = e.msg
+        finally:
+            if not current_url:
+                current_url = "Something error occurred, please check the error log."
+            if not page_source:
+                page_source = "Something error occurred, please check the error log."
 
         # 填充现有信息
         main_item.final_url = current_url
@@ -144,6 +150,10 @@ class SingletonDownloader(metaclass=Singleton):
         main_item.load_time = load_time
         main_item.html = page_source
         main_item.get_time = int(time.time())  # 时间戳
+        with open("./ext_conf.json", "r") as f:
+            ext_conf = json.load(f)
+            main_item.send_ip = ext_conf["local_ip"]
+        main_item.server_ip = server_ip
 
         return main_item
 

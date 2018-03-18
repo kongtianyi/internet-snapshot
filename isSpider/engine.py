@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from url_util import UrlUtil
-from celery import Celery
-from items import MainItem, main_item_to_json
 import json
 import logging
-import uuid
-import redis
-import time
 import platform
+import time
+import uuid
+
+import redis
+from celery import Celery
+
+from items import MainItem, main_item_to_json
+from tools.url_util import UrlUtil
 
 # 防止在win系统下出现“OSError: raw write() returned invalid length”错误
 if "Windows" in platform.system():
@@ -72,6 +74,6 @@ class Engine:
 
 
 if __name__ == "__main__":
-    engine = Engine("http://www.sina.com.cn/", exist_time=60, max_num=50)
+    engine = Engine("http://www.sina.com.cn/", exist_time=600, max_num=5)
     engine.run()
     # app.send_task("tasks.download", args=("https://www.baidu.com", 60, 0))
