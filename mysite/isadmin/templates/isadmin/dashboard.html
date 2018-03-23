@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <title>互联网内容异常行为管理系统</title>
+
+    {% load static %}
+
+    <meta name="description" content="Dynamic tables and grids using jqGrid plugin" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <!-- bootstrap & fontawesome -->
+    <link rel="stylesheet" href="{% static 'isadmin/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'isadmin/font-awesome/4.5.0/css/font-awesome.min.css' %}" />
+
+    <!-- page specific plugin styles -->
+
+    <!-- text fonts -->
+    <link rel="stylesheet" href="{% static 'isadmin/css/fonts.googleapis.com.css' %}" />
+
+    <!-- ace styles -->
+    <link rel="stylesheet" href="{% static 'isadmin/css/ace.min.css' %}" class="ace-main-stylesheet" id="main-ace-style" />
+
+    <!--[if lte IE 9]>
+			<link rel="stylesheet" href="{% static 'isadmin/css/ace-part2.min.css' %}" class="ace-main-stylesheet" />
+		<![endif]-->
+    <link rel="stylesheet" href="{% static 'isadmin/css/ace-skins.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'isadmin/css/ace-rtl.min.css' %}" />
+
+    <!--[if lte IE 9]>
+		  <link rel="stylesheet" href="{% static 'isadmin/css/ace-ie.min.css' %}" />
+		<![endif]-->
+
+    <!-- inline styles related to this page -->
+
+    <!-- ace settings handler -->
+    <script src="{% static 'isadmin/js/ace-extra.min.js' %}"></script>
+
+    <!-- HTML5shiv and Respond.js for IE8 to support HTML5 elements and media queries -->
+
+    <!--[if lte IE 8]>
+		<script src="{% static 'isadmin/js/html5shiv.min.js' %}"></script>
+		<script src="{% static 'isadmin/js/respond.min.js' %}"></script>
+		<![endif]-->
+</head>
+
+	<body class="no-skin">
+        <div class="main-content">
+				<div class="main-content-inner">
+					<div class="breadcrumbs ace-save-state" id="breadcrumbs">
+						<ul class="breadcrumb">
+							<li>
+								<i class="ace-icon fa fa-home home-icon"></i>
+								<a href="#">Home</a>
+							</li>
+							<li class="active">VPS监控</li>
+						</ul><!-- /.breadcrumb -->
+
+						<div class="nav-search" id="nav-search">
+							<form class="form-search">
+								<span class="input-icon">
+									<input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off" />
+									<i class="ace-icon fa fa-search nav-search-icon"></i>
+								</span>
+							</form>
+						</div><!-- /.nav-search -->
+					</div>
+
+					<div class="page-content">
+						<div class="page-header">
+							<h1>
+								VPS监控
+								<small>
+									<i class="ace-icon fa fa-angle-double-right"></i>
+									对VPS（虚拟专用服务器）的运行状态的监控页面
+								</small>
+							</h1>
+						</div><!-- /.page-header -->
+						<div class="row">
+                            <div class="col-xs-12">
+                                <!-- PAGE CONTENT BEGINS -->
+                                <div class="row">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">京东云-北京（114.67.225.0）</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="infobox infobox-blue2">
+                                                <div class="infobox-progress">
+                                                    <div id="cpu-used" class="easy-pie-chart percentage" data-percent="42" data-size="92" style="height: 92px; width: 92px; line-height: 90px;">
+                                                        <span class="percent">42</span>%
+                                                        <canvas height="92" width="92"></canvas></div>
+                                                </div>
+
+                                                <div class="infobox-data">
+                                                    <span class="infobox-text">cpu利用率</span>
+                                                </div>
+                                            </div>
+                                            <div class="infobox infobox-blue2">
+                                                <div class="infobox-progress">
+                                                    <div id="memory-used" class="easy-pie-chart percentage" data-percent="80" data-size="92" style="height: 92px; width: 92px; line-height: 90px;">
+                                                        <span class="percent">80</span>%
+                                                        <canvas height="92" width="92"></canvas></div>
+                                                </div>
+
+                                                <div class="infobox-data">
+                                                    <span class="infobox-text">内存利用率</span>
+
+                                                    <div class="infobox-content">
+                                                        <span class="bigger-110">~</span>
+                                                        还剩1GB
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="infobox infobox-blue2">
+                                                <div class="infobox-progress">
+                                                    <div id="swap-used" class="easy-pie-chart percentage" data-percent="80" data-size="92" style="height: 92px; width: 92px; line-height: 90px;">
+                                                        <span class="percent">80</span>%
+                                                        <canvas height="92" width="92"></canvas></div>
+                                                </div>
+
+                                                <div class="infobox-data">
+                                                    <span class="infobox-text">交换区负载</span>
+
+                                                    <div class="infobox-content">
+                                                        <span class="bigger-110">~</span>
+                                                        正常
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="infobox infobox-blue2">
+                                                <div class="infobox-progress">
+                                                    <div id="disks-used" class="easy-pie-chart percentage" data-percent="80" data-size="92" style="height: 92px; width: 92px; line-height: 90px;">
+                                                        <span class="percent">60</span>%
+                                                        <canvas height="92" width="92"></canvas></div>
+                                                </div>
+
+                                                <div class="infobox-data">
+                                                    <span class="infobox-text">磁盘用量</span>
+
+                                                    <div class="infobox-content">
+                                                        <span class="bigger-110">~</span>
+                                                        还剩58GB
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div><!-- /.row -->
+
+                                <div class="hr hr32 hr-dotted"></div>
+
+								<!-- PAGE CONTENT ENDS -->
+							</div><!-- /.col -->
+						</div><!-- /.row -->
+					</div><!-- /.page-content -->
+				</div>
+			</div><!-- /.main-content -->
+
+		<!-- basic scripts -->
+
+        <!--[if !IE]> -->
+            <script src="{% static 'isadmin/js/jquery-2.1.4.min.js' %}"></script>
+        <!-- <![endif]-->
+
+        <!--[if IE]>
+            <script src="{% static 'isadmin/js/jquery-1.11.3.min.js' %}"></script>
+        <![endif]-->
+        <script type="text/javascript">
+            if('ontouchstart' in document.documentElement) document.write("<script src='{% static 'isadmin/js/jquery.mobile.custom.min.js' %}'>"+"<"+"/script>");
+        </script>
+        <script src="{% static 'isadmin/js/bootstrap.min.js' %}"></script>
+
+        <!-- page specific plugin scripts -->
+
+        <!--[if lte IE 8]>
+		  <script src="assets/js/excanvas.min.js"></script>
+		<![endif]-->
+        <script src="{% static 'isadmin/js/jquery-ui.custom.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/jquery.ui.touch-punch.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/jquery.easypiechart.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/jquery.sparkline.index.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/jquery.flot.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/jquery.flot.pie.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/jquery.flot.resize.min.js' %}"></script>
+
+        <!-- ace scripts -->
+        <script src="{% static 'isadmin/js/ace-elements.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/ace.min.js' %}"></script>
+
+        <!-- inline scripts related to this page -->
+        <script type="text/javascript">
+            $(function() {
+                $("#cpu-used").easyPieChart({
+                    //"barColor": "cyan",
+                    //"size": 110
+                });
+
+
+                $("#memory-used").easyPieChart({
+
+                });
+
+                $("#swap-used").easyPieChart({
+
+                });
+
+                $("#disks-used").easyPieChart({
+
+                });
+            });
+        </script>
+	</body>
+</html>

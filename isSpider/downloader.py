@@ -150,9 +150,9 @@ class SingletonDownloader(metaclass=Singleton):
         main_item.load_time = load_time
         main_item.html = page_source
         main_item.get_time = int(time.time())  # 时间戳
-        with open("./ext_conf.json", "r") as f:
+        with open("/etc/internet-snapshot.conf", "r") as f:
             ext_conf = json.load(f)
-            main_item.send_ip = ext_conf["local_ip"]
+            main_item.send_ip = ext_conf["ip"]
         main_item.server_ip = server_ip
 
         return main_item
@@ -161,7 +161,3 @@ class SingletonDownloader(metaclass=Singleton):
 if __name__ == "__main__":
     with Downloader(driver="Firefox") as downloader:
         downloader.download("http://www.sina.com.cn")
-    # downloader = SingletonDownloader()
-    # downloader2 = SingletonDownloader()
-    # print(downloader is downloader2)
-    # downloader.close()

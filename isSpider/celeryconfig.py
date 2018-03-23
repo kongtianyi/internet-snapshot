@@ -16,17 +16,26 @@ acks_late = True
 prefetch_multiplier = 1  # 预取任务数
 concurrency = 1  # 单一worker的并发数，目前多了会导致webdriver出错，后期优化
 
-# task_default_queue = "default_queue"  # 默认的队列，如果一个消息不符合其他的队列就会放在默认队列里面
-# task_default_exchange = "fanout_exchange"
-# task_default_exchange_type = "fanout"
+task_default_queue = "default_queue"  # 默认的队列，如果一个消息不符合其他的队列就会放在默认队列里面
+task_default_exchange = "default_exchange"
+task_default_exchange_type = "direct"
+
+default_exchange = Exchange("default_exchange", type="direct")
+fanout_exchange = Exchange("fanout_exchange", type="fanout")
 
 task_queues = (
     # 这是上面指定的默认队列
-    Queue('default_queue', Exchange("default_exchange", type="direct"), routing_key="default_key"),
-    # 以下是2个fanout队列,他们的exchange相同
-    Queue('beijing_queue', Exchange("fanout_exchange", type="fanout")),
-    Queue('shenzhen_queue', Exchange("fanout_exchange", type="fanout")),
-    Queue('weihai_queue', Exchange("fanout_exchange", type="fanout")),
+    Queue("default_queue", default_exchange, routing_key="default_key"),
+    # parse后处理任务专用队列
+    Queue("parse_queue", default_exchange, routing_key="parse_key"),
+    # 各地vps快照下载器专用队列
+    Queue("beijing_download_queue", fanout_exchange),
+    Queue("shenzhen_download_queue", fanout_exchange),
+    Queue("chengdu_download_queue", fanout_exchange),
+    # 各地vps其他广播任务队列
+    Queue("beijing_queue", fanout_exchange),
+    Queue("shenzhen_queue", fanout_exchange),
+    Queue("chengdu_queue", fanout_exchange),
 )
 
 task_routes = {
@@ -35,8 +44,8 @@ task_routes = {
         'exchange_type': 'fanout',
     },
     'tasks.parse': {
-        'queue': "default_queue",
-        'routing_key': "default_key",
+        'queue': "parse_queue",
+        'routing_key': "parse_key",
     },
     'tasks.clean_abnormal_engine': {
         'queue': "default_queue",

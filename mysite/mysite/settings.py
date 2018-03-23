@@ -82,7 +82,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = False
+USE_TZ = True
 
 STATIC_URL = '/static/'
 
@@ -99,31 +99,3 @@ CELERY_ENABLE_UTC = False
 CELERY_ACKS_LATE = True
 CELERY_PREFETCH_MULTIPLIER = 1  # 预取任务数
 CELERY_CONCURRENCY = 1  # 单一worker的并发数，目前多了会导致webdriver出错，后期优化
-
-CELERY_TASK_DEFAULT_QUEUE = "default_queue"  # 默认的队列，如果一个消息不符合其他的队列就会放在默认队列里面
-CELERY_TASK_DEFAULT_EXCHANGE = "default_exchange"
-CELERY_TASK_DEFAULT_EXCHANGE_TYPE = "direct"
-
-# CELERY_TASK_QUEUES = (
-#     # 这是上面指定的默认队列
-#     Queue('default_queue', Exchange("default_exchange", type="direct"), routing_key="default_key"),
-#     # 以下是2个fanout队列,他们的exchange相同
-#     Queue('beijing_queue', Exchange("fanout_exchange", type="fanout")),
-#     Queue('shenzhen_queue', Exchange("fanout_exchange", type="fanout")),
-#     Queue('weihai_queue', Exchange("fanout_exchange", type="fanout")),
-# )
-#
-# CELERY_TASK_ROUTES = {
-#     'tasks.download': {
-#         'exchange': 'fanout_exchange',
-#         'exchange_type': 'fanout',
-#     },
-#     'tasks.parse': {
-#         'queue': "default_queue",
-#         'routing_key': "default_key",
-#     },
-#     'tasks.clean_abnormal_engine': {
-#         'queue': "default_queue",
-#         'routing_key': "default_key",
-#     }
-# }

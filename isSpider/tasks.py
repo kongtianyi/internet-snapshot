@@ -6,12 +6,25 @@ from items import MainItem, main_item_to_json, json_to_main_item
 from my_parser import Parser
 from engine import Engine
 import redis
-import json
 import logging
+import pymysql
+import psutil
+import json
+import time
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S', )
+
+mysql_config = {
+    'host': '120.79.178.39',
+    'port': 3306,
+    'user': 'root',
+    'password': 'KONG64530322931',
+    'db': 'internet_snapshot',
+    'charset': 'utf8mb4',
+    'cursorclass': pymysql.cursors.DictCursor,
+}
 
 app = Celery()
 app.config_from_object('celeryconfig')
@@ -51,3 +64,61 @@ def clean_abnormal_engine():
         if redis_conn.ttl(key) == -1:  # 在engine命名空间下却没有设置过期时间，故为异常key
             redis_conn.delete(key)
 
+
+@app.task
+def save_vps_status():
+    """获取vps的CPU、内存、交换区、磁盘、网络使用情况，存到mysql"""
+    with open("/etc/internet-snapshot.conf", "r", encoding="utf-8") as f:
+        is_config = json.load(f)
+        vps_id = is_config["vps_id"]
+    # cpu情况
+    cpu_status = list()
+    cpu_percent_total = psutil.cpu_percent(interval=1, percpu=False)
+    cpu_percent_percpu = psutil.cpu_percent(interval=1, percpu=True)
+    cpu_status.append(cpu_percent_total)
+    cpu_status.extend(cpu_percent_percpu)
+    cpu_status = json.dumps(cpu_status)
+    # 内存情况
+    memory_used = psutil.virtual_memory()[3]
+    # 交换区情况
+    swap_used = psutil.swap_memory()[1]
+    # 磁盘情况
+    disks = dict()
+    disk_partitions = psutil.disk_partitions()
+    for disk_partition in disk_partitions:
+        disks[disk_partition[0]] = psutil.disk_usage(disk_partition[1])[1]
+    disks = json.dumps(disks)
+    # 网络情况
+    network_status = json.dumps(psutil.net_io_counters(pernic=True))
+    # 存库
+    connection = pymysql.connect(**mysql_config)
+    sql = "INSERT INTO vps_status (vps_id, cpu_status, memory_used, swap_used, disks_status, network_status) " \
+          "VALUES (%s, %s, %s, %s, %s, %s);"
+    with connection.cursor() as cursor:
+        cursor.execute(sql, (vps_id, cpu_status, memory_used, swap_used, disks, network_status))
+    connection.commit()
+    connection.close()
+
+
+@app.task
+def vps_status_clean():
+    """清理vps_status表，使其只保持近七天的数据（0点清除六天前的数据）"""
+    connection = pymysql.connect(**mysql_config)
+    SIX_DAYS = 60 * 60 * 24 * 6
+    now = int(time.time())
+    six_days_ago = now - SIX_DAYS
+    time_local = time.localtime(six_days_ago)
+    format_time = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
+    sql = "DELETE FROM vps_status WHERE _time <= %s;"
+    with connection.cursor() as cursor:
+        re = cursor.execute(sql, (format_time,))
+        if re == 0:
+            logging.error("delete 0 rows.")
+        else:
+            logging.info("delete " + str(re) + " rows")
+    connection.commit()
+    connection.close()
+
+
+if __name__ == "__main__":
+    vps_status_clean()

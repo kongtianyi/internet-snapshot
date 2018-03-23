@@ -12,7 +12,7 @@ import math
 
 
 def index(request):
-    """首页-仪表盘"""
+    """首页-VPS监控"""
     if request.method != 'GET':
         return Http404
     return render(request, 'isadmin/index.html')
@@ -21,34 +21,34 @@ def index(request):
 def pubsoc_list(request):
     """公共正常外链列表页面"""
     if request.method != 'GET':
-        return render(request, 'isadmin/error-404.html')
-    return render(request, 'isadmin/pubsoc_list.html')
+        return render(request, 'isadmin/error/error-404.html')
+    return render(request, 'isadmin/db/pubsoc_list.html')
 
 
 def prisoc_list(request):
     """私有正常外链列表页面"""
     if request.method != "GET":
-        return render(request, 'isadmin/error-404.html')
-    return render(request, 'isadmin/prisoc_list.html')
+        return render(request, 'isadmin/error/error-404.html')
+    return render(request, 'isadmin/db/prisoc_list.html')
 
 
 def snapshot_list(request):
     """网页快照列表页面"""
     if request.method != "GET":
-        return render(request, 'isadmin/error-404.html')
-    return render(request, 'isadmin/snapshot_list.html')
+        return render(request, 'isadmin/error/error-404.html')
+    return render(request, 'isadmin/db/snapshot_list.html')
 
 
 def suspicious_records_list(request):
     """可疑外链列表页面"""
     if request.method != "GET":
-        return render(request, 'isadmin/error-404.html')
-    return render(request, 'isadmin/suspicious_records_list.html')
+        return render(request, 'isadmin/error/error-404.html')
+    return render(request, 'isadmin/db/suspicious_records_list.html')
 
 
 def show_snapshot(request, id=None):
     if request.method != "GET":
-        return render(request, 'isadmin/error-404.html')
+        return render(request, 'isadmin/error/error-404.html')
     if not id:
         id = request.GET.get("id")
         aim = request.GET.get("aim")
@@ -57,10 +57,9 @@ def show_snapshot(request, id=None):
     ss = Snapshot.objects.filter(id=id)
     item = SsHtml.objects.filter(ss_id=id)
     if not isinstance(ss, QuerySet) or not isinstance(item, QuerySet):
-        # todo return 500
-        pass
+        return render(request, 'isadmin/error/error-500.html')
     elif len(ss) == 0 or len(item) == 0:
-        return render(request, 'isadmin/error-404.html')
+        return render(request, 'isadmin/error/error-404.html')
     html = item[0].html
     final_url = ss[0].final_url
     domain = UrlUtil.get_domain(final_url)
@@ -75,19 +74,19 @@ def show_snapshot(request, id=None):
 
 def dashboard(request):
     if request.method != "GET":
-        return render(request, 'isadmin/error-404.html')
-    return render(request, 'isadmin/dashboard.htm')
+        return render(request, 'isadmin/error/error-404.html')
+    return render(request, 'isadmin/dashboard.html')
 
 
 def redirect_records(request):
     if request.method != "GET":
-        return render(request, 'isadmin/error-404.html')
+        return render(request, 'isadmin/error/error-404.html')
     return render(request, 'isadmin/report/redirect_records.html')
 
 
 def compare_unique(request):
     if request.method != "GET":
-        return render(request, 'isadmin/error-404.html')
+        return render(request, 'isadmin/error/error-404.html')
     return render(request, 'isadmin/report/compare_unique.html')
 
 
@@ -148,7 +147,7 @@ def pubsocs(request, id=None):
                                      total=total_pages, records=recoards)
         return HttpResponse(result, content_type="application/json;charset=utf-8")
     else:
-        return render(request, 'isadmin/error-404.html')
+        return render(request, 'isadmin/error/error-404.html')
 
 
 @csrf_exempt
@@ -168,7 +167,7 @@ def pubsocs_jqgrid(request):
     elif request.method == "GET":
         return pubsocs(request)
     else:
-        return render(request, 'isadmin/error-404.html')
+        return render(request, 'isadmin/error/error-404.html')
 
 
 @csrf_exempt
@@ -230,7 +229,7 @@ def prisocs(request, id=None):
                                      total=total_pages, records=recoards)
         return HttpResponse(result, content_type="application/json;charset=utf-8")
     else:
-        return render(request, 'isadmin/error-404.html')
+        return render(request, 'isadmin/error/error-404.html')
 
 
 @csrf_exempt
@@ -250,14 +249,14 @@ def prisocs_jqgrid(request):
     elif request.method == "GET":
         return prisocs(request)
     else:
-        return render(request, 'isadmin/error-404.html')
+        return render(request, 'isadmin/error/error-404.html')
 
 
 @csrf_exempt
 def snapshots(request, id=None):
     """网页快照(Snapshot)的CURD操作REST接口"""
     if request.method == 'POST':
-        return render(request, 'isadmin/error-404.html')
+        return render(request, 'isadmin/error/error-404.html')
     elif request.method == 'DELETE':
         obj = Snapshot.objects.filter(id=id).delete()
         if not obj or obj[0] == 0:
@@ -302,7 +301,7 @@ def snapshots(request, id=None):
                                      total=total_pages, records=recoards)
         return HttpResponse(result, content_type="application/json;charset=utf-8")
     else:
-        return render(request, 'isadmin/error-404.html')
+        return render(request, 'isadmin/error/error-404.html')
 
 
 @csrf_exempt
@@ -322,7 +321,7 @@ def snapshots_jqgrid(request):
     elif request.method == "GET":
         return snapshots(request)
     else:
-        return render(request, 'isadmin/error-404.html')
+        return render(request, 'isadmin/error/error-404.html')
 
 
 @csrf_exempt
@@ -407,7 +406,7 @@ def suspicious_records(request, id=None):
                     records = objs.count()
                     objs = objs[start: end]
                 else:
-                    return render(request, 'isadmin/error-404.html')
+                    return render(request, 'isadmin/error/error-404.html')
             else:
                 objs = SuspiciousRecords.objects.all()[start: end]
                 records = SuspiciousRecords.objects.count()
@@ -423,7 +422,7 @@ def suspicious_records(request, id=None):
                                      total=total_pages, records=records)
         return HttpResponse(result, content_type="application/json;charset=utf-8")
     else:
-        return render(request, 'isadmin/error-404.html')
+        return render(request, 'isadmin/error/error-404.html')
 
 
 @csrf_exempt
@@ -443,7 +442,7 @@ def suspicious_records_jqgrid(request):
     elif request.method == "GET":
         return suspicious_records(request)
     else:
-        return render(request, 'isadmin/error-404.html')
+        return render(request, 'isadmin/error/error-404.html')
 
 
 @csrf_exempt

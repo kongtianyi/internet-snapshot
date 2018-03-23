@@ -1,7 +1,5 @@
 # -*- encoding: utf-8 -*-
 
-import json
-
 
 class MainItem():
     """各模块间传递的描述一个页面信息的对象"""
