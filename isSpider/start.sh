@@ -4,5 +4,5 @@ echo "Please enter queue's name that this worker will subscribe(ex. beijing_queu
 read queue_name
 echo "Please enter hostname of this worker(ex. jdcloud):"
 read hostname
-$log_file_name=${queue_name}".log"
-celery -A tasks -Q $queue_name -D worker -c 1 -l info -n $hostname --heartbeat-interval 60 -f $log_file_name
+log_file_name="./"${queue_name}".log"
+celery worker -A tasks -Q ${queue_name} -D -c 1 -l info -n ${hostname} -f ${log_file_name} --heartbeat-interval=60
