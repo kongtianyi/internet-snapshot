@@ -176,7 +176,7 @@ class CompareParser:
                         result = cursor.execute(sql, private_out_chain_record_item.save_tuple())
                         if result != 1:
                             logging.error("private_out_chain_records插入记录" + private_out_chain_record_item.save_tuple() + "失败！")
-            logging.info("url: "+url+"compare over.")
+            logging.info("url: "+url+" compare over.")
         connection.commit()
         connection.close()
 
@@ -199,7 +199,14 @@ def href_clean(hrefs):
 
 
 if __name__ == "__main__":
-    CompareParser.parse_by_task_id("35f9cd80-280e-11e8-8c5e-28d244bc1efd")
+    connection = pymysql.connect(**mysql_config)
+    sql = "SELECT DISTINCT task_id FROM snapshot;"
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        re = cursor.fetchall()
+    for item in re:
+        logging.info("Now begin to handle " + item["task_id"])
+        CompareParser.parse_by_task_id(item["task_id"])
 
 
 

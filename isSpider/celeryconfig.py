@@ -22,6 +22,7 @@ task_default_exchange_type = "direct"
 
 default_exchange = Exchange("default_exchange", type="direct")
 fanout_exchange = Exchange("fanout_exchange", type="fanout")
+fanout_download_exchange = Exchange("fanout_download_exchange", type="fanout")
 
 task_queues = (
     # 这是上面指定的默认队列
@@ -29,9 +30,9 @@ task_queues = (
     # parse后处理任务专用队列
     Queue("parse_queue", default_exchange, routing_key="parse_key"),
     # 各地vps快照下载器专用队列
-    Queue("beijing_download_queue", fanout_exchange),
-    Queue("shenzhen_download_queue", fanout_exchange),
-    Queue("chengdu_download_queue", fanout_exchange),
+    Queue("beijing_download_queue", fanout_download_exchange),
+    Queue("shenzhen_download_queue", fanout_download_exchange),
+    Queue("chengdu_download_queue", fanout_download_exchange),
     # 各地vps其他广播任务队列
     Queue("beijing_queue", fanout_exchange),
     Queue("shenzhen_queue", fanout_exchange),
