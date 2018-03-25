@@ -11,6 +11,7 @@ pymysql-0.8.0
 redis 2.10.6（python）
 pexpect-4.4.0
 psutil
+mysqlclient（启动django-celery-beat所需，首先apt-get install libmysqlclient-dev python3-dev）
 
 # 依赖工具
 

@@ -404,7 +404,7 @@
 
                 <ul class="nav nav-list">
                     <li class="sidebar-item active">
-                        <a href="/isadmin/dashboard" target="main-iframe">
+                        <a href="/isadmin/vps_monitor" target="main-iframe">
                             <i class="menu-icon fa fa-tachometer"></i>
                             <span class="menu-text"> VPS监控 </span>
                         </a>
@@ -496,7 +496,7 @@
             </div>
 
             <div class="main-content">
-			    <iframe id="main-iframe" name="main-iframe" src="/isadmin/dashboard" frameborder="0px" width="100%" scrolling="auto" style="background: white;"></iframe>
+			    <iframe id="main-iframe" name="main-iframe" src="/isadmin/vps_monitor" frameborder="0px" width="100%" scrolling="auto" style="background: white;"></iframe>
             </div>
 
 			<div class="footer" id="footer">
@@ -532,7 +532,7 @@
         <!-- page specific plugin scripts -->
 
         <!--[if lte IE 8]>
-		  <script src="assets/js/excanvas.min.js"></script>
+		  <script src="{% static 'isadmin/js/excanvas.min.js' %}"></script>
 		<![endif]-->
         <script src="{% static 'isadmin/js/jquery-ui.custom.min.js' %}"></script>
         <script src="{% static 'isadmin/js/jquery.ui.touch-punch.min.js' %}"></script>

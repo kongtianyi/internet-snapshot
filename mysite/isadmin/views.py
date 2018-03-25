@@ -4,9 +4,11 @@ from django.http import QueryDict
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
-from isadmin.models import PublicSafeOutChains, PrivateSafeOutChains, Snapshot, SsHtml, SuspiciousRecords, to_json_dict
+from isadmin.models import PublicSafeOutChains, PrivateSafeOutChains,\
+    Snapshot, SsHtml, SuspiciousRecords, Vps, VpsStatus, to_json_dict
 from isadmin.tools.html_util import HtmlUtil
 from isadmin.tools.url_util import UrlUtil
+from django.db import connection
 import json
 import math
 
@@ -72,10 +74,49 @@ def show_snapshot(request, id=None):
     return render(request, 'isadmin/snapshots.html', context={"snapshot": format_html})
 
 
-def dashboard(request):
+def vps_monitor(request):
     if request.method != "GET":
         return render(request, 'isadmin/error/error-404.html')
-    return render(request, 'isadmin/dashboard.html')
+    vpss = Vps.objects.all()
+    vps_statuss = []
+    for vps in vpss:
+        sql = "SELECT * FROM vps_status WHERE vps_id=%s AND _time=(SELECT max(_time) " \
+              "FROM vps_status WHERE vps_id=%s);"
+        with connection.cursor() as cursor:
+            cursor.execute(sql, (vps.id, vps.id))
+            vps_status_obj = cursor.fetchone()
+        disks_total = 0
+        disks = json.loads(vps.disks)
+        for disk in disks.keys():
+            disks_total += int(disks[disk]["total"])
+        cpus = json.loads(vps_status_obj[2])
+        disks_used = 0
+        disks = json.loads(vps_status_obj[5])
+        for disk in disks.keys():
+            disks_used += int(disks[disk])
+        vps_status = {
+            "id": vps.id,
+            "ip": vps.ip,
+            "nickname": vps.nickname,
+            "cpu_count": vps.cpu_count,
+            "cpu_logical_count": vps.cpu_logical_count,
+            "cpu_percent": int(cpus[0]),
+            "memory_total": byte_to_gb(vps.memory),
+            "memory_used": byte_to_gb(vps.memory - vps_status_obj[3]),
+            "memory_percent": float_to_percent(vps_status_obj[3] / vps.memory),
+            "swap_total": byte_to_gb(vps.swap),
+            "swap_used": byte_to_gb(vps.swap - vps_status_obj[4]),
+            "swap_percent": float_to_percent(0 if vps.swap == 0 else vps_status_obj[4] / vps.swap),
+            "disks_total": byte_to_gb(disks_total),
+            "disks_used": byte_to_gb(disks_total - disks_used),
+            "disks_percent": float_to_percent(disks_used / disks_total),
+        }
+        print(byte_to_gb(vps.swap))
+        vps_statuss.append(vps_status)
+    context = {
+        "vpss": vps_statuss,
+    }
+    return render(request, 'isadmin/vps_monitor.html', context=context)
 
 
 def redirect_records(request):
@@ -451,8 +492,7 @@ def redirect_records_datas(request):
     start = int(request.GET.get("start"))
     length = int(request.GET.get("length"))
     objs = Snapshot.objects.exclude(request_url=F("final_url")).\
-        values("id", "request_url", "final_url", "task_id", "send_ip")
-    print(len(objs))
+        values("id", "request_url", "final_url", "task_id", "send_ip", "server_ip")
     redirect_objs = list()
     for obj in objs:
         if UrlUtil.get_top_domain(obj["request_url"]) != UrlUtil.get_top_domain(obj["final_url"]) \
@@ -471,8 +511,31 @@ def compare_unique_datas(request):
     draw = request.GET.get("draw")
     start = request.GET.get("start")
     length = request.GET.get("length")
-
-    return json_result("success", "查询成功:-)", draw=draw)
+    records_filtered = length
+    sql = "SELECT snapshot.id, snapshot.request_url, " \
+          "private_out_chain_records.out_chain, snapshot.task_id, " \
+          "snapshot.send_ip, snapshot.server_ip, snapshot.get_time  " \
+          "FROM snapshot INNER JOIN private_out_chain_records " \
+          "ON snapshot.id = private_out_chain_records.ss_id " \
+          "LIMIT %s,%s;"
+    with connection.cursor() as cursor:
+        cursor.execute(sql, (int(start), int(length)))
+        rows = cursor.fetchall()
+    data = []
+    for row in rows:
+        item = {}
+        item["id"] = row[0]
+        item["request_url"] = row[1]
+        item["out_chain"] = row[2]
+        item["task_id"] = row[3]
+        item["send_ip"] = row[4]
+        item["server_ip"] = row[5]
+        item["get_time"] = row[6]
+        data.append(item)
+    records_total = len(data)
+    result = json_result("success", "查询成功:-)", draw=draw, data=data, recordsTotal=records_total,
+                         recordsFiltered=records_filtered)
+    return HttpResponse(result, content_type="application/json;charset=utf-8")
 
 
 def leveled_json_result(status, message, data=None):
@@ -492,5 +555,15 @@ def json_result(status, message, **kwargs):
     for key in kwargs.keys():
         result[key] = kwargs[key]
     return json.dumps(result, ensure_ascii=False)
+
+
+def float_to_percent(num):
+    """小数转化成百分数"""
+    return int(num * 100)
+
+
+def byte_to_gb(num):
+    """把比特数转化成GB, 保留两位"""
+    return "%.2f" %(num / (1024 * 1024 * 1024))
 
 

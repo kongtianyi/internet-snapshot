@@ -62,5 +62,33 @@ class SuspiciousRecords(models.Model):
         db_table = 'suspicious_records'
 
 
+class Vps(models.Model):
+    ip = models.CharField(max_length=20)
+    nickname = models.CharField(max_length=50)
+    cpu_count = models.PositiveIntegerField()
+    cpu_logical_count = models.PositiveIntegerField()
+    memory = models.BigIntegerField()
+    swap = models.BigIntegerField()
+    disks = models.CharField(max_length=1000)
+
+    class Meta:
+        managed = False
+        db_table = 'vps'
+
+
+class VpsStatus(models.Model):
+    vps_id = models.PositiveIntegerField()
+    cpu_status = models.CharField(max_length=50)
+    memory_used = models.BigIntegerField()
+    swap_used = models.BigIntegerField()
+    disks_status = models.CharField(max_length=1000)
+    network_status = models.CharField(max_length=1000)
+    field_time = models.DateTimeField(db_column='_time')  # Field renamed because it started with '_'.
+
+    class Meta:
+        managed = False
+        db_table = 'vps_status'
+
+
 def to_json_dict(o):
     return dict([(attr, getattr(o, attr)) for attr in [f.name for f in o._meta.fields]])

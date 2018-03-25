@@ -157,7 +157,7 @@
 <script src="{% static 'isadmin/js/jquery-1.11.3.min.js' %}"></script>
 <![endif]-->
 		<script type="text/javascript">
-			if('ontouchstart' in document.documentElement) document.write("<script src='assets/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+			if('ontouchstart' in document.documentElement) document.write("<script src='{% static 'isadmin/js/jquery.mobile.custom.min.js' %}'>"+"<"+"/script>");
 		</script>
 		<script src="{% static 'isadmin/js/bootstrap.min.js' %}"></script>
 
@@ -166,9 +166,6 @@
 		<!-- ace scripts -->
 		<script src="{% static 'isadmin/js/ace-elements.min.js' %}"></script>
 		<script src="{% static 'isadmin/js/ace.min.js' %}"></script>
-
-        <!-- my scripts -->
-        <script src="{% static 'isadmin/js/common.js' %}"></script>
 
 		<!-- inline scripts related to this page -->
 	</body>

@@ -11,7 +11,7 @@ urlpatterns = {
     url(r'^suspicious_records_list', views.suspicious_records_list, name='suspicious_record_list'),
     url(r'^show_snapshot$', views.show_snapshot, name='show_snapshot'),
     url(r'^show_snapshot/(?P<id>[0-9]+)$', views.show_snapshot, name='show_snapshot'),
-    url(r'^dashboard$', views.dashboard, name='dashboard'),
+    url(r'^vps_monitor$', views.vps_monitor, name='vps_monitor'),
     # 数据报表
     url(r'^report/redirect_records$', views.redirect_records, name='redirect_records'),
     url(r'^report/compare_unique$', views.compare_unique, name='compare_unique'),

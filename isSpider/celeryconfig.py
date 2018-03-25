@@ -47,8 +47,4 @@ task_routes = {
         'queue': "parse_queue",
         'routing_key': "parse_key",
     },
-    'tasks.clean_abnormal_engine': {
-        'queue': "default_queue",
-        'routing_key': "default_key",
-    }
 }

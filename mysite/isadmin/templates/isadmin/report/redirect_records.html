@@ -127,7 +127,7 @@
         <script src="{% static 'isadmin/js/dataTables.select.min.js' %}"></script>
 
 		<!--[if lte IE 8]>
-		  <script src="assets/js/excanvas.min.js"></script>
+		  <script src="{% static 'isadmin/js/excanvas.min.js' %}"></script>
 		<![endif]-->
         <script src="{% static 'isadmin/js/jquery-ui.custom.min.js' %}"></script>
         <script src="{% static 'isadmin/js/jquery.ui.touch-punch.min.js' %}"></script>
@@ -148,12 +148,29 @@
 				var myTable = $('#dynamic-table').DataTable( {
                     "serverSide": true,
                     "ajax": "/isadmin/redirect_records_datas",
+                    "autoWidth": false,
+                    "sScrollX":"100%",
 					"columns": [
-                        {"data": "id", "title": "快照ID", "className": "snapshot_id"},
-                        {"data": "request_url", "title": "原始请求"},
-                        {"data": "final_url", "title": "跳转结果"},
+                        {"data": "id", "title": "ID", "className": "snapshot_id"},
+                        {"data": "request_url", "title": "原始请求", "width": "10%"},
+                        {"data": "final_url", "title": "跳转结果", "width": "10%"},
                         {"data": "task_id", "title": "任务ID"},
                         {"data": "send_ip", "title": "发送IP"},
+                        {"data": "server_ip", "title": "服务IP"},
+                    ],
+                    "columnDefs": [
+                        {
+                            "targets": 0,
+                            "render": function(data, type, row, meta) {
+                                return "<a href='/isadmin/show_snapshot/" + data + "' target='_blank'>" + data + "</a>";
+                            }
+                        },
+                        {
+                            "targets": [1, 2],
+                            "render": function(data, type, row, meta) {
+                                return "<a href='" + data + "' target='_blank'>" + data + "</a>";
+                            }
+                        }
                     ],
                     "language": {
                         "sProcessing": "处理中...",
@@ -251,82 +268,6 @@
 						else $(this).tooltip({container: 'body', title: $(this).text()});
 					});
 				}, 500);
-
-				myTable.on( 'select', function ( e, dt, type, index ) {
-					if ( type === 'row' ) {
-						$( myTable.row( index ).node() ).find('input:checkbox').prop('checked', true);
-					}
-				} );
-				myTable.on( 'deselect', function ( e, dt, type, index ) {
-					if ( type === 'row' ) {
-						$( myTable.row( index ).node() ).find('input:checkbox').prop('checked', false);
-					}
-				} );
-
-				/////////////////////////////////
-				//table checkboxes
-				$('th input[type=checkbox], td input[type=checkbox]').prop('checked', false);
-
-				//select/deselect all rows according to table header checkbox
-				$('#dynamic-table > thead > tr > th input[type=checkbox], #dynamic-table_wrapper input[type=checkbox]').eq(0).on('click', function(){
-					var th_checked = this.checked;//checkbox inside "TH" table header
-
-					$('#dynamic-table').find('tbody > tr').each(function(){
-						var row = this;
-						if(th_checked) myTable.row(row).select();
-						else  myTable.row(row).deselect();
-					});
-				});
-
-				//select/deselect a row when the checkbox is checked/unchecked
-				$('#dynamic-table').on('click', 'td input[type=checkbox]' , function(){
-					var row = $(this).closest('tr').get(0);
-					if(this.checked) myTable.row(row).deselect();
-					else myTable.row(row).select();
-				});
-
-				$(document).on('click', '#dynamic-table .dropdown-toggle', function(e) {
-					e.stopImmediatePropagation();
-					e.stopPropagation();
-					e.preventDefault();
-				});
-
-				//And for the first simple table, which doesn't have TableTools or dataTables
-				//select/deselect all rows according to table header checkbox
-				var active_class = 'active';
-				$('#simple-table > thead > tr > th input[type=checkbox]').eq(0).on('click', function(){
-					var th_checked = this.checked;//checkbox inside "TH" table header
-
-					$(this).closest('table').find('tbody > tr').each(function(){
-						var row = this;
-						if(th_checked) $(row).addClass(active_class).find('input[type=checkbox]').eq(0).prop('checked', true);
-						else $(row).removeClass(active_class).find('input[type=checkbox]').eq(0).prop('checked', false);
-					});
-				});
-
-				//select/deselect a row when the checkbox is checked/unchecked
-				$('#simple-table').on('click', 'td input[type=checkbox]' , function(){
-					var $row = $(this).closest('tr');
-					if($row.is('.detail-row ')) return;
-                    if(this.checked) $row.addClass(active_class);
-                    else $row.removeClass(active_class);
-                });
-
-                // 把id列变成可点击的<a>标签
-                // todo 改成表格加载完回调应该能生效
-                var snapshot_id_items = $(".snapshot_id");
-                alert(snapshot_id_items.length);
-                for(var i=0;i<snapshot_id_items.length;i++) {
-                    alert(snapshot_id_items[i].tagName);
-                    if(snapshot_id_items[i].tagName == "td") {
-                        var snapshot_id_item = snapshot_id_items[i];
-                        var snapshot_id = snapshot_id_item.innerText;
-                        var inner_a = $("<a href='/isadmin/show_snapshot/'" + snapshot_id + " target='_blank'>" + snapshot_id + "</a>");
-                        snapshot_id_item.append(inner_a)
-                    }
-
-                }
-
             });
 		</script>
 	</body>

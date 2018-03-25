@@ -81,26 +81,32 @@
                             <div class="col-xs-12">
                                 <!-- PAGE CONTENT BEGINS -->
                                 <div class="row">
+                                {% for vps in vpss %}
                                     <div class="panel panel-primary">
                                         <div class="panel-heading">
-                                            <h3 class="panel-title">京东云-北京（114.67.225.0）</h3>
+                                            <h3 class="panel-title">{{ vps.nickname }}（{{ vps.ip }}）</h3>
                                         </div>
                                         <div class="panel-body">
                                             <div class="infobox infobox-blue2">
                                                 <div class="infobox-progress">
-                                                    <div id="cpu-used" class="easy-pie-chart percentage" data-percent="42" data-size="92" style="height: 92px; width: 92px; line-height: 90px;">
-                                                        <span class="percent">42</span>%
+                                                    <div id="cpu-used-{{ vps.id }}" class="easy-pie-chart percentage" data-percent="{{ vps.cpu_percent }}" data-size="92" style="height: 92px; width: 92px; line-height: 90px;">
+                                                        <span class="percent">{{ vps.cpu_percent }}</span>%
                                                         <canvas height="92" width="92"></canvas></div>
                                                 </div>
 
                                                 <div class="infobox-data">
                                                     <span class="infobox-text">cpu利用率</span>
+                                                    <div class="infobox-content">
+                                                        {{ vps.cpu_count }}CPU
+                                                        <br>
+                                                        {{ vps.cpu_logical_count }}核
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="infobox infobox-blue2">
                                                 <div class="infobox-progress">
-                                                    <div id="memory-used" class="easy-pie-chart percentage" data-percent="80" data-size="92" style="height: 92px; width: 92px; line-height: 90px;">
-                                                        <span class="percent">80</span>%
+                                                    <div id="memory-used-{{ vps.id }}" class="easy-pie-chart percentage" data-percent="{{ vps.memory_percent }}" data-size="92" style="height: 92px; width: 92px; line-height: 90px;">
+                                                        <span class="percent">{{ vps.memory_percent }}</span>%
                                                         <canvas height="92" width="92"></canvas></div>
                                                 </div>
 
@@ -108,15 +114,16 @@
                                                     <span class="infobox-text">内存利用率</span>
 
                                                     <div class="infobox-content">
-                                                        <span class="bigger-110">~</span>
-                                                        还剩1GB
+                                                        总量：{{ vps.memory_total }} GB
+                                                        <br>
+                                                        剩余：{{ vps.memory_used }} GB
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="infobox infobox-blue2">
                                                 <div class="infobox-progress">
-                                                    <div id="swap-used" class="easy-pie-chart percentage" data-percent="80" data-size="92" style="height: 92px; width: 92px; line-height: 90px;">
-                                                        <span class="percent">80</span>%
+                                                    <div id="swap-used-{{ vps.id }}" class="easy-pie-chart percentage" data-percent="{{ vps.swap_percent }}" data-size="92" style="height: 92px; width: 92px; line-height: 90px;">
+                                                        <span class="percent">{{ vps.swap_percent }}</span>%
                                                         <canvas height="92" width="92"></canvas></div>
                                                 </div>
 
@@ -124,15 +131,22 @@
                                                     <span class="infobox-text">交换区负载</span>
 
                                                     <div class="infobox-content">
-                                                        <span class="bigger-110">~</span>
-                                                        正常
+                                                        {% if vps.swap_total != "0.00" %}
+                                                            总量：{{ vps.swap_total }} GB
+                                                            <br>
+                                                            剩余：{{ vps.swap_used }} GB
+                                                        {% else %}
+                                                            该VPS居然
+                                                            <br>
+                                                            没有交换区QAQ
+                                                        {% endif %}
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="infobox infobox-blue2">
                                                 <div class="infobox-progress">
-                                                    <div id="disks-used" class="easy-pie-chart percentage" data-percent="80" data-size="92" style="height: 92px; width: 92px; line-height: 90px;">
-                                                        <span class="percent">60</span>%
+                                                    <div id="disks-used-{{ vps.id }}" class="easy-pie-chart percentage" data-percent="{{ vps.disks_percent }}" data-size="92" style="height: 92px; width: 92px; line-height: 90px;">
+                                                        <span class="percent">{{ vps.disks_percent }}</span>%
                                                         <canvas height="92" width="92"></canvas></div>
                                                 </div>
 
@@ -140,13 +154,15 @@
                                                     <span class="infobox-text">磁盘用量</span>
 
                                                     <div class="infobox-content">
-                                                        <span class="bigger-110">~</span>
-                                                        还剩58GB
+                                                        总量：{{ vps.disks_total }} GB
+                                                        <br>
+                                                        剩余：{{ vps.disks_used }} GB
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+                                {% endfor %}
                                 </div><!-- /.row -->
 
                                 <div class="hr hr32 hr-dotted"></div>
@@ -175,7 +191,7 @@
         <!-- page specific plugin scripts -->
 
         <!--[if lte IE 8]>
-		  <script src="assets/js/excanvas.min.js"></script>
+		  <script src="{% static 'isadmin/js/excanvas.min.js' %}"></script>
 		<![endif]-->
         <script src="{% static 'isadmin/js/jquery-ui.custom.min.js' %}"></script>
         <script src="{% static 'isadmin/js/jquery.ui.touch-punch.min.js' %}"></script>
@@ -192,23 +208,25 @@
         <!-- inline scripts related to this page -->
         <script type="text/javascript">
             $(function() {
-                $("#cpu-used").easyPieChart({
-                    //"barColor": "cyan",
-                    //"size": 110
-                });
+                {% for vps in vpss %}
+                    $("#cpu-used-{{ vps.id }}").easyPieChart({
+                        //"barColor": "cyan",
+                        //"size": 110
+                    });
 
 
-                $("#memory-used").easyPieChart({
+                    $("#memory-used-{{ vps.id }}").easyPieChart({
 
-                });
+                    });
 
-                $("#swap-used").easyPieChart({
+                    $("#swap-used-{{ vps.id }}").easyPieChart({
 
-                });
+                    });
 
-                $("#disks-used").easyPieChart({
+                    $("#disks-used-{{ vps.id }}").easyPieChart({
 
-                });
+                    });
+                {% endfor %}
             });
         </script>
 	</body>

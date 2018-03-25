@@ -73,8 +73,8 @@ def save_vps_status():
         vps_id = is_config["vps_id"]
     # cpu情况
     cpu_status = list()
-    cpu_percent_total = psutil.cpu_percent(interval=1, percpu=False)
-    cpu_percent_percpu = psutil.cpu_percent(interval=1, percpu=True)
+    cpu_percent_total = psutil.cpu_percent(interval=0, percpu=False)
+    cpu_percent_percpu = psutil.cpu_percent(interval=0, percpu=True)
     cpu_status.append(cpu_percent_total)
     cpu_status.extend(cpu_percent_percpu)
     cpu_status = json.dumps(cpu_status)
