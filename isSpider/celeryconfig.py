@@ -41,7 +41,7 @@ task_queues = (
 
 task_routes = {
     'tasks.download': {
-        'exchange': 'fanout_exchange',
+        'exchange': 'fanout_download_exchange',
         'exchange_type': 'fanout',
     },
     'tasks.parse': {
