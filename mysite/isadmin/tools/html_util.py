@@ -38,6 +38,7 @@ class HtmlUtil:
     def parse_aim(cls, html, aim):
         """将目标域名下的外链高亮显示"""
         light = ' style="background: cyan"'  # 高亮的样式
+        id = ' id="aim_point"'
         return re.sub('(?P<prefix><a(.*?)href=["\'](.*?)'+aim+'(.*?)["\'])',
-               lambda m: m.group("prefix") + light,
+               lambda m: m.group("prefix") + light + id,
                html, flags=re.M)

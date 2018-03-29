@@ -4,11 +4,10 @@
 import json
 import logging
 import re
-
 import pymysql
 import redis
+import urllib.parse
 from lxml import etree
-
 from items import MainItem, SuspiciousItem, SsHtmlItem, PrivateOutChainRecordItem, main_item_to_json
 from tools.html_util import HtmlUtil, get_html_from_mysql
 from tools.url_util import UrlUtil
@@ -90,7 +89,9 @@ class Parser:
         tree = etree.HTML(format_html)
         hrefs = tree.xpath("//@href")  # 拿到所有a标签中的链接对象
         iframes = tree.xpath("//iframe/@src")  # 拿到所有iframe的源链接
+        jss = tree.xpath("//script/@src")  # 拿到所有的js链接
         hrefs.extend(iframes)
+        hrefs.extend(jss)
         if hrefs:
             hrefs = href_clean(hrefs)
         else:
@@ -100,7 +101,7 @@ class Parser:
         request_top_domain = UrlUtil.get_top_domain(self.downloader_item.request_url)
         for href in hrefs:
             this_top_domain = UrlUtil.get_top_domain(href)
-            if request_top_domain == this_top_domain:
+            if request_top_domain == this_top_domain and get_url_suffix(href) != "js":
                 inner_chains.add(href)
             elif this_top_domain not in self.safe_chains and not UrlUtil.is_gov_or_edu(href):
                 # 主域名不在白名单里而且不是政府或教育机构网站
@@ -181,6 +182,14 @@ class CompareParser:
         connection.close()
 
 
+def get_url_suffix(url):
+    """获取网页后缀名（如html、js、css）"""
+    path = urllib.parse.urlsplit(url)[2]
+    if '.' not in path.split('/')[-1]:
+        return ""
+    return path.split('.')[-1]
+
+
 def href_clean(hrefs):
     """清洗从a标签中提取出的href属性，去掉不是网页的条目"""
     result = list()
@@ -189,7 +198,7 @@ def href_clean(hrefs):
         for href in hrefs:
             # 是url并且是网页
             if re.match('[a-zA-z]+://[^\s]*', href) \
-                    and href.split('.')[-1] not in not_web_page:
+                    and get_url_suffix(href) not in not_web_page:
                 # 把lxml.etree._ElementUnicodeResult对象做下转换并去掉两侧无用空白字符
                 href = str(href).strip()
                 result.append(href)
@@ -199,15 +208,12 @@ def href_clean(hrefs):
 
 
 if __name__ == "__main__":
-    connection = pymysql.connect(**mysql_config)
-    sql = "SELECT DISTINCT task_id FROM snapshot;"
-    with connection.cursor() as cursor:
-        cursor.execute(sql)
-        re = cursor.fetchall()
-    for item in re:
-        logging.info("Now begin to handle " + item["task_id"])
-        CompareParser.parse_by_task_id(item["task_id"])
-
-
-
-
+    # connection = pymysql.connect(**mysql_config)
+    # sql = "SELECT DISTINCT task_id FROM snapshot;"
+    # with connection.cursor() as cursor:
+    #     cursor.execute(sql)
+    #     re = cursor.fetchall()
+    # for item in re:
+    #     logging.info("Now begin to handle " + item["task_id"])
+    # CompareParser.parse_by_task_id(item["task_id"])
+    CompareParser.parse_by_task_id("979236b2-30f5-11e8-82ea-525400e247dc")

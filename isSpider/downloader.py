@@ -125,9 +125,11 @@ class SingletonDownloader(metaclass=Singleton):
                     }
                     go_down()
                 """  # 翻页JS
-        self.driver.execute_script(js_scroll)  # 执行翻页
-        time.sleep(after_scroll_time)  # 执行了翻页后等待页面加载nS
-
+        try:
+            self.driver.execute_script(js_scroll)  # 执行翻页
+            time.sleep(after_scroll_time)  # 执行了翻页后等待页面加载nS
+        except WebDriverException as e:
+            logging.error(e.msg)
         current_url = None
         page_source = None
         try:
@@ -136,6 +138,11 @@ class SingletonDownloader(metaclass=Singleton):
         except UnexpectedAlertPresentException as e:
             logging.info("点击弹出框")
             self.driver.switch_to.alert.accept()
+            try:
+                current_url = self.driver.current_url
+                page_source = self.driver.page_source
+            except WebDriverException as e:
+                logging.error(e.msg)
         except WebDriverException as e:
             logging.error(e.msg)
         finally:

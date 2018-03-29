@@ -4,13 +4,14 @@ from django.http import QueryDict
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
-from isadmin.models import PublicSafeOutChains, PrivateSafeOutChains,\
-    Snapshot, SsHtml, SuspiciousRecords, Vps, VpsStatus, to_json_dict
+from isadmin.models import PublicSafeOutChains, PrivateSafeOutChains, Snapshot, SsHtml, \
+    SuspiciousRecords, Vps, VpsStatus, to_json_dict
 from isadmin.tools.html_util import HtmlUtil
 from isadmin.tools.url_util import UrlUtil
 from django.db import connection
 import json
 import math
+import time
 
 
 def index(request):
@@ -53,9 +54,9 @@ def show_snapshot(request, id=None):
         return render(request, 'isadmin/error/error-404.html')
     if not id:
         id = request.GET.get("id")
-        aim = request.GET.get("aim")
-    else:
-        aim = None
+    aim = request.GET.get("aim")
+    # else:
+    #     aim = None
     ss = Snapshot.objects.filter(id=id)
     item = SsHtml.objects.filter(ss_id=id)
     if not isinstance(ss, QuerySet) or not isinstance(item, QuerySet):
@@ -129,6 +130,12 @@ def compare_unique(request):
     if request.method != "GET":
         return render(request, 'isadmin/error/error-404.html')
     return render(request, 'isadmin/report/compare_unique.html')
+
+
+def filted_suspicious(request):
+    if request.method != "GET":
+        return render(request, 'isadmin/error/error-404.html')
+    return render(request, 'isadmin/report/filted_suspicious.html')
 
 
 @csrf_exempt
@@ -496,13 +503,13 @@ def redirect_records_datas(request):
     redirect_objs = list()
     for obj in objs:
         if UrlUtil.get_top_domain(obj["request_url"]) != UrlUtil.get_top_domain(obj["final_url"]) \
-                and obj["final_url"] != "Unknown except error occur.":
+                and obj["final_url"] != "Something error occurred, please check the error log.":
             redirect_objs.append(obj)
     data = redirect_objs[start: start+length]
     records_total = len(redirect_objs)
-    records_filtered = len(data)
+    # records_filtered = len(data)
     result = json_result("success", "查询成功:-)", draw=draw, data=data, recordsTotal=records_total,
-                         recordsFiltered=records_filtered)
+                         recordsFiltered=records_total)
     return HttpResponse(result, content_type="application/json;charset=utf-8")
 
 
@@ -511,7 +518,6 @@ def compare_unique_datas(request):
     draw = request.GET.get("draw")
     start = request.GET.get("start")
     length = request.GET.get("length")
-    records_filtered = length
     sql = "SELECT snapshot.id, snapshot.request_url, " \
           "private_out_chain_records.out_chain, snapshot.task_id, " \
           "snapshot.send_ip, snapshot.server_ip, snapshot.get_time  " \
@@ -530,11 +536,60 @@ def compare_unique_datas(request):
         item["task_id"] = row[3]
         item["send_ip"] = row[4]
         item["server_ip"] = row[5]
-        item["get_time"] = row[6]
+        timestamp = time.localtime(int(row[6]))
+        # 转换成新的时间格式(2016-05-05 20:28:54)
+        get_time = time.strftime("%Y-%m-%d %H:%M:%S", timestamp)
+        item["get_time"] = get_time
         data.append(item)
-    records_total = len(data)
+    sql = "SELECT COUNT(*) FROM snapshot INNER JOIN private_out_chain_records " \
+          "ON snapshot.id = private_out_chain_records.ss_id;"
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        re = cursor.fetchone()
+    records_total = re[0]
+    # records_filtered = len(data)
     result = json_result("success", "查询成功:-)", draw=draw, data=data, recordsTotal=records_total,
-                         recordsFiltered=records_filtered)
+                         recordsFiltered=records_total)
+    return HttpResponse(result, content_type="application/json;charset=utf-8")
+
+
+@csrf_exempt
+def filted_suspicious_datas(request):
+    draw = request.GET.get("draw")
+    start = request.GET.get("start")
+    length = request.GET.get("length")
+    sql = "SELECT snapshot.id, snapshot.request_url, " \
+          "suspicious_records.unknown_domain, snapshot.task_id, " \
+          "snapshot.send_ip, snapshot.server_ip, snapshot.get_time  " \
+          "FROM snapshot INNER JOIN suspicious_records " \
+          "ON snapshot.id = suspicious_records.ss_id " \
+          "LIMIT %s,%s;"
+    with connection.cursor() as cursor:
+        cursor.execute(sql, (int(start), int(length)))
+        rows = cursor.fetchall()
+    data = []
+    for row in rows:
+        item = {}
+        item["id"] = row[0]
+        item["request_url"] = row[1]
+        item["unknown_domain"] = row[2]
+        item["task_id"] = row[3]
+        item["send_ip"] = row[4]
+        item["server_ip"] = row[5]
+        timestamp = time.localtime(int(row[6]))
+        # 转换成新的时间格式(2016-05-05 20:28:54)
+        get_time = time.strftime("%Y-%m-%d %H:%M:%S", timestamp)
+        item["get_time"] = get_time
+        data.append(item)
+    sql = "SELECT COUNT(*) FROM snapshot INNER JOIN suspicious_records " \
+          "ON snapshot.id = suspicious_records.ss_id;"
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        re = cursor.fetchone()
+    records_total = re[0]
+    records_filtered = len(data)  # 指有前端有过滤条件时的记录数
+    result = json_result("success", "查询成功:-)", draw=draw, data=data, recordsTotal=records_total,
+                         recordsFiltered=records_total)
     return HttpResponse(result, content_type="application/json;charset=utf-8")
 
 
@@ -565,5 +620,6 @@ def float_to_percent(num):
 def byte_to_gb(num):
     """把比特数转化成GB, 保留两位"""
     return "%.2f" %(num / (1024 * 1024 * 1024))
+
 
 

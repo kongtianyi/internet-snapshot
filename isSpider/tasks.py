@@ -118,7 +118,3 @@ def vps_status_clean():
             logging.info("delete " + str(re) + " rows")
     connection.commit()
     connection.close()
-
-
-if __name__ == "__main__":
-    vps_status_clean()

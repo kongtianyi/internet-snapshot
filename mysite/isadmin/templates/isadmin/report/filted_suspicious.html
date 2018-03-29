@@ -58,7 +58,7 @@
 							<li>
 								<a href="#">数据报表</a>
 							</li>
-							<li class="active">多地快照比对结果</li>
+							<li class="active">可疑外链过滤结果</li>
 						</ul><!-- /.breadcrumb -->
 
 						<div class="nav-search" id="nav-search">
@@ -74,10 +74,10 @@
 					<div class="page-content">
 						<div class="page-header">
 							<h1>
-								多地快照比对结果
+								可疑外链过滤结果
 								<small>
 									<i class="ace-icon fa fa-angle-double-right"></i>
-									多地区对同一页面所做快照的外链比对后，发现的各地区不同的外链记录。
+									可疑外链即出现在现有网站链接白名单之外的外链。
 								</small>
 							</h1>
 						</div><!-- /.page-header -->
@@ -141,19 +141,19 @@
         <script src="{% static 'isadmin/js/ace-elements.min.js' %}"></script>
         <script src="{% static 'isadmin/js/ace.min.js' %}"></script>
 
-		<!-- inline scripts related to this page -->
+<!-- inline scripts related to this page -->
 		<script type="text/javascript">
 			jQuery(function($) {
 				//initiate dataTables plugin
 				var myTable = $('#dynamic-table').DataTable({
                     "serverSide": true,
-                    "ajax": "/isadmin/compare_unique_datas",
+                    "ajax": "/isadmin/filted_suspicious_datas",
                     "autoWidth": false,
                     "scrollX":"100%",
                     "columns": [
                         {"data": "id", "title": "ID"},
                         {"data": "request_url", "title": "原始请求"},
-                        {"data": "out_chain", "title": "独有外链"},
+                        {"data": "unknown_domain", "title": "可疑域名"},
                         {"data": "task_id", "title": "任务ID"},
                         {"data": "send_ip", "title": "发送IP"},
                         {"data": "server_ip", "title": "服务IP"},
@@ -163,11 +163,11 @@
                         {
                             "targets": 0,
                             "render": function(data, type, row, meta) {
-                                return "<a href='/isadmin/show_snapshot/" + data + "?aim=" + row.out_chain + "#aim_point' target='_blank'>" + data + "</a>";
+                                return "<a href='/isadmin/show_snapshot/" + data + "?aim=" + row.unknown_domain + "#aim_point' target='_blank'>" + data + "</a>";
                             }
                         },
                         {
-                            "targets": [1, 2],
+                            "targets": 1,
                             "render": function(data, type, row, meta) {
                                 var show_data = "";
                                 if(data.length > 30) {

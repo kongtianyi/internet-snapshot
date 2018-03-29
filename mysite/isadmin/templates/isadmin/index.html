@@ -403,13 +403,32 @@
                 </div><!-- /.sidebar-shortcuts -->
 
                 <ul class="nav nav-list">
-                    <li class="sidebar-item active">
-                        <a href="/isadmin/vps_monitor" target="main-iframe">
+                    <li class="sidebar-item has-son open">
+                        <a href="#" class="dropdown-toggle">
                             <i class="menu-icon fa fa-tachometer"></i>
-                            <span class="menu-text"> VPS监控 </span>
+                            <span class="menu-text"> 实时监控 </span>
+
+                            <b class="arrow fa fa-angle-down"></b>
                         </a>
 
                         <b class="arrow"></b>
+
+                        <ul class="submenu">
+                            <li class="sidebar-item active">
+                                <a href="/isadmin/vps_monitor" target="main-iframe">
+                                    <i class="menu-icon fa fa-caret-right"></i>
+                                    VPS监控
+                                </a>
+                                <b class="arrow"></b>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="http://114.67.225.0:15672/" target="main-iframe">
+                                    <i class="menu-icon fa fa-caret-right"></i>
+                                    RabbitMQ
+                                </a>
+                                <b class="arrow"></b>
+                            </li>
+                        </ul>
                     </li>
 
                     <li class="sidebar-item has-son">
@@ -476,6 +495,13 @@
                                 <a href="/isadmin/report/redirect_records" target="main-iframe">
                                     <i class="menu-icon fa fa-caret-right"></i>
                                     重定向页面记录
+                                </a>
+                                <b class="arrow"></b>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/isadmin/report/filted_suspicious" target="main-iframe">
+                                    <i class="menu-icon fa fa-caret-right"></i>
+                                    可疑外链过滤结果
                                 </a>
                                 <b class="arrow"></b>
                             </li>

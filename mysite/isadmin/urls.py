@@ -15,6 +15,7 @@ urlpatterns = {
     # 数据报表
     url(r'^report/redirect_records$', views.redirect_records, name='redirect_records'),
     url(r'^report/compare_unique$', views.compare_unique, name='compare_unique'),
+    url(r'^report/filted_suspicious$', views.filted_suspicious, name='filted_suspicious'),
 
 
     # CURD
@@ -33,5 +34,5 @@ urlpatterns = {
     # 数据报表
     url('^redirect_records_datas$', views.redirect_records_datas, name="redirect_records_datas"),
     url('^compare_unique_datas$', views.compare_unique_datas, name="compare_unique_datas"),
-
+    url('^filted_suspicious_datas$', views.filted_suspicious_datas, name="filted_suspicious_datas"),
 }
