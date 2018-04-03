@@ -63,6 +63,8 @@ class Engine:
             re = cursor.execute(sql, (self.main_item.task_id,))
             if re != 1:
                 logging.error("Data insert into download_tasks error!")
+        connection.commit()
+        connection.close()
 
         dup_set_name = "engine:dup_set:"+str(self.main_item.task_id)
         queue_name = "engine:queue:"+str(self.main_item.task_id)
