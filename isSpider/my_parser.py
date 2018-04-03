@@ -25,13 +25,15 @@ mysql_config = {
     'cursorclass': pymysql.cursors.DictCursor,
 }
 
+redis_address = "redis://:kongtianyideredis@114.67.225.0:6379/0"
+
 
 class Parser:
     """内容解析器，职责：1.抽取继续迭代的內链存队列；2.格式化数据并存库"""
     def __init__(self, downloader_item):
         self.downloader_item = downloader_item
         self.connection = pymysql.connect(**mysql_config)  # 建立数据库链接
-        self.redis_conn = redis.Redis.from_url("redis://:kongtianyideredis@114.67.225.0:6379/0")
+        self.redis_conn = redis.Redis.from_url(redis_address)
         self.safe_chains = set()
         # 拿到公共安全外链主域名
         with self.connection.cursor() as cursor:
@@ -58,9 +60,8 @@ class Parser:
 
         # 将downloader_item存库
         with self.connection.cursor() as cursor:
-            sql = 'INSERT INTO snapshot (request_url, final_url, load_time, refer,' \
-                  ' get_time, task_id, send_ip, server_ip) VALUES (%s, %s, %s, %s, %s,' \
-                  ' %s, %s, %s);'
+            sql = 'INSERT INTO snapshot (request_url, final_url, load_time, refer, task_id, ' \
+                  'send_ip, server_ip, deepth) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);'
             result = cursor.execute(sql, self.downloader_item.save_tuple())
             if result != 1:
                 logging.error("snapshot插入记录" + self.downloader_item.save_tuple() + "失败！")
@@ -107,7 +108,7 @@ class Parser:
                 # 主域名不在白名单里而且不是政府或教育机构网站
                 unknown_domains.add(this_top_domain)
 
-        # 将须迭代的内链放入redis
+        # 将须迭代的内链包装对象放入redis
         logging.info("Length of inner_chains is " + str(len(inner_chains)))
         dup_set_name = "engine:dup_set:" + str(self.downloader_item.task_id)
         queue_name = "engine:queue:" + str(self.downloader_item.task_id)
@@ -116,12 +117,13 @@ class Parser:
                 sadd_re = self.redis_conn.sadd(dup_set_name, inner_chain)
                 if sadd_re == 1:  # 等于1说明上条插入成功，没有重复，省了一次查重
                     new_main_item = MainItem(inner_chain, refer=self.downloader_item.final_url,
-                                             task_id=self.downloader_item.task_id)
+                                             task_id=self.downloader_item.task_id,
+                                             deepth=self.downloader_item.deepth+1)
                     self.redis_conn.lpush(queue_name, json.dumps(new_main_item, default=main_item_to_json))
 
         # 将可疑外链存库
         for unknown_domain in unknown_domains:
-            suspicious_item = SuspiciousItem(ss_id, unknown_domain, 0, -1, 0)
+            suspicious_item = SuspiciousItem(ss_id, unknown_domain, 0, -1, None)
             with self.connection.cursor() as cursor:
                 sql = 'INSERT INTO suspicious_records (ss_id, unknown_domain, checked, result, ' \
                       'check_time) VALUES (%s, %s, %s, %s, %s)'
@@ -173,11 +175,16 @@ class CompareParser:
                     with connection.cursor() as cursor:
                         private_out_chain_record_item = PrivateOutChainRecordItem(urls.get(url)[i],
                                                                                   diff_out_chain,
-                                                                                  0, -1, 0)
+                                                                                  0, -1, None)
                         result = cursor.execute(sql, private_out_chain_record_item.save_tuple())
                         if result != 1:
                             logging.error("private_out_chain_records插入记录" + private_out_chain_record_item.save_tuple() + "失败！")
             logging.info("url: "+url+" compare over.")
+        with connection.cursor() as cursor:
+            sql = "UPDATE download_tasks SET compared=1 WHERE task_id=%s;"
+            re = cursor.execute(sql, (task_id,))
+            if re != 1:
+                logging.error("Update table download_tasks failed!")
         connection.commit()
         connection.close()
 
@@ -216,4 +223,4 @@ if __name__ == "__main__":
     # for item in re:
     #     logging.info("Now begin to handle " + item["task_id"])
     # CompareParser.parse_by_task_id(item["task_id"])
-    CompareParser.parse_by_task_id("979236b2-30f5-11e8-82ea-525400e247dc")
+    CompareParser.parse_by_task_id("a0be5f90-33ca-11e8-82ea-525400e247dc")

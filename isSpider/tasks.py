@@ -3,7 +3,7 @@
 from celery import Celery
 from downloader import SingletonDownloader
 from items import MainItem, main_item_to_json, json_to_main_item
-from my_parser import Parser
+from my_parser import Parser, CompareParser
 from engine import Engine
 import redis
 import logging
@@ -118,3 +118,20 @@ def vps_status_clean():
             logging.info("delete " + str(re) + " rows")
     connection.commit()
     connection.close()
+
+
+@app.task
+def compare_parse():
+    """对未进行比对的任务进行比对"""
+    connection = pymysql.connect(**mysql_config)
+    # 查找出还未进行比对的所有任务id
+    sql = "SELECT task_id FROM download_tasks WHERE compared=0;"
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        items = cursor.fechall()
+    connection.commit()
+    connection.close()
+    # 对这些任务进行逐个比对
+    for item in items:
+        logging.info("Now begin to handle " + item["task_id"])
+        CompareParser.parse_by_task_id(item["task_id"])

@@ -9,9 +9,16 @@ urlpatterns = {
     url(r'^prisoc_list$', views.prisoc_list, name='prisoc_list'),
     url(r'^snapshot_list', views.snapshot_list, name='snapshot_list'),
     url(r'^suspicious_records_list', views.suspicious_records_list, name='suspicious_record_list'),
+    # 快照展示
     url(r'^show_snapshot$', views.show_snapshot, name='show_snapshot'),
     url(r'^show_snapshot/(?P<id>[0-9]+)$', views.show_snapshot, name='show_snapshot'),
+    # vps监控
     url(r'^vps_monitor$', views.vps_monitor, name='vps_monitor'),
+    url(r'^vps_monitor_reload$', views.vps_monitor_reload, name='vps_monitor_reload'),
+    url(r'^vps_detail$', views.vps_detail, name='vps_detail'),
+    url(r'cpu_chart$', views.cpu_chart, name='cpu_chart'),
+    url(r'memory_chart', views.memory_chart, name='memory_chart'),
+    url(r'disks_chart', views.disks_chart, name='disks_chart'),
     # 数据报表
     url(r'^report/redirect_records$', views.redirect_records, name='redirect_records'),
     url(r'^report/compare_unique$', views.compare_unique, name='compare_unique'),
@@ -36,3 +43,7 @@ urlpatterns = {
     url('^compare_unique_datas$', views.compare_unique_datas, name="compare_unique_datas"),
     url('^filted_suspicious_datas$', views.filted_suspicious_datas, name="filted_suspicious_datas"),
 }
+
+if __name__ == "__main__":
+    import psutil
+    psutil.net_io_counters()

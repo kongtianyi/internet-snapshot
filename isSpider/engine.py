@@ -5,7 +5,7 @@ import logging
 import platform
 import time
 import uuid
-
+import pymysql
 import redis
 from celery import Celery
 
@@ -22,7 +22,18 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%Y-%m-%d %H:%M:%S', )
 app = Celery()
 app.config_from_object('celeryconfig')
+
 redis_conn = redis.Redis.from_url("redis://:kongtianyideredis@114.67.225.0:6379/0")
+
+mysql_config = {
+    'host': '120.79.178.39',
+    'port': 3306,
+    'user': 'root',
+    'password': 'KONG64530322931',
+    'db': 'internet_snapshot',
+    'charset': 'utf8mb4',
+    'cursorclass': pymysql.cursors.DictCursor,
+}
 
 
 class Engine:
@@ -38,6 +49,7 @@ class Engine:
         self.main_item = MainItem(start_url)
         self.main_item.task_id = str(uuid.uuid1())  # 一次收集任务的标识
         self.main_item.refer = ""
+        self.main_item.deepth = 1  # 其实深度当然是1
         self.start_url = start_url
         self.top_domain = UrlUtil.get_top_domain(start_url)
         self.exist_time = exist_time
@@ -45,6 +57,13 @@ class Engine:
         self.max_num = max_num
 
     def run(self):
+        connection = pymysql.connect(**mysql_config)
+        sql = "INSERT INTO download_tasks (task_id) VALUES (%s);"
+        with connection.cursor() as cursor:
+            re = cursor.execute(sql, (self.main_item.task_id,))
+            if re != 1:
+                logging.error("Data insert into download_tasks error!")
+
         dup_set_name = "engine:dup_set:"+str(self.main_item.task_id)
         queue_name = "engine:queue:"+str(self.main_item.task_id)
         redis_conn.sadd(dup_set_name, self.start_url)  # url去重集合
@@ -61,10 +80,11 @@ class Engine:
             if next_main_item:
                 next_main_item = next_main_item.decode("utf-8")  # 从redis读出的是bytes型数据
                 next_main_item = json.loads(next_main_item, encoding="utf-8")
-                app.send_task("tasks.download", args=(next_main_item["request_url"],
+                if next_main_item["deepth"] <= self.deepth:
+                    app.send_task("tasks.download", args=(next_main_item["request_url"],
                                                       next_main_item["refer"], next_main_item["task_id"]))
-                logging.info("发送下载任务，目标任务:" + str(next_main_item))
-                self.max_num -= 1
+                    logging.info("发送下载任务，目标任务:" + str(next_main_item))
+                    self.max_num -= 1
             else:
                 # 队列恰好为空，则等待worker往队列里塞url
                 logging.info(queue_name + "队列为空, 等待任务。")

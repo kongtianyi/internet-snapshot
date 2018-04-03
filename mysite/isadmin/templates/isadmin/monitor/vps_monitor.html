@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 	<head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta charset="utf-8" />
@@ -84,14 +84,15 @@
                                 {% for vps in vpss %}
                                     <div class="panel panel-primary">
                                         <div class="panel-heading">
-                                            <h3 class="panel-title">{{ vps.nickname }}（{{ vps.ip }}）</h3>
+                                            <h3 class="panel-title"><a href="/isadmin/vps_detail?vps_id={{ vps.id }}">{{ vps.nickname }}（{{ vps.ip }}）</a></h3>
                                         </div>
                                         <div class="panel-body">
                                             <div class="infobox infobox-blue2">
                                                 <div class="infobox-progress">
                                                     <div id="cpu-used-{{ vps.id }}" class="easy-pie-chart percentage" data-percent="{{ vps.cpu_percent }}" data-size="92" style="height: 92px; width: 92px; line-height: 90px;">
                                                         <span class="percent">{{ vps.cpu_percent }}</span>%
-                                                        <canvas height="92" width="92"></canvas></div>
+                                                        <canvas height="92" width="92"></canvas>
+                                                    </div>
                                                 </div>
 
                                                 <div class="infobox-data">
@@ -114,9 +115,9 @@
                                                     <span class="infobox-text">内存利用率</span>
 
                                                     <div class="infobox-content">
-                                                        总量：{{ vps.memory_total }} GB
+                                                        总量：<span id="memory-total">{{ vps.memory_total }}</span> GB
                                                         <br>
-                                                        剩余：{{ vps.memory_used }} GB
+                                                        剩余：<span id="memory-left">{{ vps.memory_used }}</span> GB
                                                     </div>
                                                 </div>
                                             </div>
@@ -132,9 +133,9 @@
 
                                                     <div class="infobox-content">
                                                         {% if vps.swap_total != "0.00" %}
-                                                            总量：{{ vps.swap_total }} GB
+                                                            总量：<span id="swap_total">{{ vps.swap_total }}</span> GB
                                                             <br>
-                                                            剩余：{{ vps.swap_used }} GB
+                                                            剩余：<span id="swap_left">{{ vps.swap_used }}</span> GB
                                                         {% else %}
                                                             该VPS居然
                                                             <br>
@@ -154,9 +155,9 @@
                                                     <span class="infobox-text">磁盘用量</span>
 
                                                     <div class="infobox-content">
-                                                        总量：{{ vps.disks_total }} GB
+                                                        总量：<span id="disks_total">{{ vps.disks_total }}</span> GB
                                                         <br>
-                                                        剩余：{{ vps.disks_used }} GB
+                                                        剩余：<span id="disks_left">{{ vps.disks_used }}</span> GB
                                                     </div>
                                                 </div>
                                             </div>
@@ -207,6 +208,43 @@
 
         <!-- inline scripts related to this page -->
         <script type="text/javascript">
+            function reload() {
+                $.ajax({
+                    "url": "/isadmin/vps_monitor_reload",
+                    "dataType": "json",
+                    "success": function (data) {
+                        var vpss = data["data"];
+                        for(var i=0;i<vpss.length;i++) {
+                            // 刷新cpu信息
+                            var cpu_used_pie = $("#cpu-used-"+vpss[i]["id"]);
+                            cpu_used_pie.attr("data-percent", vpss[i]["cpu_percent"]);
+                            $("#cpu-used-"+vpss[i]["id"]+" .percent").text(vpss[i]["cpu_percent"]);
+                            cpu_used_pie.data('easyPieChart').update(vpss[i]["cpu_percent"]);
+                            // 刷新内存信息
+                            var mem_used_pie = $("#memory-used-"+vpss[i]["id"]);
+                            mem_used_pie.attr("data-percent", vpss[i]["memory_percent"]);
+                            $("#memory-used-"+vpss[i]["id"]+" .percent").text(vpss[i]["memory_percent"]);
+                            mem_used_pie.data('easyPieChart').update(vpss[i]["memory_percent"]);
+                            $("#memory-total").text(vpss[i]["memory_total"]);
+                            $("#memory-left").text(vpss[i]["memory_total"]-vpss[i]["memory_used"]);
+                            // 刷新交换区信息
+                            var swap_used_pie = $("#swap-used-"+vpss[i]["id"]);
+                            swap_used_pie.attr("data-percent", vpss[i]["swap_percent"]);
+                            $("#swap-used-"+vpss[i]["id"]+" .percent").text(vpss[i]["swap_percent"]);
+                            swap_used_pie.data('easyPieChart').update(vpss[i]["swap_percent"]);
+                            $("#swap-total").text(vpss[i]["swap_total"]);
+                            $("#swap-left").text(vpss[i]["swap_total"]-vpss[i]["swap_used"]);
+                            // 刷新磁盘信息
+                            var disks_used_pie = $("#disks-used-"+vpss[i]["id"]);
+                            disks_used_pie.attr("data-percent", vpss[i]["disks_percent"]);
+                            $("#disks-used-"+vpss[i]["id"]+" .percent").text(vpss[i]["disks_percent"]);
+                            disks_used_pie.data('easyPieChart').update(vpss[i]["disks_percent"]);
+                            $("#disks-total").text(vpss[i]["disks_total"]);
+                            $("#disks-left").text(vpss[i]["disks_total"]-vpss[i]["disks_used"]);
+                        }
+                    }
+                });
+            }
             $(function() {
                 {% for vps in vpss %}
                     $("#cpu-used-{{ vps.id }}").easyPieChart({
@@ -227,6 +265,10 @@
 
                     });
                 {% endfor %}
+                
+                setInterval(() => {
+                    reload();
+                }, 300000)
             });
         </script>
 	</body>

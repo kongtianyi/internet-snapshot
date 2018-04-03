@@ -42,11 +42,3 @@ class UrlUtil:
         elif len(splites) == 4 and splites[-1] == "":
             return url[:-1]
         return "/".join(url.split('/')[:-1])
-
-
-if __name__ == "__main__":
-    url = "http://www.hitwh.edu.cn/teachlink/index.htm"
-    print(UrlUtil.get_domain(url))
-    print(UrlUtil.get_protocol(url))
-    print(UrlUtil.get_path(url))
-    print(UrlUtil.get_top_domain(url))

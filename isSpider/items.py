@@ -4,7 +4,7 @@
 class MainItem():
     """各模块间传递的描述一个页面信息的对象"""
     def __init__(self, request_url, final_url=None, load_time=None, html=None, refer=None,
-                 get_time=None, task_id=None, send_ip=None, server_ip=None):
+                 get_time=None, task_id=None, send_ip=None, server_ip=None, deepth=2):
         self.request_url = request_url  # 请求的url
         self.final_url = final_url  # 最终下载的url(可能存在重定向)
         # self.screen_shot = str()  # 页面首屏快照,base64, 太大了，不能存库
@@ -14,13 +14,14 @@ class MainItem():
         self.get_time = get_time  # 页面获取时间
         self.task_id = task_id  # 标识它所属的任务
         self.send_ip = send_ip  # 请求发送ip
-        self.server_ip = server_ip  # 接受处理请求的ip(暂无来源)
+        self.server_ip = server_ip  # 接受处理请求的ip
+        self.deepth = deepth  # 该页面的深度
 
     def save_tuple(self):
         """处理一下数据， 往mysql里插"""
         return (self.request_url, self.final_url, self.load_time,
                 self.refer, self.get_time, self.task_id,
-                self.send_ip, self.server_ip)
+                self.send_ip, self.server_ip, self.deepth)
 
 
 def main_item_to_json(obj):

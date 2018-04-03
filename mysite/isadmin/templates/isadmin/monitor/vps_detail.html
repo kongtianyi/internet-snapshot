@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+	<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <title>互联网内容异常行为管理系统</title>
+
+    {% load static %}
+
+    <meta name="description" content="Dynamic tables and grids using jqGrid plugin" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <!-- bootstrap & fontawesome -->
+    <link rel="stylesheet" href="{% static 'isadmin/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'isadmin/font-awesome/4.5.0/css/font-awesome.min.css' %}" />
+
+    <!-- page specific plugin styles -->
+
+    <!-- text fonts -->
+    <link rel="stylesheet" href="{% static 'isadmin/css/fonts.googleapis.com.css' %}" />
+
+    <!-- ace styles -->
+    <link rel="stylesheet" href="{% static 'isadmin/css/ace.min.css' %}" class="ace-main-stylesheet" id="main-ace-style" />
+
+    <!--[if lte IE 9]>
+			<link rel="stylesheet" href="{% static 'isadmin/css/ace-part2.min.css' %}" class="ace-main-stylesheet" />
+		<![endif]-->
+    <link rel="stylesheet" href="{% static 'isadmin/css/ace-skins.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'isadmin/css/ace-rtl.min.css' %}" />
+
+    <!--[if lte IE 9]>
+		  <link rel="stylesheet" href="{% static 'isadmin/css/ace-ie.min.css' %}" />
+		<![endif]-->
+
+    <!-- inline styles related to this page -->
+
+    <!-- ace settings handler -->
+    <script src="{% static 'isadmin/js/ace-extra.min.js' %}"></script>
+
+    <!-- HTML5shiv and Respond.js for IE8 to support HTML5 elements and media queries -->
+
+    <!--[if lte IE 8]>
+		<script src="{% static 'isadmin/js/html5shiv.min.js' %}"></script>
+		<script src="{% static 'isadmin/js/respond.min.js' %}"></script>
+		<![endif]-->
+</head>
+
+	<body class="no-skin">
+        <div class="main-content">
+				<div class="main-content-inner">
+					<div class="breadcrumbs ace-save-state" id="breadcrumbs">
+						<ul class="breadcrumb">
+							<li>
+								<i class="ace-icon fa fa-home home-icon"></i>
+								<a href="#">Home</a>
+							</li>
+							<li class="active">VPS监控</li>
+						</ul><!-- /.breadcrumb -->
+
+						<div class="nav-search" id="nav-search">
+							<form class="form-search">
+								<span class="input-icon">
+									<input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off" />
+									<i class="ace-icon fa fa-search nav-search-icon"></i>
+								</span>
+							</form>
+						</div><!-- /.nav-search -->
+					</div>
+
+					<div class="page-content">
+						<div class="page-header">
+							<h1>
+								VPS详情
+								<small>
+									<i class="ace-icon fa fa-angle-double-right"></i>
+									对VPS（虚拟专用服务器）的运行状态的监控详情页面
+								</small>
+							</h1>
+						</div><!-- /.page-header -->
+						<div class="row">
+                            <div class="col-xs-12">
+                                <!-- PAGE CONTENT BEGINS -->
+                                <div class="row">
+                                    <div class="col-xs-6">
+                                        <div id="cpu_chart" style="width: 600px; height: 400px;"></div>
+                                    </div>
+                                    <div class="col-xs-6">
+                                        <div id="memory_chart" style="width: 600px; height: 400px;"></div>
+                                    </div>
+                                </div><!-- /.row -->
+                                <div class="hr hr32 hr-dotted"></div>
+								<!-- PAGE CONTENT ENDS -->
+							</div><!-- /.col -->
+						</div><!-- /.row -->
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <!-- PAGE CONTENT BEGINS -->
+                                <div class="row">
+                                    <div class="col-xs-6">
+                                        <div id="disks_chart" style="width: 600px; height: 400px;"></div>
+                                    </div>
+                                </div><!-- /.row -->
+                                <div class="hr hr32 hr-dotted"></div>
+								<!-- PAGE CONTENT ENDS -->
+							</div><!-- /.col -->
+						</div><!-- /.row -->
+					</div><!-- /.page-content -->
+				</div>
+			</div><!-- /.main-content -->
+
+		<!-- basic scripts -->
+
+        <!--[if !IE]> -->
+            <script src="{% static 'isadmin/js/jquery-2.1.4.min.js' %}"></script>
+        <!-- <![endif]-->
+
+        <!--[if IE]>
+            <script src="{% static 'isadmin/js/jquery-1.11.3.min.js' %}"></script>
+        <![endif]-->
+        <script type="text/javascript">
+            if('ontouchstart' in document.documentElement) document.write("<script src='{% static 'isadmin/js/jquery.mobile.custom.min.js' %}'>"+"<"+"/script>");
+        </script>
+        <script src="{% static 'isadmin/js/bootstrap.min.js' %}"></script>
+
+        <!-- page specific plugin scripts -->
+
+        <!--[if lte IE 8]>
+		  <script src="{% static 'isadmin/js/excanvas.min.js' %}"></script>
+		<![endif]-->
+        <script src="{% static 'isadmin/js/jquery-ui.custom.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/jquery.ui.touch-punch.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/jquery.easypiechart.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/jquery.sparkline.index.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/jquery.flot.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/jquery.flot.pie.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/jquery.flot.resize.min.js' %}"></script>
+
+        <!-- ace scripts -->
+        <script src="{% static 'isadmin/js/ace-elements.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/ace.min.js' %}"></script>
+
+        <!-- echarts scripts -->
+        <script src="{% static 'isadmin/js/echarts.js' %}"></script>
+
+        <!-- inline scripts related to this page -->
+        <script type="text/javascript">
+            var cpu_chart_div = document.getElementById('cpu_chart');
+            var memory_chart_div = document.getElementById('memory_chart');
+            var disks_chart_div = document.getElementById('disks_chart');
+            function setSize(chart_divs) {
+                var oneWidth = (window.innerWidth - 60) / 2 + "px";
+                for(var i=0;i<chart_divs.length;i++) {
+                    chart_divs[i].style.width = oneWidth;
+                    chart_divs[i].style.height = oneWidth / 2 * 3 + "px";
+                }
+            }
+            setSize([cpu_chart_div, memory_chart_div, disks_chart_div]);
+            // 基于准备好的dom，初始化echarts实例
+            var cpu_chart = echarts.init(cpu_chart_div);
+            var memory_chart = echarts.init(memory_chart_div);
+            var disks_chart = echarts.init(disks_chart_div);
+            // 指定图表的配置项和数据
+            $.ajax({
+                url: "/isadmin/cpu_chart?vps_id={{ vps_id }}",
+                success: function(data) {
+                    cpu_chart.setOption({
+                        title: {
+                            text: 'CPU利用率'
+                        },
+                        dataZoom: [
+                            {
+                                show: true,
+                                realtime: true,
+                                start: 90,
+                                end: 100
+                            },
+                            {
+                                type: 'inside',
+                                realtime: true,
+                                start: 90,
+                                end: 100
+                            }
+                        ],
+                        xAxis: {
+                            name: '时间',
+                            type: 'category',
+                            data: data["data"]["times"],
+
+                        },
+                        yAxis: {
+                            name: '利用率(%)',
+                            type: 'value',
+                            min: 0,
+                            max: 100
+                        },
+                        series: [{
+                            type: 'line',
+                            data: data["data"]["rates"]
+                        }]
+                    });
+                }
+            });
+            $.ajax({
+                url: "/isadmin/memory_chart?vps_id={{ vps_id }}",
+                success: function(data) {
+                    memory_chart.setOption({
+                        title: {
+                            text: '内存利用率'
+                        },
+                        dataZoom: [
+                            {
+                                show: true,
+                                realtime: true,
+                                start: 90,
+                                end: 100
+                            },
+                            {
+                                type: 'inside',
+                                realtime: true,
+                                start: 90,
+                                end: 100
+                            }
+                        ],
+                        xAxis: {
+                            name: '时间',
+                            type: 'category',
+                            data: data["data"]["times"],
+
+                        },
+                        yAxis: {
+                            name: '利用率(%)',
+                            type: 'value',
+                            min: 0,
+                            max: 100
+                        },
+                        series: [{
+                            type: 'line',
+                            data: data["data"]["rates"]
+                        }]
+                    });
+                }
+            });
+            $.ajax({
+                url: "/isadmin/disks_chart?vps_id={{ vps_id }}",
+                success: function(data) {
+                    disks_chart.setOption({
+                        title: {
+                            text: '磁盘剩余'
+                        },
+                        dataZoom: [
+                            {
+                                show: true,
+                                realtime: true,
+                                start: 90,
+                                end: 100
+                            },
+                            {
+                                type: 'inside',
+                                realtime: true,
+                                start: 90,
+                                end: 100
+                            }
+                        ],
+                        xAxis: {
+                            name: '时间',
+                            type: 'category',
+                            data: data["data"]["times"],
+
+                        },
+                        yAxis: {
+                            name: '剩余空间(GB)',
+                            type: 'value',
+                        },
+                        series: [{
+                            type: 'line',
+                            data: data["data"]["lefts"]
+                        }]
+                    });
+                }
+            });
+        </script>
+	</body>
+</html>
