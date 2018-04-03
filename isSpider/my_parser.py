@@ -212,15 +212,3 @@ def href_clean(hrefs):
     else:
         logging.error("Param type error, it should be list.")
     return result
-
-
-if __name__ == "__main__":
-    # connection = pymysql.connect(**mysql_config)
-    # sql = "SELECT DISTINCT task_id FROM snapshot;"
-    # with connection.cursor() as cursor:
-    #     cursor.execute(sql)
-    #     re = cursor.fetchall()
-    # for item in re:
-    #     logging.info("Now begin to handle " + item["task_id"])
-    # CompareParser.parse_by_task_id(item["task_id"])
-    CompareParser.parse_by_task_id("a0be5f90-33ca-11e8-82ea-525400e247dc")

@@ -34,7 +34,8 @@ def main_item_to_json(obj):
         "get_time": obj.get_time,
         "task_id": obj.task_id,
         "send_ip": obj.send_ip,
-        "server_ip": obj.server_ip
+        "server_ip": obj.server_ip,
+        "deepth": obj.deepth,
     }
 
 
