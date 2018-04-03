@@ -42,7 +42,8 @@ def main_item_to_json(obj):
 def json_to_main_item(main_item_dict):
     return MainItem(main_item_dict["request_url"], main_item_dict["final_url"], main_item_dict["load_time"],
                     main_item_dict["html"], main_item_dict["refer"], main_item_dict["get_time"],
-                    main_item_dict["task_id"], main_item_dict["send_ip"], main_item_dict["server_ip"])
+                    main_item_dict["task_id"], main_item_dict["send_ip"], main_item_dict["server_ip"],
+                    main_item_dict["deepth"])
 
 
 class SsHtmlItem:
