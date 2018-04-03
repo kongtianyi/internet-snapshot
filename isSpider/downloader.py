@@ -156,7 +156,8 @@ class SingletonDownloader(metaclass=Singleton):
         # download_item.screen_shot = screenshot_base64
         main_item.load_time = load_time
         main_item.html = page_source
-        main_item.get_time = int(time.time())  # 时间戳
+        timeArray = time.localtime(int(time.time()))
+        main_item.get_time = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
         with open("/etc/internet-snapshot.conf", "r") as f:
             ext_conf = json.load(f)
             main_item.send_ip = ext_conf["ip"]

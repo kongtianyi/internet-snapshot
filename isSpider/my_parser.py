@@ -60,8 +60,9 @@ class Parser:
 
         # 将downloader_item存库
         with self.connection.cursor() as cursor:
-            sql = 'INSERT INTO snapshot (request_url, final_url, load_time, refer, task_id, ' \
-                  'send_ip, server_ip, deepth) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);'
+            sql = 'INSERT INTO snapshot (request_url, final_url, load_time, refer, get_time,' \
+                  ' task_id, send_ip, server_ip, deepth) VALUES (%s, %s, %s, %s, %s, %s, %s, ' \
+                  '%s, %s);'
             result = cursor.execute(sql, self.downloader_item.save_tuple())
             if result != 1:
                 logging.error("snapshot插入记录" + self.downloader_item.save_tuple() + "失败！")
