@@ -4,7 +4,7 @@
 class MainItem():
     """各模块间传递的描述一个页面信息的对象"""
     def __init__(self, request_url, final_url=None, load_time=None, html=None, refer=None,
-                 get_time=None, task_id=None, send_ip=None, server_ip=None, deepth=2):
+                 get_time=None, task_id=None, send_ip=None, server_ip=None, deepth=None):
         self.request_url = request_url  # 请求的url
         self.final_url = final_url  # 最终下载的url(可能存在重定向)
         # self.screen_shot = str()  # 页面首屏快照,base64, 太大了，不能存库

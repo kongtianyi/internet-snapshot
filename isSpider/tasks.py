@@ -37,9 +37,9 @@ def snapshot(start_url, exist_time, deepth, max_num):
 
 
 @app.task
-def download(request_url, refer, task_id):
+def download(request_url, refer, task_id, deepth):
     """下载页面"""
-    main_item = MainItem(request_url, refer=refer, task_id=task_id)
+    main_item = MainItem(request_url, refer=refer, task_id=task_id, deepth=deepth)
     if not isinstance(main_item, MainItem):
         logging.error("Received param must items.MainItem, but get " + str(type(main_item)))
     downloader = SingletonDownloader(driver="Firefox")

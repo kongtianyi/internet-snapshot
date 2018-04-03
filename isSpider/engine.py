@@ -49,7 +49,7 @@ class Engine:
         self.main_item = MainItem(start_url)
         self.main_item.task_id = str(uuid.uuid1())  # 一次收集任务的标识
         self.main_item.refer = ""
-        self.main_item.deepth = 1  # 其实深度当然是1
+        self.main_item.deepth = 1  # 起始深度当然是1
         self.start_url = start_url
         self.top_domain = UrlUtil.get_top_domain(start_url)
         self.exist_time = exist_time
@@ -84,7 +84,9 @@ class Engine:
                 next_main_item = json.loads(next_main_item, encoding="utf-8")
                 if next_main_item["deepth"] <= self.deepth:
                     app.send_task("tasks.download", args=(next_main_item["request_url"],
-                                                      next_main_item["refer"], next_main_item["task_id"]))
+                                                          next_main_item["refer"],
+                                                          next_main_item["task_id"],
+                                                          next_main_item["deepth"]))
                     logging.info("发送下载任务，目标任务:" + str(next_main_item))
                     self.max_num -= 1
             else:
