@@ -1,4 +1,5 @@
 import os
+import djcelery
 from kombu import Queue, Exchange
 
 
@@ -15,7 +16,8 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.staticfiles',
-    'django_celery_beat',
+    # 'django_celery_beat',
+    'djcelery',
     'corsheaders',
     'isadmin',
 ]
@@ -90,8 +92,12 @@ STATIC_URL = '/static/'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
+djcelery.setup_loader()
+
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler' # 定时任务调度器
+
 # 以下是celery的配置
-CELERY_BROKER_URL = 'amqp://kongtianyi:kongtianyiderabbitmq@114.67.225.0:5672/kvhost'
+BROKER_URL = 'amqp://kongtianyi:kongtianyiderabbitmq@114.67.225.0:5672/kvhost'
 # result_backend = 'amqp://kongtianyi:kongtianyiderabbitmq@114.67.225.0:5672/kvhost'
 
 CELERY_TASK_SERIALIZER = 'json'
