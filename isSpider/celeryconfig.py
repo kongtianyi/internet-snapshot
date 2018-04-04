@@ -4,7 +4,7 @@ from kombu import Queue, Exchange
 
 
 broker_url = 'amqp://kongtianyi:kongtianyiderabbitmq@114.67.225.0:5672/kvhost'
-result_backend = 'amqp://kongtianyi:kongtianyiderabbitmq@114.67.225.0:5672/kvhost'
+# result_backend = 'amqp://kongtianyi:kongtianyiderabbitmq@114.67.225.0:5672/kvhost'
 
 task_serializer = 'json'
 result_serializer = 'json'
