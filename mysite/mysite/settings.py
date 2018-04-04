@@ -90,8 +90,6 @@ STATIC_URL = '/static/'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler' # 定时任务调度器
-
 # 以下是celery的配置
 BROKER_URL = 'amqp://kongtianyi:kongtianyiderabbitmq@114.67.225.0:5672/kvhost'
 # result_backend = 'amqp://kongtianyi:kongtianyiderabbitmq@114.67.225.0:5672/kvhost'
