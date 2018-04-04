@@ -1,5 +1,4 @@
 import os
-import djcelery
 from kombu import Queue, Exchange
 
 
@@ -16,8 +15,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.staticfiles',
-    # 'django_celery_beat',
-    'djcelery',
+    'django_celery_beat',
     'corsheaders',
     'isadmin',
 ]
@@ -91,8 +89,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 CORS_ORIGIN_ALLOW_ALL = True
-
-djcelery.setup_loader()
 
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler' # 定时任务调度器
 

@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-from celery import Celery, platforms
+from celery import Celery
 from downloader import SingletonDownloader
 from items import MainItem, main_item_to_json, json_to_main_item
 from my_parser import Parser, CompareParser
@@ -28,7 +28,6 @@ mysql_config = {
 
 app = Celery()
 app.config_from_object('celeryconfig')
-platforms.C_FORCE_ROOT = True  # 允许root用户运行
 
 
 @app.task
