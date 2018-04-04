@@ -91,7 +91,7 @@ STATIC_URL = '/static/'
 CORS_ORIGIN_ALLOW_ALL = True
 
 # 以下是celery的配置
-BROKER_URL = 'amqp://kongtianyi:kongtianyiderabbitmq@114.67.225.0:5672/kvhost'
+CELERY_BROKER_URL = 'amqp://kongtianyi:kongtianyiderabbitmq@114.67.225.0:5672/kvhost'
 # result_backend = 'amqp://kongtianyi:kongtianyiderabbitmq@114.67.225.0:5672/kvhost'
 
 CELERY_TASK_SERIALIZER = 'json'
