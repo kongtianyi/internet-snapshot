@@ -9,9 +9,8 @@ from isadmin.models import PublicSafeOutChains, PrivateSafeOutChains, Snapshot, 
 from isadmin.tools.html_util import HtmlUtil
 from isadmin.tools.url_util import UrlUtil
 from django.db import connection
-import json
-import math
-import time
+from .tools.tools import get_ssh_connection
+import json, math, time, pexpect, platform
 
 
 def index(request):
@@ -256,8 +255,15 @@ def compare_unique(request):
 
 def filted_suspicious(request):
     if request.method != "GET":
-        return render(request, 'isadmin/error/error-404.html')
+        return render(request, 'isadmin/error/error-403.html')
     return render(request, 'isadmin/report/filted_suspicious.html')
+
+
+def one_button(request):
+    """一键功能页"""
+    if request.method != "GET":
+        return render(request, 'isadmin/error/error-403.html')
+    return render(request, 'isadmin/one_button.html')
 
 
 @csrf_exempt
@@ -451,6 +457,8 @@ def snapshots(request, id=None):
                 result = json_result("error", "查询网页快照失败:-(")
             else:
                 data = list()
+                if obj.get_time:
+                    obj.get_time = obj.get_time.strftime("%Y-%m-%d %H:%M:%S")
                 data.append(to_json_dict(obj))
                 result = json_result("success", "查询网页快照成功:-)", data=data)
         else:
@@ -464,6 +472,8 @@ def snapshots(request, id=None):
             else:
                 data = list()
                 for obj in objs:
+                    if obj.get_time:
+                        obj.get_time = obj.get_time.strftime("%Y-%m-%d %H:%M:%S")
                     data.append(to_json_dict(obj))
                 recoards = Snapshot.objects.count()
                 total_pages = math.floor(recoards / rows) + 1
@@ -551,6 +561,8 @@ def suspicious_records(request, id=None):
                 result = json_result("error", "查询可疑外链记录失败:-(")
             else:
                 data = list()
+                if obj.check_time:
+                    obj.check_time = obj.check_time.strftime("%Y-%m-%d %H:%M:%S")
                 data.append(to_json_dict(obj))
                 result = json_result("success", "查询可疑外链记录成功:-)", data=data)
         else:
@@ -585,6 +597,8 @@ def suspicious_records(request, id=None):
             else:
                 data = list()
                 for obj in objs:
+                    if obj.check_time:
+                        obj.check_time = obj.check_time.strftime("%Y-%m-%d %H:%M:%S")
                     data.append(to_json_dict(obj))
 
                 total_pages = math.floor(records / rows) + 1
@@ -658,9 +672,7 @@ def compare_unique_datas(request):
         item["task_id"] = row[3]
         item["send_ip"] = row[4]
         item["server_ip"] = row[5]
-        timestamp = time.localtime(int(row[6]))
-        # 转换成新的时间格式(2016-05-05 20:28:54)
-        get_time = time.strftime("%Y-%m-%d %H:%M:%S", timestamp)
+        get_time = row[6].strftime("%Y-%m-%d %H:%M:%S")
         item["get_time"] = get_time
         data.append(item)
     sql = "SELECT COUNT(*) FROM snapshot INNER JOIN private_out_chain_records " \
@@ -698,9 +710,7 @@ def filted_suspicious_datas(request):
         item["task_id"] = row[3]
         item["send_ip"] = row[4]
         item["server_ip"] = row[5]
-        timestamp = time.localtime(int(row[6]))
-        # 转换成新的时间格式(2016-05-05 20:28:54)
-        get_time = time.strftime("%Y-%m-%d %H:%M:%S", timestamp)
+        get_time = row[6].strftime("%Y-%m-%d %H:%M:%S")
         item["get_time"] = get_time
         data.append(item)
     sql = "SELECT COUNT(*) FROM snapshot INNER JOIN suspicious_records " \
@@ -712,6 +722,31 @@ def filted_suspicious_datas(request):
     records_filtered = len(data)  # 指有前端有过滤条件时的记录数
     result = json_result("success", "查询成功:-)", draw=draw, data=data, recordsTotal=records_total,
                          recordsFiltered=records_total)
+    return HttpResponse(result, content_type="application/json;charset=utf-8")
+
+
+@csrf_exempt
+def beat_restart(request):
+    '''重启django-celery-beat使定时任务修改生效'''
+    ip = "118.24.106.218"
+    user = "root"
+    password = "KONG64530322931."
+    if platform.system() != "Linux":
+        result = json_result("error", "Server OS not support!")
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
+    child = get_ssh_connection(ip, user, password)
+    child.expect("root@(.*?)~#")
+    child.sendline("cd /home/internet-snapshot/mysite")
+    child.expect("root@(.*?)/home/internet-snapshot/mysite#")
+    child.sendline("ps -aux | grep django_celery_beat | grep -v grep | awk '{print $2}'")
+    child.expect("\r\n\d+")
+    old_pid = child.after[2:]
+    child.sendline("bash ./celery-beat-restart.sh")
+    child.expect("root@(.*?)/home/internet-snapshot/mysite#")
+    child.sendline("ps -aux | grep django_celery_beat | grep -v grep | awk '{print $2}'")
+    child.expect("\r\n\d+")
+    new_pid = child.after[2:]
+    result = json_result("success", "beat重启成功:-)", data=[old_pid, new_pid])
     return HttpResponse(result, content_type="application/json;charset=utf-8")
 
 

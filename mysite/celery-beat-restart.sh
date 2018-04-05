@@ -7,4 +7,5 @@ do
 	echo "killed $id"
 	kill -9 $id
 done
+rm ./*.pid
 celery -A mysite beat -l info -S django_celery_beat.schedulers:DatabaseScheduler --detach -f ./celery-beat-log.log

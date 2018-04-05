@@ -2,6 +2,7 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = {
+    #  ====================================================================================
     # 前端界面
     url(r'^$', views.index, name='index'),
     url(r'^index$', views.index, name='index'),
@@ -23,8 +24,11 @@ urlpatterns = {
     url(r'^report/redirect_records$', views.redirect_records, name='redirect_records'),
     url(r'^report/compare_unique$', views.compare_unique, name='compare_unique'),
     url(r'^report/filted_suspicious$', views.filted_suspicious, name='filted_suspicious'),
+    # 一键功能
+    url(r'^one_button', views.one_button, name='one_button'),
 
-
+    # ======================================================================================
+    # 后端接口
     # CURD
     url(r'^pubsocs$', views.pubsocs, name='pubsocs'),
     url(r'^pubsocs/(?P<id>[0-9]+)$', views.pubsocs, name='pubsocs'),
@@ -42,8 +46,6 @@ urlpatterns = {
     url('^redirect_records_datas$', views.redirect_records_datas, name="redirect_records_datas"),
     url('^compare_unique_datas$', views.compare_unique_datas, name="compare_unique_datas"),
     url('^filted_suspicious_datas$', views.filted_suspicious_datas, name="filted_suspicious_datas"),
+    # ssh
+    url('beat_restart', views.beat_restart, name="beat_restart"),
 }
-
-if __name__ == "__main__":
-    import psutil
-    psutil.net_io_counters()

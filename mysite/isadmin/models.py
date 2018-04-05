@@ -29,7 +29,7 @@ class Snapshot(models.Model):
     screen_shot_path = models.CharField("快照地址", max_length=100, blank=True, null=True)
     load_time = models.FloatField("首屏加载时间", )
     refer = models.CharField("上级页面", max_length=1000)
-    get_time = models.CharField("抓取时间", max_length=10)
+    get_time = models.DateTimeField("抓取时间", max_length=10)
     task_id = models.CharField("任务标识", max_length=100)
     send_ip = models.CharField("请求发送ip", max_length=20)
     server_ip = models.CharField("相应服务器ip", max_length=20)
@@ -55,7 +55,7 @@ class SuspiciousRecords(models.Model):
     unknown_domain = models.CharField("可疑外链主域名", max_length=50)
     checked = models.IntegerField("是否已检查 0-未检查 1-已检查")
     result = models.IntegerField("检查结果 0-误判 1-恶意信息")
-    check_time = models.IntegerField("检查时间")
+    check_time = models.DateTimeField("检查时间")
 
     class Meta:
         managed = False

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<meta charset="utf-8" />
+		<title>一键功能</title>
+
+		{% load static %}
+
+    <meta name="description" content="Dynamic tables and grids using jqGrid plugin" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <!-- bootstrap & fontawesome -->
+    <link rel="stylesheet" href="{% static 'isadmin/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'isadmin/font-awesome/4.5.0/css/font-awesome.min.css' %}" />
+
+    <!-- page specific plugin styles -->
+
+    <!-- text fonts -->
+    <link rel="stylesheet" href="{% static 'isadmin/css/fonts.googleapis.com.css' %}" />
+
+    <!-- ace styles -->
+    <link rel="stylesheet" href="{% static 'isadmin/css/ace.min.css' %}" class="ace-main-stylesheet" id="main-ace-style" />
+
+    <!--[if lte IE 9]>
+			<link rel="stylesheet" href="{% static 'isadmin/css/ace-part2.min.css' %}" class="ace-main-stylesheet" />
+		<![endif]-->
+    <link rel="stylesheet" href="{% static 'isadmin/css/ace-skins.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'isadmin/css/ace-rtl.min.css' %}" />
+
+    <!--[if lte IE 9]>
+		  <link rel="stylesheet" href="{% static 'isadmin/css/ace-ie.min.css' %}" />
+		<![endif]-->
+
+    <!-- inline styles related to this page -->
+
+    <!-- ace settings handler -->
+    <script src="{% static 'isadmin/js/ace-extra.min.js' %}"></script>
+
+    <!-- HTML5shiv and Respond.js for IE8 to support HTML5 elements and media queries -->
+
+    <!--[if lte IE 8]>
+		<script src="{% static 'isadmin/js/html5shiv.min.js' %}"></script>
+		<script src="{% static 'isadmin/js/respond.min.js' %}"></script>
+		<![endif]-->
+    </head>
+
+	<body class="no-skin">
+        <div class="main-content">
+            <div class="main-content-inner">
+                <div class="breadcrumbs ace-save-state" id="breadcrumbs">
+                    <ul class="breadcrumb">
+							<li>
+								<i class="ace-icon fa fa-home home-icon"></i>
+								<a href="#">Home</a>
+							</li>
+
+							<li>
+								<a href="#">Other Pages</a>
+							</li>
+							<li class="active">Blank Page</li>
+						</ul><!-- /.breadcrumb -->
+                </div>
+                <div class="page-content">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <!-- PAGE CONTENT BEGINS -->
+                            <button class="btn btn-primary" onclick="beat_restart()">
+                                <i class="ace-icon glyphicon glyphicon-refresh align-top bigger-125"></i>
+                                重启beat
+                            </button>
+                            <div id="message-box"></div>
+                            <!-- PAGE CONTENT ENDS -->
+                        </div><!-- /.col -->
+                    </div><!-- /.row -->
+                </div><!-- /.page-content -->
+            </div>
+        </div><!-- /.main-content -->
+		<!-- basic scripts -->
+
+		<!--[if !IE]> -->
+            <script src="{% static 'isadmin/js/jquery-2.1.4.min.js' %}"></script>
+        <!-- <![endif]-->
+
+        <!--[if IE]>
+            <script src="{% static 'isadmin/js/jquery-1.11.3.min.js' %}"></script>
+        <![endif]-->
+        <script type="text/javascript">
+            if('ontouchstart' in document.documentElement) document.write("<script src='{% static 'isadmin/js/jquery.mobile.custom.min.js' %}'>"+"<"+"/script>");
+        </script>
+		<script src="{% static 'isadmin/js/bootstrap.min.js' %}"></script>
+
+		<!-- page specific plugin scripts -->
+
+		<!-- ace scripts -->
+		<script src="{% static 'isadmin/js/ace-elements.min.js' %}"></script>
+		<script src="{% static 'isadmin/js/ace.min.js' %}"></script>
+
+		<!-- inline scripts related to this page -->
+        <script type="application/javascript">
+            function beat_restart() {
+                $.ajax({
+                   url: "/isadmin/beat_restart",
+                   success: function (data) {
+                       var status = data["status"];
+                       if(status == "success") {
+                           var element = $('<div class="alert alert-block alert-success"><button type="button" class="close" data-dismiss="alert"><i class="ace-icon fa fa-times"></i></button><p><strong><i class="ace-icon fa fa-check"></i>成功! </strong>Beat 重启成功，原进程号：'+data["data"]["old_pid"]+'，新进程号：'+data["data"]["new_pid"]+'</p></div>');
+                       } else {
+                           var element = $('<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert"><i class="ace-icon fa fa-times"></i></button><strong><i class="ace-icon fa fa-times"></i>失败! </strong>'+data["message"]+'<br> </div>');
+                       }
+                       $("#message-box").append(element);
+                   }
+               });
+            }
+        </script>
+	</body>
+</html>
