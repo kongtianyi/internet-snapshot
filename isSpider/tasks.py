@@ -128,10 +128,14 @@ def compare_parse():
     sql = "SELECT task_id FROM download_tasks WHERE compared=0;"
     with connection.cursor() as cursor:
         cursor.execute(sql)
-        items = cursor.fechall()
+        items = cursor.fetchall()
     connection.commit()
     connection.close()
     # 对这些任务进行逐个比对
     for item in items:
         logging.info("Now begin to handle " + item["task_id"])
         CompareParser.parse_by_task_id(item["task_id"])
+
+
+if __name__ == "__main__":
+    compare_parse()
