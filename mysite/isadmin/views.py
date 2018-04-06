@@ -740,12 +740,12 @@ def beat_restart(request):
     child.expect("root@(.*?)/home/internet-snapshot/mysite#")
     child.sendline("ps -aux | grep django_celery_beat | grep -v grep | awk '{print $2}'")
     child.expect("\r\n\d+")
-    old_pid = child.after[2:]
+    old_pid = int(child.after[2:])
     child.sendline("bash ./celery-beat-restart.sh")
     child.expect("root@(.*?)/home/internet-snapshot/mysite#")
     child.sendline("ps -aux | grep django_celery_beat | grep -v grep | awk '{print $2}'")
     child.expect("\r\n\d+")
-    new_pid = child.after[2:]
+    new_pid = int(child.after[2:])
     result = json_result("success", "beat重启成功:-)", data=[old_pid, new_pid])
     return HttpResponse(result, content_type="application/json;charset=utf-8")
 

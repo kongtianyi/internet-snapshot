@@ -104,9 +104,9 @@
                    success: function (data) {
                        var status = data["status"];
                        if(status == "success") {
-                           var element = $('<div class="alert alert-block alert-success"><button type="button" class="close" data-dismiss="alert"><i class="ace-icon fa fa-times"></i></button><p><strong><i class="ace-icon fa fa-check"></i>成功! </strong>Beat 重启成功，原进程号：'+data["data"]["old_pid"]+'，新进程号：'+data["data"]["new_pid"]+'</p></div>');
+                           var element = $('<div class="alert alert-block alert-success"><button type="button" class="close" data-dismiss="alert"><i class="ace-icon fa fa-times"></i></button><p><strong><i class="ace-icon fa fa-check"></i>成功! </strong>Beat 重启成功，原进程号：'+data["data"][0]+'，新进程号：'+data["data"][1]+'</p></div>');
                        } else {
-                           var element = $('<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert"><i class="ace-icon fa fa-times"></i></button><strong><i class="ace-icon fa fa-times"></i>失败! </strong>'+data["message"]+'<br> </div>');
+                           var element = $('<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert"><i class="ace-icon fa fa-times"></i></button><strong><i class="ace-icon fa fa-times"></i>失败! </strong>'+data["message"]+'<br></div>');
                        }
                        $("#message-box").append(element);
                    }
