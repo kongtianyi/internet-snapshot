@@ -62,6 +62,19 @@ class SuspiciousRecords(models.Model):
         db_table = 'suspicious_records'
 
 
+class PrivateOutChainRecords(models.Model):
+    """比对结果表"""
+    ss_id = models.IntegerField("快照id")
+    out_chain = models.CharField("比对出的可疑外链", max_length=1000)
+    checked = models.IntegerField("是否已检查 0-未检查 1-已检查")
+    result = models.IntegerField("检查结果 0-误判 1-恶意信息")
+    check_time = models.DateTimeField("检查时间")
+
+    class Meta:
+        managed = False
+        db_table = 'private_out_chain_records'
+
+
 class Vps(models.Model):
     ip = models.CharField(max_length=20)
     nickname = models.CharField(max_length=50)

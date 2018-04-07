@@ -5,12 +5,12 @@ from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from isadmin.models import PublicSafeOutChains, PrivateSafeOutChains, Snapshot, SsHtml, \
-    SuspiciousRecords, Vps, VpsStatus, to_json_dict
+    SuspiciousRecords, PrivateOutChainRecords, Vps, VpsStatus, to_json_dict
 from isadmin.tools.html_util import HtmlUtil
 from isadmin.tools.url_util import UrlUtil
 from django.db import connection
 from .tools.tools import get_ssh_connection
-import json, math, time, pexpect, platform
+import json, math, time, pexpect, platform, datetime
 
 
 def index(request):
@@ -46,6 +46,13 @@ def suspicious_records_list(request):
     if request.method != "GET":
         return render(request, 'isadmin/error/error-404.html')
     return render(request, 'isadmin/db/suspicious_records_list.html')
+
+
+def pocr_list(request):
+    """比对结果列表页面"""
+    if request.method != "GET":
+        return render(request, 'isadmin/error/error-404.html')
+    return render(request, 'isadmin/db/pocr_list.html')
 
 
 def show_snapshot(request, id=None):
@@ -630,6 +637,132 @@ def suspicious_records_jqgrid(request):
 
 
 @csrf_exempt
+def pocr_records(request, id=None):
+    """比对结果(PrivateOutChainRecords)的CURD操作REST接口"""
+    if request.method == 'POST':
+        ss_id = request.POST.get("ss_id")
+        out_chain = request.POST.get("out_chain")
+        checked = request.POST.get("checked")
+        result = request.POST.get("result")
+        check_time = request.POST.get("check_time")
+        obj = PrivateOutChainRecords.objects.create(ss_id=ss_id, out_chain=out_chain,
+                                                    checked=checked, result=result,
+                                                    check_time=check_time)
+        if not obj:
+            result = json_result("error", "添加比对结果记录失败:-(")
+        else:
+            result = json_result("success", "添加比对结果记录成功:-)")
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
+    elif request.method == 'DELETE':
+        if isinstance(id, str) and id.find(',') != -1:
+            ids = id.split(',')
+            result_msg = ""
+            for item in ids:
+                obj = PrivateOutChainRecords.objects.filter(id=item).delete()
+                if not obj or obj[0] == 0:
+                    result_msg += "删除比对结果记录id" + item + "失败:-("
+                else:
+                    result_msg += "删除比对结果记录id" + item + "成功:-)"
+            result = json_result("success", result_msg)
+        else:
+            obj = PrivateOutChainRecords.objects.filter(id=id).delete()
+            if not obj or obj[0] == 0:
+                result = json_result("error", "删除比对结果记录失败:-(")
+            else:
+                result = json_result("success", "删除比对结果记录成功:-)")
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
+    elif request.method == 'PUT':
+        put = QueryDict(request.body)
+        id = put.get("id")
+        ss_id = put.get("ss_id")
+        out_chain = put.get("out_chain")
+        checked = put.get("checked")
+        result = put.get("result")
+        check_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        obj = PrivateOutChainRecords.objects.filter(id=id). \
+            update(ss_id=ss_id, out_chain=out_chain,
+                   checked=checked, result=result, check_time=check_time)
+        if obj == 0:
+            result = json_result("error", "更新比对结果记录失败:-(")
+        else:
+            result = json_result("success", "删除比对结果记录成功:-)")
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
+    elif request.method == 'GET':
+        if id:
+            obj = PrivateOutChainRecords.objects.filter(id=id)
+            if not isinstance(obj, QuerySet):
+                result = json_result("error", "查询比对结果记录失败:-(")
+            else:
+                data = list()
+                if obj.check_time:
+                    obj.check_time = obj.check_time.strftime("%Y-%m-%d %H:%M:%S")
+                data.append(to_json_dict(obj))
+                result = json_result("success", "查询比对结果记录成功:-)", data=data)
+        else:
+            rows = int(request.GET.get("rows")) if request.GET.get("rows") else 10
+            page = int(request.GET.get("page")) if request.GET.get("page") else 1
+            start = (page - 1) * rows
+            end = start + rows
+            filters = request.GET.get("filters")
+            if filters:
+                objs = PrivateOutChainRecords.objects
+                filters = eval(filters)
+                group_op = filters["groupOp"]
+                rules = filters["rules"]
+                if group_op == "OR":
+                    pass
+                elif group_op == "AND":
+                    for rule in rules:
+                        if rule["op"] == "eq":
+                            if rule["field"] == "checked":
+                                objs = objs.filter(checked=rule["data"])
+                            elif rule["field"] == "result":
+                                objs = objs.filter(result=rule["data"])
+                    records = objs.count()
+                    objs = objs[start: end]
+                else:
+                    return render(request, 'isadmin/error/error-404.html')
+            else:
+                objs = PrivateOutChainRecords.objects.all()[start: end]
+                records = PrivateOutChainRecords.objects.count()
+            if not isinstance(objs, QuerySet):
+                result = json_result("error", "查询比对结果记录失败:-(")
+            else:
+                data = list()
+                for obj in objs:
+                    if obj.check_time:
+                        obj.check_time = obj.check_time.strftime("%Y-%m-%d %H:%M:%S")
+                    data.append(to_json_dict(obj))
+
+                total_pages = math.floor(records / rows) + 1
+                result = json_result("success", "查询比对结果记录成功:-)", data=data, page=page,
+                                     total=total_pages, records=records)
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
+    else:
+        return render(request, 'isadmin/error/error-404.html')
+
+
+@csrf_exempt
+def pocr_jqgrid(request):
+    """比对结果(PrivateOutChainRecords)的CURD操作jqgrid接口"""
+    if request.method == "POST":
+        oper = request.POST.get("oper")
+        if oper == "add":
+            return pocr_records(request)
+        elif oper == "del":
+            id = request.POST.get("id")
+            request.method = "DELETE"
+            return pocr_records(request, id=id)
+        elif oper == "edit":
+            request.method = "PUT"
+            return pocr_records(request)
+    elif request.method == "GET":
+        return pocr_records(request)
+    else:
+        return render(request, 'isadmin/error/error-404.html')
+
+
+@csrf_exempt
 def redirect_records_datas(request):
     draw = request.GET.get("draw")
     start = int(request.GET.get("start"))
@@ -654,9 +787,9 @@ def compare_unique_datas(request):
     draw = request.GET.get("draw")
     start = request.GET.get("start")
     length = request.GET.get("length")
-    sql = "SELECT snapshot.id, snapshot.request_url, " \
-          "private_out_chain_records.out_chain, snapshot.task_id, " \
-          "snapshot.send_ip, snapshot.server_ip, snapshot.get_time  " \
+    sql = "SELECT snapshot.id, snapshot.request_url, private_out_chain_records.out_chain, " \
+          "private_out_chain_records.checked, private_out_chain_records.result, " \
+          "snapshot.send_ip, snapshot.server_ip, snapshot.get_time, private_out_chain_records.id " \
           "FROM snapshot INNER JOIN private_out_chain_records " \
           "ON snapshot.id = private_out_chain_records.ss_id " \
           "LIMIT %s,%s;"
@@ -666,14 +799,16 @@ def compare_unique_datas(request):
     data = []
     for row in rows:
         item = {}
-        item["id"] = row[0]
+        item["ss_id"] = row[0]
         item["request_url"] = row[1]
         item["out_chain"] = row[2]
-        item["task_id"] = row[3]
-        item["send_ip"] = row[4]
-        item["server_ip"] = row[5]
-        get_time = row[6].strftime("%Y-%m-%d %H:%M:%S")
+        item["checked"] = row[3]
+        item["result"] = row[4]
+        item["send_ip"] = row[5]
+        item["server_ip"] = row[6]
+        get_time = row[7].strftime("%Y-%m-%d %H:%M:%S")
         item["get_time"] = get_time
+        item["id"] = row[8]
         data.append(item)
     sql = "SELECT COUNT(*) FROM snapshot INNER JOIN private_out_chain_records " \
           "ON snapshot.id = private_out_chain_records.ss_id;"
@@ -692,9 +827,9 @@ def filted_suspicious_datas(request):
     draw = request.GET.get("draw")
     start = request.GET.get("start")
     length = request.GET.get("length")
-    sql = "SELECT snapshot.id, snapshot.request_url, " \
-          "suspicious_records.unknown_domain, snapshot.task_id, " \
-          "snapshot.send_ip, snapshot.server_ip, snapshot.get_time  " \
+    sql = "SELECT snapshot.id, snapshot.request_url, suspicious_records.unknown_domain, " \
+          "suspicious_records.checked, suspicious_records.result, " \
+          "snapshot.send_ip, snapshot.server_ip, snapshot.get_time, suspicious_records.id " \
           "FROM snapshot INNER JOIN suspicious_records " \
           "ON snapshot.id = suspicious_records.ss_id " \
           "LIMIT %s,%s;"
@@ -704,14 +839,16 @@ def filted_suspicious_datas(request):
     data = []
     for row in rows:
         item = {}
-        item["id"] = row[0]
+        item["ss_id"] = row[0]
         item["request_url"] = row[1]
         item["unknown_domain"] = row[2]
-        item["task_id"] = row[3]
-        item["send_ip"] = row[4]
-        item["server_ip"] = row[5]
-        get_time = row[6].strftime("%Y-%m-%d %H:%M:%S")
+        item["checked"] = row[3]
+        item["result"] = row[4]
+        item["send_ip"] = row[5]
+        item["server_ip"] = row[6]
+        get_time = row[7].strftime("%Y-%m-%d %H:%M:%S")
         item["get_time"] = get_time
+        item["id"] = row[8]
         data.append(item)
     sql = "SELECT COUNT(*) FROM snapshot INNER JOIN suspicious_records " \
           "ON snapshot.id = suspicious_records.ss_id;"
@@ -754,6 +891,59 @@ def beat_restart(request):
         return HttpResponse(result, content_type="application/json;charset=utf-8")
     result = json_result("success", "beat重启成功:-)", data=[old_pid, new_pid])
     return HttpResponse(result, content_type="application/json;charset=utf-8")
+
+
+@csrf_exempt
+def check_compare_unique(request):
+    """判定比对出的独有外链是否异常"""
+    result = request.GET.get("result")
+    id = request.GET.get("id")
+    request_url = request.GET.get("request_url")
+    out_chain = request.GET.get("out_chain")
+    if result == "0":
+        # 判定为恶意链接
+        row = PrivateOutChainRecords.objects.filter(id=id).update(checked=1, result=1, check_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+        if row == 0:
+            result = json_result("error", "添加恶意链接失败:-(")
+        else:
+            result = json_result("success", "添加恶意链接成功:-)")
+    elif result == "1":
+        # 加入公共白名单
+        # todo 事务控制
+        re = PrivateOutChainRecords.objects.filter(id=id).update(checked=1, result=0, check_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+        out_chain_top_domain = UrlUtil.get_top_domain(out_chain)
+        re2 = PublicSafeOutChains.objects.create(mydomain=out_chain_top_domain)
+        if re == 0 or re2 == 0:
+            result = json_result("error", "加入公共白名单失败:-(")
+        else:
+            result = json_result("success", "加入公共白名单成功:-)")
+    elif result == "2":
+        # 加入私有白名单
+        re = PrivateOutChainRecords.objects.filter(id=id).update(checked=1, result=0, check_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+        request_top_domain = UrlUtil.get_top_domain(request_url)
+        out_chain_top_domain = UrlUtil.get_top_domain(out_chain)
+        re2 = PrivateSafeOutChains.objects.create(mydomain=out_chain_top_domain, owner=request_top_domain)
+        if re == 0 or re2 == 0:
+            result = json_result("error", "加入私有白名单失败:-(")
+        else:
+            result = json_result("success", "加入私有白名单成功:-)")
+    else:
+        result = json_result("error", "参数错误:-(")
+    return HttpResponse(result, content_type="application/json;charset=utf-8")
+
+
+@csrf_exempt
+def check_suspicious(request):
+    """判定过滤出的可疑主域名是否异常"""
+    result = request.GET.get("result")
+    if result == "0":
+        pass
+    elif result == "1":
+        pass
+    elif result == "2":
+        pass
+    else:
+        pass
 
 
 def leveled_json_result(status, message, data=None):
