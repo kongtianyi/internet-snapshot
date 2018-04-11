@@ -3,8 +3,7 @@
 from urllib import parse
 from publicsuffix import fetch
 from publicsuffix import PublicSuffixList
-import codecs
-import os
+import codecs, re, os
 
 
 class UrlUtil:
@@ -30,7 +29,10 @@ class UrlUtil:
     def get_top_domain(cls, url):
         """抽取url的一级域名"""
         domain = UrlUtil.get_domain(url)
-        domain = domain.split(':')[0]
+        domain = domain.split(':')[0]  # 去掉端口
+        ip_pattern = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+        if re.match(ip_pattern, domain):
+            return domain
         return cls.psl.get_public_suffix(domain)
 
     @classmethod
@@ -42,3 +44,7 @@ class UrlUtil:
         elif len(splites) == 4 and splites[-1] == "":
             return url[:-1]
         return "/".join(url.split('/')[:-1])
+
+
+if __name__ == "__main__":
+    print(UrlUtil.get_top_domain("http://fonts.googleapis.com/css?family=Roboto:300,400,500,700"))

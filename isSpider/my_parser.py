@@ -1,12 +1,7 @@
 # !/usr/bin/python
 # -*- encoding: utf-8 -*-
 
-import json
-import logging
-import re
-import pymysql
-import redis
-import urllib.parse
+import json, time, logging, re, pymysql, redis, urllib.parse
 from lxml import etree
 from items import MainItem, SuspiciousItem, SsHtmlItem, PrivateOutChainRecordItem, main_item_to_json
 from tools.html_util import HtmlUtil, get_html_from_mysql
@@ -121,10 +116,17 @@ class Parser:
                                              task_id=self.downloader_item.task_id,
                                              deepth=self.downloader_item.deepth+1)
                     self.redis_conn.lpush(queue_name, json.dumps(new_main_item, default=main_item_to_json))
-
         # 将可疑外链存库
         for unknown_domain in unknown_domains:
-            suspicious_item = SuspiciousItem(ss_id, unknown_domain, 0, -1, None)
+            with self.connection.cursor() as cursor:
+                sql = "SELECT mydomain FROM malicious_domains;"
+                cursor.execute(sql)
+                malicious_records = cursor.fetchall()
+            malicious_domains = set([malicious_record["mydomain"] for malicious_record in malicious_records])
+            if unknown_domain in malicious_domains:
+                suspicious_item = SuspiciousItem(ss_id, unknown_domain, 1, 1, time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+            else:
+                suspicious_item = SuspiciousItem(ss_id, unknown_domain, 0, -1, None)
             with self.connection.cursor() as cursor:
                 sql = 'INSERT INTO suspicious_records (ss_id, unknown_domain, checked, result, ' \
                       'check_time) VALUES (%s, %s, %s, %s, %s)'
@@ -149,6 +151,12 @@ class CompareParser:
     @classmethod
     def parse_by_task_id(cls, task_id):
         connection = pymysql.connect(**mysql_config)  # 建立数据库链接
+        # 读黑名单
+        sql = "SELECT mydomain FROM malicious_domains;"
+        with connection.cursor() as cursor:
+            cursor.execute(sql)
+            malicious_records = cursor.fetchall()
+        malicious_domains = set([malicious_record["mydomain"] for malicious_record in malicious_records])
         sql = "SELECT id,request_url FROM snapshot WHERE task_id=%s;"
         with connection.cursor() as cursor:
             cursor.execute(sql, (task_id,))
@@ -174,9 +182,14 @@ class CompareParser:
                       "VALUES (%s, %s, %s, %s, %s)"
                 for diff_out_chain in diff_out_chains[i]:
                     with connection.cursor() as cursor:
-                        private_out_chain_record_item = PrivateOutChainRecordItem(urls.get(url)[i],
-                                                                                  diff_out_chain,
-                                                                                  0, -1, None)
+                        if UrlUtil.get_top_domain(diff_out_chain) in malicious_domains:
+                            private_out_chain_record_item = PrivateOutChainRecordItem(urls.get(url)[i],
+                                                                                      diff_out_chain,
+                                                                                      1, 1, None)
+                        else:
+                            private_out_chain_record_item = PrivateOutChainRecordItem(urls.get(url)[i],
+                                                                                      diff_out_chain,
+                                                                                      0, -1, None)
                         result = cursor.execute(sql, private_out_chain_record_item.save_tuple())
                         if result != 1:
                             logging.error("private_out_chain_records插入记录" + private_out_chain_record_item.save_tuple() + "失败！")

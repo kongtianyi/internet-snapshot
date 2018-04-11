@@ -4,13 +4,13 @@ from django.http import QueryDict
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
-from isadmin.models import PublicSafeOutChains, PrivateSafeOutChains, Snapshot, SsHtml, \
-    SuspiciousRecords, PrivateOutChainRecords, Vps, VpsStatus, to_json_dict
+from isadmin.models import PublicSafeOutChains, PrivateSafeOutChains, MaliciousDomains, \
+    Snapshot, SsHtml, SuspiciousRecords, PrivateOutChainRecords, Vps, VpsStatus, to_json_dict
 from isadmin.tools.html_util import HtmlUtil
 from isadmin.tools.url_util import UrlUtil
 from django.db import connection
 from .tools.tools import get_ssh_connection
-import json, math, time, pexpect, platform, datetime
+import json, math, time, pexpect, platform
 
 
 def index(request):
@@ -827,12 +827,18 @@ def filted_suspicious_datas(request):
     draw = request.GET.get("draw")
     start = request.GET.get("start")
     length = request.GET.get("length")
+    filter = request.GET.get("search[value]")
     sql = "SELECT snapshot.id, snapshot.request_url, suspicious_records.unknown_domain, " \
           "suspicious_records.checked, suspicious_records.result, " \
           "snapshot.send_ip, snapshot.server_ip, snapshot.get_time, suspicious_records.id " \
           "FROM snapshot INNER JOIN suspicious_records " \
-          "ON snapshot.id = suspicious_records.ss_id " \
-          "LIMIT %s,%s;"
+          "ON snapshot.id = suspicious_records.ss_id "
+    if filter == "未检查":
+        sql += "WHERE suspicious_records.checked=0 "
+    elif "恶意" in filter:
+        sql += "WHERE suspicious_records.checked=1 AND suspicious_records.result=1 "
+    sql += "LIMIT %s,%s;"
+    print(sql)
     with connection.cursor() as cursor:
         cursor.execute(sql, (int(start), int(length)))
         rows = cursor.fetchall()
@@ -851,7 +857,12 @@ def filted_suspicious_datas(request):
         item["id"] = row[8]
         data.append(item)
     sql = "SELECT COUNT(*) FROM snapshot INNER JOIN suspicious_records " \
-          "ON snapshot.id = suspicious_records.ss_id;"
+          "ON snapshot.id = suspicious_records.ss_id "
+    if filter == "未检查":
+        sql += "WHERE suspicious_records.checked=0 "
+    elif "恶意" in filter:
+        sql += "WHERE suspicious_records.checked=1 AND suspicious_records.result=1 "
+    sql += ";"
     with connection.cursor() as cursor:
         cursor.execute(sql)
         re = cursor.fetchone()
@@ -896,37 +907,59 @@ def beat_restart(request):
 @csrf_exempt
 def check_compare_unique(request):
     """判定比对出的独有外链是否异常"""
+    # todo 事务控制
     result = request.GET.get("result")
     id = request.GET.get("id")
     request_url = request.GET.get("request_url")
     out_chain = request.GET.get("out_chain")
+    out_chain_top_domain = UrlUtil.get_top_domain(out_chain)
     if result == "0":
         # 判定为恶意链接
         row = PrivateOutChainRecords.objects.filter(id=id).update(checked=1, result=1, check_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-        if row == 0:
+        row2 = MaliciousDomains.objects.create(mydomain=out_chain_top_domain)
+        if row == 0 or row2 == 0:
             result = json_result("error", "添加恶意链接失败:-(")
         else:
             result = json_result("success", "添加恶意链接成功:-)")
+        # 联动处理
+        uncheked_records = PrivateOutChainRecords.objects.filter(checked=0)
+        for uncheked_record in uncheked_records:
+            if UrlUtil.get_top_domain(uncheked_record.out_chain) == UrlUtil.get_top_domain(out_chain):
+                PrivateOutChainRecords.objects.filter(id=uncheked_record.id).update(checked=1, result=1, check_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
     elif result == "1":
         # 加入公共白名单
-        # todo 事务控制
         re = PrivateOutChainRecords.objects.filter(id=id).update(checked=1, result=0, check_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-        out_chain_top_domain = UrlUtil.get_top_domain(out_chain)
         re2 = PublicSafeOutChains.objects.create(mydomain=out_chain_top_domain)
         if re == 0 or re2 == 0:
             result = json_result("error", "加入公共白名单失败:-(")
         else:
             result = json_result("success", "加入公共白名单成功:-)")
+        # 联动处理
+        uncheked_records = PrivateOutChainRecords.objects.filter(checked=0)
+        for uncheked_record in uncheked_records:
+            if UrlUtil.get_top_domain(uncheked_record.out_chain) == UrlUtil.get_top_domain(out_chain):
+                PrivateOutChainRecords.objects.filter(id=uncheked_record.id).update(checked=1, result=0,
+                                                                                       check_time=time.strftime(
+                                                                                           '%Y-%m-%d %H:%M:%S',
+                                                                                           time.localtime(time.time())))
     elif result == "2":
         # 加入私有白名单
         re = PrivateOutChainRecords.objects.filter(id=id).update(checked=1, result=0, check_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         request_top_domain = UrlUtil.get_top_domain(request_url)
-        out_chain_top_domain = UrlUtil.get_top_domain(out_chain)
         re2 = PrivateSafeOutChains.objects.create(mydomain=out_chain_top_domain, owner=request_top_domain)
         if re == 0 or re2 == 0:
             result = json_result("error", "加入私有白名单失败:-(")
         else:
             result = json_result("success", "加入私有白名单成功:-)")
+        # 联动处理
+        uncheked_records = PrivateOutChainRecords.objects.filter(checked=0)
+        for uncheked_record in uncheked_records:
+            if UrlUtil.get_top_domain(uncheked_record,out_chain) == UrlUtil.get_top_domain(out_chain):
+                PrivateOutChainRecords.objects.filter(id=uncheked_record.id).update(checked=1, result=0,
+                                                                                           check_time=time.strftime(
+                                                                                               '%Y-%m-%d %H:%M:%S',
+                                                                                               time.localtime(
+                                                                                                   time.time())))
     else:
         result = json_result("error", "参数错误:-(")
     return HttpResponse(result, content_type="application/json;charset=utf-8")
@@ -935,15 +968,51 @@ def check_compare_unique(request):
 @csrf_exempt
 def check_suspicious(request):
     """判定过滤出的可疑主域名是否异常"""
+    # todo 事务控制、日志
     result = request.GET.get("result")
+    id = request.GET.get("id")
+    request_url = request.GET.get("request_url")
+    unknown_domain = UrlUtil.get_domain(request.GET.get("unknown_domain"))
+    request_top_domain = UrlUtil.get_top_domain(request_url)
     if result == "0":
-        pass
+        # 判定为恶意链接
+        row = SuspiciousRecords.objects.filter(id=id).\
+            update(checked=1, result=1, check_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+        row2 = MaliciousDomains.objects.create(mydomain=unknown_domain)
+        if row == 0 or row2 == 0:
+            result = json_result("error", "添加恶意链接失败:-(")
+        else:
+            result = json_result("success", "添加恶意链接成功:-)")
+        # 联动处理
+        SuspiciousRecords.objects.filter(checked=0, unknown_domain=unknown_domain).\
+            update(checked=1, result=1, check_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
     elif result == "1":
-        pass
+        # 加入公共白名单
+        re = SuspiciousRecords.objects.filter(id=id).\
+            update(checked=1, result=0, check_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+        re2 = PublicSafeOutChains.objects.create(mydomain=unknown_domain)
+        if re == 0 or re2 == 0:
+            result = json_result("error", "加入公共白名单失败:-(")
+        else:
+            result = json_result("success", "加入公共白名单成功:-)")
+        # 联动处理
+        SuspiciousRecords.objects.filter(checked=0, unknown_domain=unknown_domain).\
+            update(checked=1, result=0, check_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
     elif result == "2":
-        pass
+        # 加入私有白名单
+        re = SuspiciousRecords.objects.filter(id=id).\
+            update(checked=1, result=0, check_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+        re2 = PrivateSafeOutChains.objects.create(mydomain=unknown_domain, owner=request_top_domain)
+        if re == 0 or re2 == 0:
+            result = json_result("error", "加入私有白名单失败:-(")
+        else:
+            result = json_result("success", "加入私有白名单成功:-)")
+        # 联动处理
+        SuspiciousRecords.objects.filter(checked=0, unknown_domain=unknown_domain).\
+            update(checked=1, result=0, check_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
     else:
-        pass
+        result = json_result("error", "参数错误:-(")
+    return HttpResponse(result, content_type="application/json;charset=utf-8")
 
 
 def leveled_json_result(status, message, data=None):

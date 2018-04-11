@@ -85,7 +85,9 @@ class HtmlUtil:
         tree = etree.HTML(format_html)
         hrefs = tree.xpath("//@href")  # 拿到所有a标签中的链接对象
         iframes = tree.xpath("//iframe/@src")  # 拿到所有iframe的源链接
+        jss = tree.xpath("//script/@src")  # 拿到所有的js链接
         hrefs.extend(iframes)
+        hrefs.extend(jss)
         if hrefs:
             hrefs = href_clean(hrefs)
         else:

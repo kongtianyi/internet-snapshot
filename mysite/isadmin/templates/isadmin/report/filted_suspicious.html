@@ -74,7 +74,7 @@
 					<div class="page-content">
 						<div class="page-header">
                             <div class="row">
-                                <div class="col-xs-9">
+                                <div class="col-xs-8">
                                     <h1>
 								        可疑外链过滤结果
 								        <small>
@@ -83,7 +83,7 @@
 								        </small>
 							        </h1>
                                 </div>
-                                <div class="col-xs-3">
+                                <div class="col-xs-4">
                                     <div class="clearfix">
 											<div class="pull-right tableTools-container"></div>
 										</div>
@@ -149,13 +149,15 @@
 
 <!-- inline scripts related to this page -->
 		<script type="text/javascript">
+            var myTable;
 			jQuery(function($) {
 				//initiate dataTables plugin
-				var myTable = $('#dynamic-table').DataTable({
+				myTable = $('#dynamic-table').DataTable({
                     "serverSide": true,
                     "ajax": "/isadmin/filted_suspicious_datas",
                     "autoWidth": false,
                     "scrollX":"100%",
+                    "stateSave": true,
                     "columns": [
                         {"data": "id", "title": "ID"},
                         {"data": "ss_id", "title": "快照"},
@@ -179,7 +181,19 @@
                             }
                         },
                         {
-                            "targets": [2, 3],
+                            "targets": 2,
+                            "render": function(data, type, row, meta) {
+                                var show_data = "";
+                                if(data.length > 30) {
+                                    show_data = data.substring(0, 30) + "...";
+                                } else {
+                                    show_data = data;
+                                }
+                                return "<a href='" + data + "' target='_blank'>" + show_data + "</a>";
+                            }
+                        },
+                        {
+                            "targets": 3,
                             "render": function(data, type, row, meta) {
                                 var show_data = "";
                                 if(data.length > 30) {
@@ -196,7 +210,7 @@
                                 if(data == "1") {
                                     return '<button class="btn btn-minier btn-success"><i class="ace-icon glyphicon glyphicon-ok"></i>已检查</button>';
                                 }
-                                var element_str = '<div class="btn-group""><button data-toggle="dropdown" class="btn btn-info btn-xs dropdown-toggle" aria-expanded="true"> 性质判定 <span class="ace-icon fa fa-caret-down icon-on-right"></span></button><ul class="dropdown-menu dropdown-info dropdown-menu-right"><li><a href="#">恶意链接</a></li><li><a href="#">加入公共白名单</a></li><li><a href="#">加入私有白名单</a></li></ul></div>';
+                                var element_str = '<div class="btn-group""><button data-toggle="dropdown" class="btn btn-info btn-xs dropdown-toggle" aria-expanded="true"> 性质判定 <span class="ace-icon fa fa-caret-down icon-on-right"></span></button><ul class="dropdown-menu dropdown-info dropdown-menu-right"><li><a href="javascript:void(0);" onclick="check(this, '+row["id"]+', \'0\')">恶意链接</a></li><li><a href="javascript:void(0);" onclick="check(this, '+row["id"]+', \'1\')">加入公共白名单</a></li><li><a href="javascript:void(0);" onclick="check(this, '+row["id"]+', \'2\')">加入私有白名单</a></li></ul></div>';
                                 return element_str;
                             }
                         },
@@ -245,7 +259,7 @@
 					buttons: [
 					  {
 						"extend": "colvis",
-						"text": "<i class='fa fa-search bigger-110 blue'></i> <span class='hidden'>Show/hide columns</span>",
+						"text": "<i class='fa fa-search bigger-110 blue'></i> <span class='hidden'>显示/隐藏行</span>",
 						"className": "btn btn-white btn-primary btn-bold",
 						columns: ':not(:first):not(:last)'
 					  },
@@ -275,7 +289,7 @@
 						"className": "btn btn-white btn-primary btn-bold",
 						autoPrint: false,
 						message: 'This print was produced using the Print button for DataTables'
-					  }
+					  },
 					]
 				} );
 				myTable.buttons().container().appendTo( $('.tableTools-container') );
@@ -309,7 +323,30 @@
 						else $(this).tooltip({container: 'body', title: $(this).text()});
 					});
 				}, 500);
-			})
+			});
+            function check(element, id, result) {
+                var trNode = element.parentNode.parentNode.parentNode.parentNode.parentNode;
+                var tdNodes = trNode.childNodes;
+                var request_url = tdNodes[1].childNodes[0].href;
+                var unknown_domain = tdNodes[2].childNodes[0].href;
+                $.ajax({
+                    url: "/isadmin/check_suspicious",
+                    data: {
+                        "result": result,
+                        "id": id,
+                        "request_url": request_url,
+                        "unknown_domain": unknown_domain
+                    },
+                    success: function (data) {
+                        if(data["status"] == "error") {
+                            alert(data["message"]);
+                        } else {
+                            alert(data["message"]);
+                            myTable.draw(false);
+                        }
+                    }
+                });
+            }
 		</script>
 	</body>
 </html>

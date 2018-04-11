@@ -5,12 +5,7 @@ from downloader import SingletonDownloader
 from items import MainItem, main_item_to_json, json_to_main_item
 from my_parser import Parser, CompareParser
 from engine import Engine
-import redis
-import logging
-import pymysql
-import psutil
-import json
-import time
+import redis, logging, pymysql, psutil, json, time
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s %(message)s',

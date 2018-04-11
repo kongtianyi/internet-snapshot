@@ -22,6 +22,16 @@ class PrivateSafeOutChains(models.Model):
         db_table = 'private_safe_out_chains'
 
 
+class MaliciousDomains(models.Model):
+    """外链主域名黑名单"""
+    mydomain = models.CharField("恶意链接主域名", max_length=50)
+    remark = models.CharField("备注", max_length=200, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'malicious_domains'
+
+
 class Snapshot(models.Model):
     """快照存留表"""
     request_url = models.CharField("请求url", max_length=1000)

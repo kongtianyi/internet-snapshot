@@ -149,9 +149,10 @@
 
 		<!-- inline scripts related to this page -->
 		<script type="text/javascript">
+            var myTable;
 			jQuery(function($) {
 				//initiate dataTables plugin
-				var myTable = $('#dynamic-table').DataTable({
+				myTable = $('#dynamic-table').DataTable({
                     "serverSide": true,
                     "ajax": "/isadmin/compare_unique_datas",
                     "autoWidth": false,
@@ -196,7 +197,7 @@
                                 if(data == "1") {
                                     return '<button class="btn btn-minier btn-success"><i class="ace-icon glyphicon glyphicon-ok"></i>已检查</button>';
                                 }
-                                var element_str = '<div class="btn-group""><button data-toggle="dropdown" class="btn btn-info btn-xs dropdown-toggle" aria-expanded="true"> 性质判定 <span class="ace-icon fa fa-caret-down icon-on-right"></span></button><ul class="dropdown-menu dropdown-info dropdown-menu-right"><li><a href="#" onclick="check(this, '+row["id"]+', \'0\')">恶意链接</a></li><li><a href="#" onclick="check(this, '+row["id"]+', \'1\')">加入公共白名单</a></li><li><a href="#" onclick="check(this, '+row["id"]+', \'2\')">加入私有白名单</a></li></ul></div>';
+                                var element_str = '<div class="btn-group""><button data-toggle="dropdown" class="btn btn-info btn-xs dropdown-toggle" aria-expanded="true"> 性质判定 <span class="ace-icon fa fa-caret-down icon-on-right"></span></button><ul class="dropdown-menu dropdown-info dropdown-menu-right"><li><a href="javascript:void(0);" onclick="check(this, '+row["id"]+', \'0\')">恶意链接</a></li><li><a href="javascript:void(0);" onclick="check(this, '+row["id"]+', \'1\')">加入公共白名单</a></li><li><a href="javascript:void(0);" onclick="check(this, '+row["id"]+', \'2\')">加入私有白名单</a></li></ul></div>';
                                 return element_str;
                             }
                         },
@@ -328,7 +329,7 @@
                             alert(data["message"]);
                         } else {
                             alert(data["message"]);
-                            $('#dynamic-table').DataTable().ajax().reload();
+                            myTable.ajax.reload();
                         }
                     }
                 });

@@ -3,7 +3,7 @@
 from urllib import parse
 from publicsuffix import fetch
 from publicsuffix import PublicSuffixList
-import codecs
+import codecs, re
 
 
 class UrlUtil:
@@ -28,7 +28,10 @@ class UrlUtil:
     def get_top_domain(cls, url):
         """抽取url的一级域名"""
         domain = UrlUtil.get_domain(url)
-        domain = domain.split(':')[0]
+        domain = domain.split(':')[0]  # 去掉端口
+        ip_pattern = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+        if re.match(ip_pattern, domain):
+            return domain
         return cls.psl.get_public_suffix(domain)
 
     @classmethod
@@ -64,6 +67,8 @@ if __name__ == "__main__":
     # print(UrlUtil.get_path(url))
     # print(UrlUtil.get_top_domain(url))
     # print(UrlUtil.is_gov_or_edu(url))
-    url = "http://weihai.leju.com		/news/2017-07-12/05006290450601252021277.shtml"
+    url = "http://39.107.98.199:80/njs/sc/tj1517817067/cnzz.html?v=201804021800"
+    # url = "http://www.runoob.com:88080/python/python-reg-expressions.html"
     # print(UrlUtil.get_domain(url))
+    print(UrlUtil.get_domain(url=url))
     print(UrlUtil.get_top_domain(url))
