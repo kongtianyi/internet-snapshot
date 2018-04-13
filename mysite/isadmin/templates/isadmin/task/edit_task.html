@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<meta charset="utf-8" />
+		<title>编辑任务</title>
+
+        {% load static %}
+
+		<meta name="description" content="and Validation" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+		<!-- bootstrap & fontawesome -->
+        <link rel="stylesheet" href="{% static 'isadmin/css/bootstrap.min.css' %}" />
+        <link rel="stylesheet" href="{% static 'isadmin/font-awesome/4.5.0/css/font-awesome.min.css' %}" />
+
+		<!-- page specific plugin styles -->
+		<link rel="stylesheet" href="{% static 'isadmin/css/select2.min.css' %}" />
+
+		<!-- text fonts -->
+        <link rel="stylesheet" href="{% static 'isadmin/css/fonts.googleapis.com.css' %}" />
+
+        <!-- ace styles -->
+        <link rel="stylesheet" href="{% static 'isadmin/css/ace.min.css' %}" class="ace-main-stylesheet" id="main-ace-style" />
+
+        <!--[if lte IE 9]>
+		   	<link rel="stylesheet" href="{% static 'isadmin/css/ace-part2.min.css' %}" class="ace-main-stylesheet" />
+		<![endif]-->
+        <link rel="stylesheet" href="{% static 'isadmin/css/ace-skins.min.css' %}" />
+        <link rel="stylesheet" href="{% static 'isadmin/css/ace-rtl.min.css' %}" />
+
+        <!--[if lte IE 9]>
+		    <link rel="stylesheet" href="{% static 'isadmin/css/ace-ie.min.css' %}" />
+		<![endif]-->
+
+        <!-- inline styles related to this page -->
+
+        <!-- ace settings handler -->
+        <script src="{% static 'isadmin/js/ace-extra.min.js' %}"></script>
+
+        <!-- HTML5shiv and Respond.js for IE8 to support HTML5 elements and media queries -->
+
+        <!--[if lte IE 8]>
+		    <script src="{% static 'isadmin/js/html5shiv.min.js' %}"></script>
+		    <script src="{% static 'isadmin/js/respond.min.js' %}"></script>
+		<![endif]-->
+	</head>
+
+	<body class="no-skin">
+        <div class="main-content">
+            <div class="main-content-inner">
+                <div class="breadcrumbs ace-save-state" id="breadcrumbs">
+                    <ul class="breadcrumb">
+                        <li>
+                            <i class="ace-icon fa fa-home home-icon"></i>
+                            <a href="#">Home</a>
+                        </li>
+
+                        <li>
+                            <a href="#">快照任务</a>
+                        </li>
+                        <li class="active">编辑任务</li>
+                    </ul><!-- /.breadcrumb -->
+
+                    <div class="nav-search" id="nav-search">
+                        <form class="form-search">
+								<span class="input-icon">
+									<input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off" />
+									<i class="ace-icon fa fa-search nav-search-icon"></i>
+								</span>
+                        </form>
+                    </div><!-- /.nav-search -->
+                </div>
+
+                <div class="page-content">
+                    <div class="page-header">
+                        <h1>
+                            编辑任务
+                            <small>
+                                <i class="ace-icon fa fa-angle-double-right"></i>
+                                编辑修改一个现有任务。
+                            </small>
+                        </h1>
+                    </div><!-- /.page-header -->
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <!-- PAGE CONTENT BEGINS -->
+                            <div class="widget-box">
+                                <div class="widget-header widget-header-blue widget-header-flat">
+                                    <h4 class="widget-title lighter">编辑任务</h4>
+                                </div>
+
+                                <div class="widget-body">
+                                    <div class="widget-main">
+                                        <div id="fuelux-wizard-container">
+                                            <div>
+                                                <ul class="steps">
+                                                    <li data-step="1" class="active">
+                                                        <span class="step">1</span>
+                                                        <span class="title">启动配置</span>
+                                                    </li>
+
+                                                    <li data-step="2">
+                                                        <span class="step">2</span>
+                                                        <span class="title">运行配置</span>
+                                                    </li>
+
+                                                    <li data-step="3">
+                                                        <span class="step">3</span>
+                                                        <span class="title">定时配置</span>
+                                                    </li>
+
+                                                    <li data-step="4">
+                                                        <span class="step">4</span>
+                                                        <span class="title">任务预览</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+
+                                            <hr />
+
+                                            <div class="step-content pos-rel">
+                                                <div class="step-pane active" data-step="1">
+                                                    <h3 class="lighter block green">请输入下列信息：</h3>
+
+                                                    <form class="form-horizontal" id="sample-form">
+
+                                                        <div class="form-group has-info">
+                                                            <label for="inputWarning" class="col-xs-12 col-sm-3 control-label no-padding-right">任务名</label>
+
+                                                            <div class="col-xs-12 col-sm-5">
+																	<span class="block input-icon input-icon-right">
+																		<input type="text" id="inputWarning" class="width-100" />
+																		<i class="ace-icon fa fa-leaf"></i>
+																	</span>
+                                                            </div>
+                                                            <div class="help-block col-xs-12 col-sm-reset inline"> 此任务的名称 </div>
+                                                        </div>
+
+                                                        <div class="form-group has-info">
+                                                            <label for="inputWarning" class="col-xs-12 col-sm-3 control-label no-padding-right">起始URL</label>
+
+                                                            <div class="col-xs-12 col-sm-5">
+																	<span class="block input-icon input-icon-right">
+																		<input type="text" id="inputWarning" class="width-100" />
+																		<i class="ace-icon fa fa-leaf"></i>
+																	</span>
+                                                            </div>
+                                                            <div class="help-block col-xs-12 col-sm-reset inline"> 目标站点url </div>
+                                                        </div>
+
+                                                        <div class="form-group has-info">
+                                                            <label for="inputError" class="col-xs-12 col-sm-3 col-md-3 control-label no-padding-right">存活时间</label>
+
+                                                            <div class="col-xs-12 col-sm-5">
+																	<span class="block input-icon input-icon-right">
+																		<input type="text" id="inputError" class="width-100" />
+																		<i class="ace-icon fa fa-leaf"></i>
+																	</span>
+                                                            </div>
+                                                            <div class="help-block col-xs-12 col-sm-reset inline"> 单次任务执行时间上限 </div>
+                                                        </div>
+
+                                                        <div class="form-group has-info">
+                                                            <label for="inputSuccess" class="col-xs-12 col-sm-3 control-label no-padding-right">访问深度</label>
+
+                                                            <div class="col-xs-12 col-sm-5">
+																	<span class="block input-icon input-icon-right">
+																		<input type="text" id="inputSuccess" class="width-100" />
+																		<i class="ace-icon fa fa-leaf"></i>
+																	</span>
+                                                            </div>
+                                                            <div class="help-block col-xs-12 col-sm-reset inline"> 广度优先搜索的深度 </div>
+                                                        </div>
+
+                                                        <div class="form-group has-info">
+                                                            <label for="inputInfo" class="col-xs-12 col-sm-3 control-label no-padding-right">最大数量</label>
+
+                                                            <div class="col-xs-12 col-sm-5">
+																	<span class="block input-icon input-icon-right">
+																		<input type="text" id="inputInfo" class="width-100" />
+																		<i class="ace-icon fa fa-leaf"></i>
+																	</span>
+                                                            </div>
+                                                            <div class="help-block col-xs-12 col-sm-reset inline"> 任务的最大快照数量 </div>
+                                                        </div>
+                                                    </form>
+
+                                                </div>
+
+                                                <div class="step-pane" data-step="2">
+                                                    <h3 class="lighter block green">请输入下列信息：</h3>
+
+                                                    <form class="form-horizontal" id="sample-form">
+                                                        <div class="form-group has-info">
+                                                            <label for="inputWarning" class="col-xs-12 col-sm-3 control-label no-padding-right">失效时间</label>
+
+                                                            <div class="col-xs-12 col-sm-5">
+																	<span class="block input-icon input-icon-right">
+																		<input type="text" id="expires" class="width-100" />
+																		<i class="ace-icon fa fa-leaf"></i>
+																	</span>
+                                                            </div>
+                                                            <div class="help-block col-xs-12 col-sm-reset inline"> 此任务不再定时执行的时间 </div>
+                                                        </div>
+
+                                                        <div class="form-group has-info">
+                                                            <label for="inputError" class="col-xs-12 col-sm-3 col-md-3 control-label no-padding-right">开启状态</label>
+
+                                                            <div class="col-xs-12 col-sm-5">
+                                                                <label class="radio-inline">
+                                                                    <input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1"> 是
+                                                                </label>
+                                                                <label class="radio-inline">
+                                                                    <input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2"> 否
+                                                                </label>
+                                                            </div>
+                                                            <div class="help-block col-xs-12 col-sm-reset inline"> 是否马上开启 </div>
+                                                        </div>
+
+                                                        <div class="form-group has-info">
+                                                            <label for="inputSuccess" class="col-xs-12 col-sm-3 control-label no-padding-right">备注</label>
+
+                                                            <div class="col-xs-12 col-sm-5">
+																	<span class="block input-icon input-icon-right">
+																		<input type="text" id="inputSuccess" class="width-100" />
+																		<i class="ace-icon fa fa-leaf"></i>
+																	</span>
+                                                            </div>
+                                                            <div class="help-block col-xs-12 col-sm-reset inline"> 对此任务的任务描述或其它注意事项 </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+
+                                                <div class="step-pane" data-step="3">
+                                                    <h3 class="lighter block green">请以crontab的格式输入下列信息：</h3>
+
+                                                    <form class="form-horizontal" id="sample-form">
+                                                        <div class="form-group has-info">
+                                                            <label for="inputWarning" class="col-xs-12 col-sm-3 control-label no-padding-right">分钟</label>
+
+                                                            <div class="col-xs-12 col-sm-5">
+																	<span class="block input-icon input-icon-right">
+																		<input type="text" id="inputWarning" class="width-100" />
+																		<i class="ace-icon fa fa-leaf"></i>
+																	</span>
+                                                            </div>
+                                                            <div class="help-block col-xs-12 col-sm-reset inline"> 1～59，多个用逗号隔开，每分钟用*，每五分钟 */5表示 </div>
+                                                        </div>
+
+                                                        <div class="form-group has-info">
+                                                            <label for="inputError" class="col-xs-12 col-sm-3 col-md-3 control-label no-padding-right">小时</label>
+
+                                                            <div class="col-xs-12 col-sm-5">
+																	<span class="block input-icon input-icon-right">
+																		<input type="text" id="inputError" class="width-100" />
+																		<i class="ace-icon fa fa-leaf"></i>
+																	</span>
+                                                            </div>
+                                                            <div class="help-block col-xs-12 col-sm-reset inline"> 0～23，多个用逗号隔开，每小时用*，每五小时 */5表示 </div>
+                                                        </div>
+
+                                                        <div class="form-group has-info">
+                                                            <label for="inputSuccess" class="col-xs-12 col-sm-3 control-label no-padding-right">周数</label>
+
+                                                            <div class="col-xs-12 col-sm-5">
+																	<span class="block input-icon input-icon-right">
+																		<input type="text" id="inputSuccess" class="width-100" />
+																		<i class="ace-icon fa fa-leaf"></i>
+																	</span>
+                                                            </div>
+                                                            <div class="help-block col-xs-12 col-sm-reset inline"> 0～6，0为周日，多个用逗号隔开，每天用* </div>
+                                                        </div>
+
+                                                        <div class="form-group has-info">
+                                                            <label for="inputSuccess" class="col-xs-12 col-sm-3 control-label no-padding-right">日期</label>
+
+                                                            <div class="col-xs-12 col-sm-5">
+																	<span class="block input-icon input-icon-right">
+																		<input type="text" id="inputSuccess" class="width-100" />
+																		<i class="ace-icon fa fa-leaf"></i>
+																	</span>
+                                                            </div>
+                                                            <div class="help-block col-xs-12 col-sm-reset inline"> 1～31，多个用逗号隔开，每天用*，每五天用 */5表示  </div>
+                                                        </div>
+
+                                                        <div class="form-group has-info">
+                                                            <label for="inputSuccess" class="col-xs-12 col-sm-3 control-label no-padding-right">月份</label>
+
+                                                            <div class="col-xs-12 col-sm-5">
+																	<span class="block input-icon input-icon-right">
+																		<input type="text" id="inputSuccess" class="width-100" />
+																		<i class="ace-icon fa fa-leaf"></i>
+																	</span>
+                                                            </div>
+                                                            <div class="help-block col-xs-12 col-sm-reset inline"> 1～12，多个用逗号隔开，每月用*，每五月 */5表示  </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+
+                                                <div class="step-pane" data-step="4">
+                                                    <div class="center">
+                                                        <h3 class="green">任务配置如下!</h3>
+                                                        任务配置
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <hr />
+                                        <div class="wizard-actions">
+                                            <button class="btn btn-prev">
+                                                <i class="ace-icon fa fa-arrow-left"></i>
+                                                上一步
+                                            </button>
+
+                                            <button class="btn btn-success btn-next" data-last="提交">
+                                                下一步
+                                                <i class="ace-icon fa fa-arrow-right icon-on-right"></i>
+                                            </button>
+                                        </div>
+                                    </div><!-- /.widget-main -->
+                                </div><!-- /.widget-body -->
+                            </div>
+
+                           <!-- PAGE CONTENT ENDS -->
+                        </div><!-- /.col -->
+                    </div><!-- /.row -->
+                </div><!-- /.page-content -->
+            </div>
+        </div><!-- /.main-content -->
+		<!-- basic scripts -->
+
+        <!--[if !IE]> -->
+            <script src="{% static 'isadmin/js/jquery-2.1.4.min.js' %}"></script>
+        <!-- <![endif]-->
+
+        <!--[if IE]>
+            <script src="{% static 'isadmin/js/jquery-1.11.3.min.js' %}"></script>
+        <![endif]-->
+        <script type="text/javascript">
+            if('ontouchstart' in document.documentElement) document.write("<script src='{% static 'isadmin/js/jquery.mobile.custom.min.js' %}'>"+"<"+"/script>");
+        </script>
+        <script src="{% static 'isadmin/js/bootstrap.min.js' %}"></script>
+
+		<!-- page specific plugin scripts -->
+		<script src="{% static 'isadmin/js/wizard.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/bootstrap-datepicker.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/bootstrap-datepicker.zh-CN.js' %}"></script>
+		<script src="{% static 'isadmin/js/jquery.validate.min.js' %}"></script>
+		<script src="{% static 'isadmin/js/jquery-additional-methods.min.js' %}"></script>
+		<script src="{% static 'isadmin/js/bootbox.js' %}"></script>
+		<script src="{% static 'isadmin/js/jquery.maskedinput.min.js' %}"></script>
+		<script src="{% static 'isadmin/js/select2.min.js' %}"></script>
+
+		<!-- ace scripts -->
+        <script src="{% static 'isadmin/js/ace-elements.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/ace.min.js' %}"></script>
+
+		<!-- inline scripts related to this page -->
+		<script type="text/javascript">
+			jQuery(function($) {
+
+				$('[data-rel=tooltip]').tooltip();
+
+				$('.select2').css('width','200px').select2({allowClear:true})
+				.on('change', function(){
+					$(this).closest('form').validate().element($(this));
+				});
+
+
+				var $validation = false;
+				$('#fuelux-wizard-container')
+				.ace_wizard({
+					//step: 2 //optional argument. wizard will jump to step "2" at first
+					//buttons: '.wizard-actions:eq(0)'
+				})
+				.on('actionclicked.fu.wizard' , function(e, info){
+					if(info.step == 1 && $validation) {
+						if(!$('#validation-form').valid()) e.preventDefault();
+					}
+				})
+				//.on('changed.fu.wizard', function() {
+				//})
+				.on('finished.fu.wizard', function(e) {
+					bootbox.dialog({
+						message: "任务添加完成，请前往任务视图查看。",
+						buttons: {
+							"success" : {
+								"label" : "OK",
+								"className" : "btn-sm btn-primary"
+							}
+						}
+					});
+				}).on('stepclick.fu.wizard', function(e){
+					//e.preventDefault();//this will prevent clicking and selecting steps
+				});
+
+
+				//jump to a step
+				/**
+				var wizard = $('#fuelux-wizard-container').data('fu.wizard')
+				wizard.currentStep = 3;
+				wizard.setState();
+				*/
+
+
+				$('#modal-wizard-container').ace_wizard();
+				$('#modal-wizard .wizard-actions .btn[data-dismiss=modal]').removeAttr('disabled');
+
+
+				/**
+				$('#date').datepicker({autoclose:true}).on('changeDate', function(ev) {
+					$(this).closest('form').validate().element($(this));
+				});
+
+				$('#mychosen').chosen().on('change', function(ev) {
+					$(this).closest('form').validate().element($(this));
+				});
+				*/
+
+
+				$(document).one('ajaxloadstart.page', function(e) {
+					//in ajax mode, remove remaining elements before leaving page
+					$('[class*=select2]').remove();
+				});
+
+				$('#expires').datepicker({
+                    autoclose: true,
+                    todayHighlight: true,
+                    language:"zh-CN",
+                    format:"yyyy-mm-dd"
+                });
+			})
+		</script>
+	</body>
+</html>

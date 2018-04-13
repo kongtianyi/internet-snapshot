@@ -28,6 +28,13 @@ urlpatterns = {
     url(r'^report/filted_suspicious$', views.filted_suspicious, name='filted_suspicious'),
     # 一键功能
     url(r'^one_button', views.one_button, name='one_button'),
+    # 快照任务
+    url(r'^add_task$', views.add_task, name='add_task'),
+    url(r'^tasks$', views.tasks, name='tasks'),
+    url(r'^edit_task$', views.edit_task, name='edit_task'),
+    # 日志模块
+    url(r'^history_log$', views.history_log, name='history_log'),
+    url(r'^real_time_log$', views.real_time_log, name='real_time_log'),
 
     # ======================================================================================
     # 后端接口

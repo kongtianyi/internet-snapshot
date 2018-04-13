@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<meta charset="utf-8" />
+		<title>历史日志</title>
+
+        {% load static %}
+
+		<meta name="description" content="" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+		<!-- bootstrap & fontawesome -->
+        <link rel="stylesheet" href="{% static 'isadmin/css/bootstrap.min.css' %}" />
+        <link rel="stylesheet" href="{% static 'isadmin/font-awesome/4.5.0/css/font-awesome.min.css' %}" />
+
+
+		<!-- page specific plugin styles -->
+
+		<!-- text fonts -->
+        <link rel="stylesheet" href="{% static 'isadmin/css/fonts.googleapis.com.css' %}" />
+
+        <!-- ace styles -->
+        <link rel="stylesheet" href="{% static 'isadmin/css/ace.min.css' %}" class="ace-main-stylesheet" id="main-ace-style" />
+
+        <!--[if lte IE 9]>
+		   	<link rel="stylesheet" href="{% static 'isadmin/css/ace-part2.min.css' %}" class="ace-main-stylesheet" />
+		<![endif]-->
+        <link rel="stylesheet" href="{% static 'isadmin/css/ace-skins.min.css' %}" />
+        <link rel="stylesheet" href="{% static 'isadmin/css/ace-rtl.min.css' %}" />
+
+        <!--[if lte IE 9]>
+		    <link rel="stylesheet" href="{% static 'isadmin/css/ace-ie.min.css' %}" />
+		<![endif]-->
+
+        <!-- inline styles related to this page -->
+
+        <!-- ace settings handler -->
+        <script src="{% static 'isadmin/js/ace-extra.min.js' %}"></script>
+
+        <!-- HTML5shiv and Respond.js for IE8 to support HTML5 elements and media queries -->
+
+        <!--[if lte IE 8]>
+		    <script src="{% static 'isadmin/js/html5shiv.min.js' %}"></script>
+		    <script src="{% static 'isadmin/js/respond.min.js' %}"></script>
+		<![endif]-->
+	</head>
+
+	<body class="no-skin" style="background-color: white">
+        <div class="main-content">
+            <div class="main-content-inner">
+                <div class="breadcrumbs ace-save-state" id="breadcrumbs">
+                <ul class="breadcrumb">
+                    <li>
+                        <i class="ace-icon fa fa-home home-icon"></i>
+                        <a href="#">Home</a>
+                    </li>
+
+                    <li>
+                        <a href="#">日志管理</a>
+                    </li>
+                    <li class="active">历史日志</li>
+                </ul><!-- /.breadcrumb -->
+
+                <div class="nav-search" id="nav-search">
+                    <form class="form-search">
+								<span class="input-icon">
+									<input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off" />
+									<i class="ace-icon fa fa-search nav-search-icon"></i>
+								</span>
+                    </form>
+                </div><!-- /.nav-search -->
+            </div>
+
+                <div class="page-content">
+                    <div class="page-header">
+                        <h1>
+                            历史日志
+                            <small>
+                                <i class="ace-icon fa fa-angle-double-right"></i>
+                                历史日志的查看和检索。
+                            </small>
+                        </h1>
+                    </div><!-- /.page-header -->
+                    <div class="row">
+                        <div class="col-xs-12">
+                             <table class="table table-striped table-hover">
+                                 <thead class="table-header">
+                                    <tr>
+                                        <th>日期</th>
+                                        <th>级别</th>
+                                        <th>属主</th>
+                                        <th>内容</th>
+                                    </tr>
+                                 </thead>
+                                 <tbody>
+                                    <tr>
+                                        <td>2018-04-12 23:00:50</td>
+                                        <td>INFO</td>
+                                        <td>MainProcess</td>
+                                        <td>Received task: tasks.parse[08a77ad4-f03c-4a43-82cb-7dff966bb831]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2018-04-12 23:00:36</td>
+                                        <td>INFO</td>
+                                        <td>MainProcess</td>
+                                        <td>Received task: tasks.parse[a84e978d-c1c8-4041-a212-fe4460402ad6]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2018-04-12 23:02:46</td>
+                                        <td>INFO</td>
+                                        <td>ForkPoolWorker-1</td>
+                                        <td>http://www.sina.com.cn parse over.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2018-04-12 23:02:46</td>
+                                        <td>INFO</td>
+                                        <td>ForkPoolWorker-1</td>
+                                        <td>Task tasks.parse[affef313-730d-4bf9-9a06-d4dff632655c] succeeded in 151.54293785593472s: None</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2018-04-12 23:00:50</td>
+                                        <td>INFO</td>
+                                        <td>MainProcess</td>
+                                        <td>Received task: tasks.parse[08a77ad4-f03c-4a43-82cb-7dff966bb831]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2018-04-12 23:00:36</td>
+                                        <td>INFO</td>
+                                        <td>MainProcess</td>
+                                        <td>Received task: tasks.parse[a84e978d-c1c8-4041-a212-fe4460402ad6]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2018-04-12 23:02:46</td>
+                                        <td>INFO</td>
+                                        <td>ForkPoolWorker-1</td>
+                                        <td>http://www.sina.com.cn parse over.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2018-04-12 23:02:46</td>
+                                        <td>INFO</td>
+                                        <td>ForkPoolWorker-1</td>
+                                        <td>Task tasks.parse[affef313-730d-4bf9-9a06-d4dff632655c] succeeded in 151.54293785593472s: None</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2018-04-12 23:00:50</td>
+                                        <td>INFO</td>
+                                        <td>MainProcess</td>
+                                        <td>Received task: tasks.parse[08a77ad4-f03c-4a43-82cb-7dff966bb831]</td>
+                                    </tr>
+                                 </tbody>
+                             </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">
+                        </div>
+                        <div class="col-xs-6 align-right">
+                            <div>
+                                <ul class="pagination">
+                                    <li class="disabled">
+                                        <a href="#">
+                                            <i class="ace-icon fa fa-angle-double-left"></i>
+                                        </a>
+                                    </li>
+
+                                    <li class="active">
+                                        <a href="#">1</a>
+                                    </li>
+
+                                    <li>
+                                        <a href="#">2</a>
+                                    </li>
+
+                                    <li>
+                                        <a href="#">3</a>
+                                    </li>
+
+                                    <li>
+                                        <a href="#">4</a>
+                                    </li>
+
+                                    <li>
+                                        <a href="#">5</a>
+                                    </li>
+
+                                    <li>
+                                        <a href="#">
+                                            <i class="ace-icon fa fa-angle-double-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.page-content -->
+                </div>
+            </div><!-- /.main-content -->
+        </div>
+
+		<!-- basic scripts -->
+
+        <!--[if !IE]> -->
+            <script src="{% static 'isadmin/js/jquery-2.1.4.min.js' %}"></script>
+        <!-- <![endif]-->
+
+        <!--[if IE]>
+            <script src="{% static 'isadmin/js/jquery-1.11.3.min.js' %}"></script>
+        <![endif]-->
+        <script type="text/javascript">
+            if('ontouchstart' in document.documentElement) document.write("<script src='{% static 'isadmin/js/jquery.mobile.custom.min.js' %}'>"+"<"+"/script>");
+        </script>
+        <script src="{% static 'isadmin/js/bootstrap.min.js' %}"></script>
+
+		<!-- page specific plugin scripts -->
+
+		<!-- ace scripts -->
+        <script src="{% static 'isadmin/js/ace-elements.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/ace.min.js' %}"></script>
+
+		<!-- inline scripts related to this page -->
+	</body>
+</html>

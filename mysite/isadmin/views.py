@@ -273,6 +273,41 @@ def one_button(request):
     return render(request, 'isadmin/one_button.html')
 
 
+def add_task(request):
+    """增加定时快照任务页面"""
+    if request.method != "GET":
+        return render(request, 'isadmin/error/error-403.html')
+    return render(request, 'isadmin/task/add_task.html')
+
+
+def tasks(request):
+    """定时快照任务视图"""
+    if request.method != "GET":
+        return render(request, 'isadmin/error/error-403.html')
+    return render(request, 'isadmin/task/tasks.html')
+
+
+def edit_task(request):
+    """增加定时快照任务页面"""
+    if request.method != "GET":
+        return render(request, 'isadmin/error/error-403.html')
+    return render(request, 'isadmin/task/edit_task.html')
+
+
+def history_log(request):
+    """历史日志查询页面"""
+    if request.method != "GET":
+        return render(request, 'isadmin/error/error-403.html')
+    return render(request, 'isadmin/log/history_log.html')
+
+
+def real_time_log(request):
+    """实时日志查询页面"""
+    if request.method != "GET":
+        return render(request, 'isadmin/error/error-403.html')
+    return render(request, 'isadmin/log/real_time_log.html')
+
+
 @csrf_exempt
 def pubsocs(request, id=None):
     """PUBSOC(PublicSafeOutChains)的CURD操作REST接口"""

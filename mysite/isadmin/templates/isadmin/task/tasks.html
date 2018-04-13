@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<meta charset="utf-8" />
+		<title>添加任务</title>
+
+        {% load static %}
+
+		<meta name="description" content="and Validation" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+		<!-- bootstrap & fontawesome -->
+        <link rel="stylesheet" href="{% static 'isadmin/css/bootstrap.min.css' %}" />
+        <link rel="stylesheet" href="{% static 'isadmin/font-awesome/4.5.0/css/font-awesome.min.css' %}" />
+
+		<!-- page specific plugin styles -->
+		<link rel="stylesheet" href="{% static 'isadmin/css/select2.min.css' %}" />
+
+		<!-- text fonts -->
+        <link rel="stylesheet" href="{% static 'isadmin/css/fonts.googleapis.com.css' %}" />
+
+        <!-- ace styles -->
+        <link rel="stylesheet" href="{% static 'isadmin/css/ace.min.css' %}" class="ace-main-stylesheet" id="main-ace-style" />
+
+        <!--[if lte IE 9]>
+		   	<link rel="stylesheet" href="{% static 'isadmin/css/ace-part2.min.css' %}" class="ace-main-stylesheet" />
+		<![endif]-->
+        <link rel="stylesheet" href="{% static 'isadmin/css/ace-skins.min.css' %}" />
+        <link rel="stylesheet" href="{% static 'isadmin/css/ace-rtl.min.css' %}" />
+
+        <!--[if lte IE 9]>
+		    <link rel="stylesheet" href="{% static 'isadmin/css/ace-ie.min.css' %}" />
+		<![endif]-->
+
+        <!-- inline styles related to this page -->
+
+        <!-- ace settings handler -->
+        <script src="{% static 'isadmin/js/ace-extra.min.js' %}"></script>
+
+        <!-- HTML5shiv and Respond.js for IE8 to support HTML5 elements and media queries -->
+
+        <!--[if lte IE 8]>
+		    <script src="{% static 'isadmin/js/html5shiv.min.js' %}"></script>
+		    <script src="{% static 'isadmin/js/respond.min.js' %}"></script>
+		<![endif]-->
+	</head>
+
+	<body class="no-skin" style="background-color: white">
+        <div class="main-content">
+            <div class="main-content-inner">
+                <div class="breadcrumbs ace-save-state" id="breadcrumbs">
+                    <ul class="breadcrumb">
+                        <li>
+                            <i class="ace-icon fa fa-home home-icon"></i>
+                            <a href="#">Home</a>
+                        </li>
+
+                        <li>
+                            <a href="#">快照任务</a>
+                        </li>
+                        <li class="active">任务视图</li>
+                    </ul><!-- /.breadcrumb -->
+
+                    <div class="nav-search" id="nav-search">
+                        <form class="form-search">
+								<span class="input-icon">
+									<input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off" />
+									<i class="ace-icon fa fa-search nav-search-icon"></i>
+								</span>
+                        </form>
+                    </div><!-- /.nav-search -->
+                </div>
+
+                <div class="page-content">
+                    <div class="page-header">
+                        <h1>
+                            任务视图
+                            <small>
+                                <i class="ace-icon fa fa-angle-double-right"></i>
+                                直观的查看现存的分布式快照任务。
+                            </small>
+                        </h1>
+                    </div><!-- /.page-header -->
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                           <!-- PAGE CONTENT BEGINS -->
+                            <div class="col-xs-4">
+                                <div class="panel panel-success">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title"><i class="ace-icon fa fa-leaf"></i>&nbsp;新浪快照任务<a href="/isadmin/edit_task" style="float: right;" class="btn btn-minier btn-primary align-right">编辑</a>
+                                    </h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <table class="table" style="margin: 0px;">
+                                            <tr>
+                                                <td>起点: <a>www.sina.com.cn</a></td>
+                                                <td>存活时间: 10min</td>
+                                            </tr>
+                                            <tr>
+                                                <td>访问深度：2</td>
+                                                <td>最大数量：200</td>
+                                            </tr>
+                                            <tr>
+                                                <td>失效时间: 不失效</td>
+                                                <td>crontab: 0 0 * * *</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title"><i class="ace-icon fa fa-leaf"></i>&nbsp;搜狐快照任务<a href="/isadmin/edit_task" style="float: right;" class="btn btn-minier btn-primary align-right">编辑</a>
+                                    </h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <table class="table" style="margin: 0px;">
+                                            <tr>
+                                                <td>起点: <a>www.sohu.com</a></td>
+                                                <td>存活时间: 5min</td>
+                                            </tr>
+                                            <tr>
+                                                <td>访问深度：∞</td>
+                                                <td>最大数量：100</td>
+                                            </tr>
+                                            <tr>
+                                                <td>失效时间: 2018-5-10 14:20:10</td>
+                                                <td>crontab: 0 10 * * *</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title"><i class="ace-icon fa fa-leaf"></i>&nbsp;网易快照任务<a href="/isadmin/edit_task" style="float: right;" class="btn btn-minier btn-primary align-right">编辑</a>
+                                    </h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <table class="table" style="margin: 0px;">
+                                            <tr>
+                                                <td>起点: <a>www.163.com</a></td>
+                                                <td>存活时间: 10min</td>
+                                            </tr>
+                                            <tr>
+                                                <td>访问深度：2</td>
+                                                <td>最大数量：200</td>
+                                            </tr>
+                                            <tr>
+                                                <td>失效时间: 不失效</td>
+                                                <td>crontab: 0 0 * * *</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                           <!-- PAGE CONTENT ENDS -->
+                        </div><!-- /.col -->
+                        <div class="col-xs-12">
+                           <!-- PAGE CONTENT BEGINS -->
+                            <div class="col-xs-4">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title"><i class="ace-icon fa fa-leaf"></i>&nbsp;凤凰网快照任务<a href="/isadmin/edit_task" style="float: right;" class="btn btn-minier btn-primary align-right">编辑</a>
+                                    </h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <table class="table" style="margin: 0px;">
+                                            <tr>
+                                                <td>起点: <a>www.ifeng.com</a></td>
+                                                <td>存活时间: 10min</td>
+                                            </tr>
+                                            <tr>
+                                                <td>访问深度：2</td>
+                                                <td>最大数量：200</td>
+                                            </tr>
+                                            <tr>
+                                                <td>失效时间: 不失效</td>
+                                                <td>crontab: 0 0 * * *</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="panel panel-success">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title"><i class="ace-icon fa fa-leaf"></i>&nbsp;校网快照任务<a href="/isadmin/edit_task" style="float: right;" class="btn btn-minier btn-primary align-right">编辑</a>
+                                    </h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <table class="table" style="margin: 0px;">
+                                            <tr>
+                                                <td>起点: <a>www.hitwh.edu.cn</a></td>
+                                                <td>存活时间: 10min</td>
+                                            </tr>
+                                            <tr>
+                                                <td>访问深度：2</td>
+                                                <td>最大数量：200</td>
+                                            </tr>
+                                            <tr>
+                                                <td>失效时间: 不失效</td>
+                                                <td>crontab: 0 0 * * *</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                           <!-- PAGE CONTENT ENDS -->
+                        </div><!-- /.col -->
+                    </div><!-- /.row -->
+                </div><!-- /.page-content -->
+            </div>
+        </div><!-- /.main-content -->
+		<!-- basic scripts -->
+
+        <!--[if !IE]> -->
+            <script src="{% static 'isadmin/js/jquery-2.1.4.min.js' %}"></script>
+        <!-- <![endif]-->
+
+        <!--[if IE]>
+            <script src="{% static 'isadmin/js/jquery-1.11.3.min.js' %}"></script>
+        <![endif]-->
+        <script type="text/javascript">
+            if('ontouchstart' in document.documentElement) document.write("<script src='{% static 'isadmin/js/jquery.mobile.custom.min.js' %}'>"+"<"+"/script>");
+        </script>
+        <script src="{% static 'isadmin/js/bootstrap.min.js' %}"></script>
+
+		<!-- page specific plugin scripts -->
+
+		<!-- ace scripts -->
+        <script src="{% static 'isadmin/js/ace-elements.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/ace.min.js' %}"></script>
+
+		<!-- inline scripts related to this page -->
+		<script type="text/javascript"></script>
+	</body>
+</html>
