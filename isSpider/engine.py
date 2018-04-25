@@ -45,6 +45,7 @@ class Engine:
         :param start_url: 起始url
         :param exist_time: 任务最长持续时间
         :param deepth: 页面收集深度
+        :param max_num: 最多收集页面
         """
         self.main_item = MainItem(start_url)
         self.main_item.task_id = str(uuid.uuid1())  # 一次收集任务的标识
@@ -52,9 +53,9 @@ class Engine:
         self.main_item.deepth = 1  # 起始深度当然是1
         self.start_url = start_url
         self.top_domain = UrlUtil.get_top_domain(start_url)
-        self.exist_time = exist_time
-        self.deepth = deepth
-        self.max_num = max_num
+        self.exist_time = int(exist_time)
+        self.deepth = int(deepth)
+        self.max_num = int(max_num)
 
     def run(self):
         connection = pymysql.connect(**mysql_config)
