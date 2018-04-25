@@ -287,7 +287,7 @@ def get_tasks(request):
 
     with connection.cursor() as cursor:
         sql = "SELECT task.name,task.description,task.args,task.expires,cron.minute,cron.hour," \
-              "cron.day_of_week,cron.day_of_month,cron.month_of_year,task.id" \
+              "cron.day_of_week,cron.day_of_month,cron.month_of_year,task.id,task.enabled" \
               " FROM django_celery_beat_periodictask AS task" \
               " INNER JOIN django_celery_beat_crontabschedule AS cron" \
               " ON task.crontab_id=cron.id" \
@@ -310,6 +310,7 @@ def get_tasks(request):
         data["crontab"] = item[4] + " " + item[5] + " " + item[6] \
                           + " " + item[7] + " " + item[8]
         data["id"] = item[9]
+        data["enabled"] = item[10]
         group_num += 1
         group.append(data)
         if group_num == 3:
@@ -1168,7 +1169,7 @@ def tasks(request):
     elif oper == "get":
         with connection.cursor() as cursor:
             sql = "SELECT task.name,task.description,task.args,task.expires,cron.minute,cron.hour," \
-                  "cron.day_of_week,cron.day_of_month,cron.month_of_year,task.id" \
+                  "cron.day_of_week,cron.day_of_month,cron.month_of_year,task.id,task.enabled" \
                   " FROM django_celery_beat_periodictask AS task" \
                   " INNER JOIN django_celery_beat_crontabschedule AS cron" \
                   " ON task.crontab_id=cron.id" \
@@ -1189,6 +1190,7 @@ def tasks(request):
             data["crontab"] = item[4] + " " + item[5] + " " + item[6] \
                                 + " " + item[7] + " " + item[8]
             data["id"] = item[9]
+            data["enabled"] = item[10]
             datas.append(data)
         result = json_result("success", "查询成功", data=datas)
         return HttpResponse(result, content_type="application/json;charset=utf-8")

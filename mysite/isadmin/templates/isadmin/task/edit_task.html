@@ -471,7 +471,7 @@
                     $("#show_depth").text($("#depth").val());
                     $("#show_max_num").text($("#max_num").val());
                     $("#show_expires").text($("#expires").val());
-                    if ($("input[name='enabled']").val() == '0') {
+                    if ($("input[name='enabled']:checked").val() == '0') {
                         $("#show_enabled").text("否");
                     } else {
                         $("#show_enabled").text("是");
@@ -511,7 +511,7 @@
                             "depth": $("#depth").val(),
                             "max_num": $("#max_num").val(),
                             "expires": $("#expires").val(),
-                            "enabled": $("input[name='enabled']").val(),
+                            "enabled": $("input[name='enabled']:checked").val(),
                             "description": $("#description").val(),
                             "minute": $("#minute").val(),
                             "hour": $("#hour").val(),

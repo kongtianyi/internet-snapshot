@@ -89,7 +89,11 @@
                              {% for item in group %}
                                 <!-- PAGE CONTENT BEGINS -->
                                 <div class="col-xs-4">
-                                <div class="panel panel-success">
+                                {% if item.enabled == "0" or item.enabled == 0 %}
+                                    <div class="panel panel-default">
+                                {% else %}
+                                    <div class="panel panel-success">
+                                {% endif %}
                                     <div class="panel-heading">
                                         <h3 class="panel-title"><i class="ace-icon fa fa-leaf"></i>&nbsp;{{ item.name }} <a href="/isadmin/edit_task?id={{ item.id }}" style="float: right;" class="btn btn-minier btn-primary align-right">编辑</a>
                                     </h3>
