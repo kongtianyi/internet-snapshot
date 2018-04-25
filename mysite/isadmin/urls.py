@@ -30,7 +30,7 @@ urlpatterns = {
     url(r'^one_button', views.one_button, name='one_button'),
     # 快照任务
     url(r'^add_task$', views.add_task, name='add_task'),
-    url(r'^tasks$', views.tasks, name='tasks'),
+    url(r'^get_tasks$', views.get_tasks, name='get_tasks'),
     url(r'^edit_task$', views.edit_task, name='edit_task'),
     # 日志模块
     url(r'^history_log$', views.history_log, name='history_log'),
@@ -63,4 +63,6 @@ urlpatterns = {
     # 人工后处理
     url(r'check_compare_unique', views.check_compare_unique, name="check_compare_unique"),
     url(r'check_suspicious', views.check_suspicious, name="check_suspicious"),
+    # 快照任务
+    url(r'tasks', views.tasks, name="tasks")
 }

@@ -6,7 +6,8 @@ import logging
 import socket
 import time
 
-from selenium.common.exceptions import TimeoutException, UnexpectedAlertPresentException, WebDriverException
+from selenium.common.exceptions import TimeoutException, UnexpectedAlertPresentException,\
+    NoAlertPresentException, WebDriverException
 from selenium.webdriver import Firefox, Chrome
 from selenium.webdriver.firefox.options import Options
 
@@ -19,8 +20,8 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%Y-%m-%d %H:%M:%S',)
 
 
-class Downloader():
-    """动态页面下载器"""
+class Downloader:
+    """Deprecated 动态页面下载器"""
     def __init__(self, driver="Chrome", load_time=10):
         start_time = time.time()
         if driver == "Chrome":
@@ -47,9 +48,6 @@ class Downloader():
         try:
             self.driver.get(url)  # 请求页面
             # todo 存储图片 screenshot_base64 = self.driver.get_screenshot_as_base64()
-        except UnexpectedAlertPresentException as e:
-            logging.info("点击弹出框")
-            self.driver.switch_to.alert.accept()
         except TimeoutException as e:
             logging.info("Get url:" + url + ", msg: " + e.msg)
             self.driver.execute_script("window.stop()")
@@ -106,14 +104,11 @@ class SingletonDownloader(metaclass=Singleton):
         try:
             self.driver.get(main_item.request_url)  # 请求页面
             # todo 存储图片 screenshot_base64 = self.driver.get_screenshot_as_base64()
-        except UnexpectedAlertPresentException as e:
-            logging.info("点击弹出框")
-            self.driver.switch_to.alert.accept()
         except TimeoutException as e:
             logging.info("Get url:" + main_item.request_url + ", msg: " + e.msg)
             self.driver.execute_script("window.stop()")
         except WebDriverException as e:
-            logging.error(e.msg)
+            logging.error("When download page, error class: %s, message: %s." % (e.__class__, e.msg))
         finally:
             load_time = time.time() - start_time
             logging.info("Get url:" + main_item.request_url + " spend " + str(load_time) + "s.")
@@ -129,7 +124,7 @@ class SingletonDownloader(metaclass=Singleton):
             self.driver.execute_script(js_scroll)  # 执行翻页
             time.sleep(after_scroll_time)  # 执行了翻页后等待页面加载nS
         except WebDriverException as e:
-            logging.error(e.msg)
+            logging.error("When scroll page, error class: %s, error message: %s" % (e.__class__, e.msg))
         current_url = None
         page_source = None
         try:
@@ -137,7 +132,11 @@ class SingletonDownloader(metaclass=Singleton):
             page_source = self.driver.page_source
         except UnexpectedAlertPresentException as e:
             logging.info("点击弹出框")
-            self.driver.switch_to.alert.accept()
+            try:
+                self.driver.switch_to.alert.accept()
+            except NoAlertPresentException:
+                # 把框点没了就会抛出这个异常，不知这什么鬼设计
+                pass
             try:
                 current_url = self.driver.current_url
                 page_source = self.driver.page_source
@@ -156,8 +155,8 @@ class SingletonDownloader(metaclass=Singleton):
         # download_item.screen_shot = screenshot_base64
         main_item.load_time = load_time
         main_item.html = page_source
-        timeArray = time.localtime(int(time.time()))
-        main_item.get_time = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+        time_array = time.localtime(int(time.time()))
+        main_item.get_time = time.strftime("%Y-%m-%d %H:%M:%S", time_array)
         with open("/etc/internet-snapshot.conf", "r") as f:
             ext_conf = json.load(f)
             main_item.send_ip = ext_conf["ip"]

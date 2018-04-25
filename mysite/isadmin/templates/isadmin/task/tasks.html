@@ -84,134 +84,42 @@
                     </div><!-- /.page-header -->
 
                     <div class="row">
-                        <div class="col-xs-12">
-                           <!-- PAGE CONTENT BEGINS -->
-                            <div class="col-xs-4">
+                    {% for group in groups %}
+                            <div class="col-xs-12">
+                             {% for item in group %}
+                                <!-- PAGE CONTENT BEGINS -->
+                                <div class="col-xs-4">
                                 <div class="panel panel-success">
                                     <div class="panel-heading">
-                                        <h3 class="panel-title"><i class="ace-icon fa fa-leaf"></i>&nbsp;新浪快照任务<a href="/isadmin/edit_task" style="float: right;" class="btn btn-minier btn-primary align-right">编辑</a>
+                                        <h3 class="panel-title"><i class="ace-icon fa fa-leaf"></i>&nbsp;{{ item.name }} <a href="/isadmin/edit_task?id={{ item.id }}" style="float: right;" class="btn btn-minier btn-primary align-right">编辑</a>
                                     </h3>
                                     </div>
                                     <div class="panel-body">
                                         <table class="table" style="margin: 0px;">
                                             <tr>
-                                                <td>起点: <a>www.sina.com.cn</a></td>
-                                                <td>存活时间: 10min</td>
+                                                <td>起点: <a target="_blank" href="{{ item.start_url }}">{{ item.start_url }}</a></td>
+                                                <td>存活时间: {{ item.exist_time }}min</td>
                                             </tr>
                                             <tr>
-                                                <td>访问深度：2</td>
-                                                <td>最大数量：200</td>
+                                                <td>访问深度：{{ item.depth }}</td>
+                                                <td>最大数量：{{ item.max_num }}</td>
                                             </tr>
                                             <tr>
-                                                <td>失效时间: 不失效</td>
-                                                <td>crontab: 0 0 * * *</td>
+                                                {% if item.expires is not None and item.expires != "" %}
+                                                    <td>失效时间: {{ item.expires }}</td>
+                                                {% else %}
+                                                    <td>失效时间: 不失效</td>
+                                                {% endif %}
+                                                <td>crontab: {{ item.crontab }}</td>
                                             </tr>
                                         </table>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-xs-4">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h3 class="panel-title"><i class="ace-icon fa fa-leaf"></i>&nbsp;搜狐快照任务<a href="/isadmin/edit_task" style="float: right;" class="btn btn-minier btn-primary align-right">编辑</a>
-                                    </h3>
-                                    </div>
-                                    <div class="panel-body">
-                                        <table class="table" style="margin: 0px;">
-                                            <tr>
-                                                <td>起点: <a>www.sohu.com</a></td>
-                                                <td>存活时间: 5min</td>
-                                            </tr>
-                                            <tr>
-                                                <td>访问深度：∞</td>
-                                                <td>最大数量：100</td>
-                                            </tr>
-                                            <tr>
-                                                <td>失效时间: 2018-5-10 14:20:10</td>
-                                                <td>crontab: 0 10 * * *</td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xs-4">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h3 class="panel-title"><i class="ace-icon fa fa-leaf"></i>&nbsp;网易快照任务<a href="/isadmin/edit_task" style="float: right;" class="btn btn-minier btn-primary align-right">编辑</a>
-                                    </h3>
-                                    </div>
-                                    <div class="panel-body">
-                                        <table class="table" style="margin: 0px;">
-                                            <tr>
-                                                <td>起点: <a>www.163.com</a></td>
-                                                <td>存活时间: 10min</td>
-                                            </tr>
-                                            <tr>
-                                                <td>访问深度：2</td>
-                                                <td>最大数量：200</td>
-                                            </tr>
-                                            <tr>
-                                                <td>失效时间: 不失效</td>
-                                                <td>crontab: 0 0 * * *</td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                           <!-- PAGE CONTENT ENDS -->
-                        </div><!-- /.col -->
-                        <div class="col-xs-12">
-                           <!-- PAGE CONTENT BEGINS -->
-                            <div class="col-xs-4">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h3 class="panel-title"><i class="ace-icon fa fa-leaf"></i>&nbsp;凤凰网快照任务<a href="/isadmin/edit_task" style="float: right;" class="btn btn-minier btn-primary align-right">编辑</a>
-                                    </h3>
-                                    </div>
-                                    <div class="panel-body">
-                                        <table class="table" style="margin: 0px;">
-                                            <tr>
-                                                <td>起点: <a>www.ifeng.com</a></td>
-                                                <td>存活时间: 10min</td>
-                                            </tr>
-                                            <tr>
-                                                <td>访问深度：2</td>
-                                                <td>最大数量：200</td>
-                                            </tr>
-                                            <tr>
-                                                <td>失效时间: 不失效</td>
-                                                <td>crontab: 0 0 * * *</td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xs-4">
-                                <div class="panel panel-success">
-                                    <div class="panel-heading">
-                                        <h3 class="panel-title"><i class="ace-icon fa fa-leaf"></i>&nbsp;校网快照任务<a href="/isadmin/edit_task" style="float: right;" class="btn btn-minier btn-primary align-right">编辑</a>
-                                    </h3>
-                                    </div>
-                                    <div class="panel-body">
-                                        <table class="table" style="margin: 0px;">
-                                            <tr>
-                                                <td>起点: <a>www.hitwh.edu.cn</a></td>
-                                                <td>存活时间: 10min</td>
-                                            </tr>
-                                            <tr>
-                                                <td>访问深度：2</td>
-                                                <td>最大数量：200</td>
-                                            </tr>
-                                            <tr>
-                                                <td>失效时间: 不失效</td>
-                                                <td>crontab: 0 0 * * *</td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                           <!-- PAGE CONTENT ENDS -->
-                        </div><!-- /.col -->
+                                <!-- PAGE CONTENT ENDS -->
+                             {% endfor %}
+                            </div><!-- /.col -->
+                        {% endfor %}
                     </div><!-- /.row -->
                 </div><!-- /.page-content -->
             </div>
