@@ -10,7 +10,13 @@ from isadmin.tools.html_util import HtmlUtil
 from isadmin.tools.url_util import UrlUtil
 from django.db import connection
 from .tools.tools import get_ssh_connection
-import json, math, time, pexpect, platform, logging
+import json
+import math
+import time
+import pexpect
+import platform
+import logging
+import datetime
 
 
 def index(request):
@@ -287,7 +293,7 @@ def get_tasks(request):
 
     with connection.cursor() as cursor:
         sql = "SELECT task.name,task.description,task.args,task.expires,cron.minute,cron.hour," \
-              "cron.day_of_week,cron.day_of_month,cron.month_of_year,task.id,task.enabled" \
+              "cron.day_of_week,cron.day_of_month,cron.month_of_year,task.id,task.enabled, task.expires" \
               " FROM django_celery_beat_periodictask AS task" \
               " INNER JOIN django_celery_beat_crontabschedule AS cron" \
               " ON task.crontab_id=cron.id" \
@@ -311,6 +317,13 @@ def get_tasks(request):
                           + " " + item[7] + " " + item[8]
         data["id"] = item[9]
         data["enabled"] = item[10]
+        expires = item[11]
+        if expires is None:
+            data["expires_check"] = 1
+        else:
+            expires_time = time.mktime(expires.timetuple())
+            now_time = int(time.time())
+            data["expires_check"] = 0 if now_time-expires_time > 0 else 1
         group_num += 1
         group.append(data)
         if group_num == 3:
@@ -976,6 +989,80 @@ def filted_suspicious_datas(request):
 
 
 @csrf_exempt
+def beat_start(request):
+    ip = "118.24.106.218"
+    user = "root"
+    password = "KONG64530322931."
+    if platform.system() != "Linux":
+        result = json_result("error", "WEB服务器操作系统不支持此操作！:-(")
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
+    child = None
+    try:
+        child = get_ssh_connection(ip, user, password)
+        child.expect("root@(.*?)~#", timeout=5)
+        child.sendline("cd /home/internet-snapshot/mysite")
+        child.expect("root@(.*?)/home/internet-snapshot/mysite#", timeout=5)
+        child.sendline("ps -aux | grep django_celery_beat | grep -v grep | awk '{print $2}'")
+        expect_result = child.expect(["\r\n\d+", "root@(.*?)/home/internet-snapshot/mysite#"], timeout=5)
+        if expect_result == 0:
+            pid = int(child.after[2:])
+            result = json_result("error", "检测到beat正在运行，其进程id为%s。" % (pid,))
+        else:
+            child.sendline("bash ./celery-beat-start.sh")
+            child.expect("root@(.*?)/home/internet-snapshot/mysite#", timeout=5)
+            child.sendline("ps -aux | grep django_celery_beat | grep -v grep | awk '{print $2}'")
+            child.expect("\r\n\d+", timeout=5)
+            pid = int(child.after[2:])
+            result = json_result("success", "beat启动成功，其进程号为%s。" % (pid,))
+    except Exception as e:
+        logging.error("When beat start, error %s occurred." % (e.__class__,))
+        result = json_result("error", "后台链接失败，请重试:-(")
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
+    finally:
+        if child is not None:
+            child.sendline("exit")
+            child.close()
+    return HttpResponse(result, content_type="application/json;charset=utf-8")
+
+
+@csrf_exempt
+def beat_stop(request):
+    '''停止beat'''
+    ip = "118.24.106.218"
+    user = "root"
+    password = "KONG64530322931."
+    if platform.system() != "Linux":
+        result = json_result("error", "WEB服务器操作系统不支持此操作！:-(")
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
+    child = None
+    try:
+        child = get_ssh_connection(ip, user, password)
+        child.expect("root@(.*?)~#", timeout=5)
+        child.sendline("cd /home/internet-snapshot/mysite")
+        child.expect("root@(.*?)/home/internet-snapshot/mysite#", timeout=5)
+        child.sendline("ps -aux | grep django_celery_beat | grep -v grep | awk '{print $2}'")
+        expect_result = child.expect(["\r\n\d+", "root@(.*?)/home/internet-snapshot/mysite#"], timeout=5)
+        if expect_result == 1:
+            result = json_result("error", "没有检测到beat正在运行。")
+        else:
+            pid = int(child.after[2:])
+            child.sendline("bash ./celery-beat-stop.sh")
+            child.expect("root@(.*?)/home/internet-snapshot/mysite#", timeout=5)
+            child.sendline("ps -aux | grep django_celery_beat | grep -v grep | awk '{print $2}'")
+            child.expect("\r\n", timeout=5)
+            result = json_result("success", "beat停止成功，杀死进程号: %s。" % (pid,))
+    except Exception as e:
+        logging.error("When beat stop, error %s occurred." % (e.__class__,))
+        result = json_result("error", "后台链接失败，请重试:-(")
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
+    finally:
+        if child is not None:
+            child.sendline("exit")
+            child.close()
+    return HttpResponse(result, content_type="application/json;charset=utf-8")
+
+
+@csrf_exempt
 def beat_restart(request):
     '''重启django-celery-beat使定时任务修改生效'''
     ip = "118.24.106.218"
@@ -984,25 +1071,32 @@ def beat_restart(request):
     if platform.system() != "Linux":
         result = json_result("error", "WEB服务器操作系统不支持此操作！:-(")
         return HttpResponse(result, content_type="application/json;charset=utf-8")
+    child = None
     try:
         child = get_ssh_connection(ip, user, password)
         child.expect("root@(.*?)~#", timeout=5)
         child.sendline("cd /home/internet-snapshot/mysite")
         child.expect("root@(.*?)/home/internet-snapshot/mysite#", timeout=5)
         child.sendline("ps -aux | grep django_celery_beat | grep -v grep | awk '{print $2}'")
-        child.expect("\r\n\d+", timeout=5)
-        old_pid = int(child.after[2:])
-        child.sendline("bash ./celery-beat-restart.sh")
-        child.expect("root@(.*?)/home/internet-snapshot/mysite#", timeout=5)
-        child.sendline("ps -aux | grep django_celery_beat | grep -v grep | awk '{print $2}'")
-        child.expect("\r\n\d+", timeout=5)
-        new_pid = int(child.after[2:])
-        child.sendline("exit")
-        child.close()
-    except:
+        expect_result = child.expect(["\r\n\d+", "root@(.*?)/home/internet-snapshot/mysite#"], timeout=5)
+        if expect_result == 1:
+            result = json_result("error", "没有检测到beat正在运行，请尝试点击启动beat按钮。")
+        else:
+            old_pid = int(child.after[2:])
+            child.sendline("bash ./celery-beat-restart.sh")
+            child.expect("root@(.*?)/home/internet-snapshot/mysite#", timeout=5)
+            child.sendline("ps -aux | grep django_celery_beat | grep -v grep | awk '{print $2}'")
+            child.expect("\r\n\d+", timeout=5)
+            new_pid = int(child.after[2:])
+            result = json_result("success", "beat重启成功,原进程号: %s, 新进程号: %s。" % (old_pid, new_pid))
+    except Exception as e:
+        logging.error("When beat restart, error %s occurred." % (e.__class__,))
         result = json_result("error", "后台链接失败，请重试:-(")
         return HttpResponse(result, content_type="application/json;charset=utf-8")
-    result = json_result("success", "beat重启成功:-)", data=[old_pid, new_pid])
+    finally:
+        if child is not None:
+            child.sendline("exit")
+            child.close()
     return HttpResponse(result, content_type="application/json;charset=utf-8")
 
 

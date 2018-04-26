@@ -89,7 +89,7 @@
                              {% for item in group %}
                                 <!-- PAGE CONTENT BEGINS -->
                                 <div class="col-xs-4">
-                                {% if item.enabled == "0" or item.enabled == 0 %}
+                                {% if  item.enabled == 0 or item.expires_check == 0 %}
                                     <div class="panel panel-default">
                                 {% else %}
                                     <div class="panel panel-success">
