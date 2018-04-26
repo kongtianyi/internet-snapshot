@@ -59,6 +59,8 @@ urlpatterns = {
     url('^compare_unique_datas$', views.compare_unique_datas, name="compare_unique_datas"),
     url('^filted_suspicious_datas$', views.filted_suspicious_datas, name="filted_suspicious_datas"),
     # ssh
+    url('beat_start', views.beat_start, name="beat_start"),
+    url('beat_stop', views.beat_stop, name="beat_stop"),
     url('beat_restart', views.beat_restart, name="beat_restart"),
     # 人工后处理
     url(r'check_compare_unique', views.check_compare_unique, name="check_compare_unique"),
