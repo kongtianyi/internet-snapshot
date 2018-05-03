@@ -6,6 +6,7 @@ from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from isadmin.models import PublicSafeOutChains, PrivateSafeOutChains, MaliciousDomains, \
     Snapshot, SsHtml, SuspiciousRecords, PrivateOutChainRecords, Vps, VpsStatus, to_json_dict
+from django_celery_beat.models import PeriodicTask, CrontabSchedule
 from isadmin.tools.html_util import HtmlUtil
 from isadmin.tools.url_util import UrlUtil
 from django.db import connection
@@ -16,7 +17,6 @@ import time
 import pexpect
 import platform
 import logging
-import datetime
 
 
 def index(request):
@@ -40,6 +40,13 @@ def prisoc_list(request):
     return render(request, 'isadmin/db/prisoc_list.html')
 
 
+def malicious_domains_list(request):
+    """恶意外链列表页面"""
+    if request.method != "GET":
+        return render(request, 'isadmin/error/error-404.html')
+    return render(request, 'isadmin/db/malicious_domains_list.html')
+
+
 def snapshot_list(request):
     """网页快照列表页面"""
     if request.method != "GET":
@@ -59,6 +66,13 @@ def pocr_list(request):
     if request.method != "GET":
         return render(request, 'isadmin/error/error-404.html')
     return render(request, 'isadmin/db/pocr_list.html')
+
+
+def dcbp_list(request):
+    """定时任务列表页面"""
+    if request.method != "GET":
+        return render(request, 'isadmin/error/error-404.html')
+    return render(request, 'isadmin/db/dcbp_list.html')
 
 
 def show_snapshot(request, id=None):
@@ -416,7 +430,7 @@ def pubsocs(request, id=None):
         if obj == 0:
             result = json_result("error", "更新公共正常外链主域名失败:-(")
         else:
-            result = json_result("success", "删除公共正常外链主域名成功:-)")
+            result = json_result("success", "更新公共正常外链主域名成功:-)")
         return HttpResponse(result, content_type="application/json;charset=utf-8")
     elif request.method == 'GET':
         if id:
@@ -498,7 +512,7 @@ def prisocs(request, id=None):
         if obj == 0:
             result = json_result("error", "更新私有正常外链主域名失败:-(")
         else:
-            result = json_result("success", "删除私有正常外链主域名成功:-)")
+            result = json_result("success", "更新私有正常外链主域名成功:-)")
         return HttpResponse(result, content_type="application/json;charset=utf-8")
     elif request.method == 'GET':
         if id:
@@ -546,6 +560,86 @@ def prisocs_jqgrid(request):
             return prisocs(request)
     elif request.method == "GET":
         return prisocs(request)
+    else:
+        return render(request, 'isadmin/error/error-404.html')
+
+
+@csrf_exempt
+def malicious_domains(request, id=None):
+    """MaliciousDomains的CURD操作REST接口"""
+    if request.method == 'POST':
+        mydomain = request.POST.get("mydomain")
+        remark = request.POST.get("remark")
+        obj = MaliciousDomains.objects.create(mydomain=mydomain, remark=remark)
+        if not obj:
+            result = json_result("error", "添加恶意外链主域名失败:-(")
+        else:
+            result = json_result("success", "添加恶意外链主域名成功:-)")
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
+    elif request.method == 'DELETE':
+        obj = MaliciousDomains.objects.filter(id=id).delete()
+        if not obj or obj[0] == 0:
+            result = json_result("error", "删除恶意外链主域名失败:-(")
+        else:
+            result = json_result("success", "删除恶意外链主域名成功:-)")
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
+    elif request.method == 'PUT':
+        put = QueryDict(request.body)
+        id = put.get("id")
+        mydomain = put.get("mydomain")
+        remark = put.get("remark")
+        obj = MaliciousDomains.objects.filter(id=id).update(mydomain=mydomain, remark=remark)
+        if obj == 0:
+            result = json_result("error", "更新恶意外链主域名失败:-(")
+        else:
+            result = json_result("success", "更新恶意外链主域名成功:-)")
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
+    elif request.method == 'GET':
+        if id:
+            obj = MaliciousDomains.objects.filter(id=id)
+            if not isinstance(obj, QuerySet):
+                result = json_result("error", "查询恶意外链主域名失败:-(")
+            else:
+                data = list()
+                data.append(to_json_dict(obj))
+                result = json_result("success", "查询恶意外链主域名成功:-)", data=data)
+        else:
+            rows = int(request.GET.get("rows")) if request.GET.get("rows") else 10
+            page = int(request.GET.get("page")) if request.GET.get("page") else 1
+            start = (page-1) * rows
+            end = start + rows
+            objs = MaliciousDomains.objects.all()[start: end]
+            if not isinstance(objs, QuerySet):
+                result = json_result("error", "查询恶意主域名失败:-(")
+            else:
+                data = list()
+                for obj in objs:
+                    data.append(to_json_dict(obj))
+                records = MaliciousDomains.objects.count()
+                total_pages = math.floor(records / rows) + 1
+                result = json_result("success", "查询恶意外链主域名成功:-)", data=data, page=page,
+                                     total=total_pages, records=records)
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
+    else:
+        return render(request, 'isadmin/error/error-404.html')
+
+
+@csrf_exempt
+def malicious_domians_jqgrid(request):
+    """MaliciousDomains的CURD操作jqgrid接口"""
+    if request.method == "POST":
+        oper = request.POST.get("oper")
+        if oper == "add":
+            return malicious_domains(request)
+        elif oper == "del":
+            id = request.POST.get("id")
+            request.method = "DELETE"
+            return malicious_domains(request, id=id)
+        elif oper == "edit":
+            request.method = "PUT"
+            return malicious_domains(request)
+    elif request.method == "GET":
+        return malicious_domains(request)
     else:
         return render(request, 'isadmin/error/error-404.html')
 
@@ -878,6 +972,114 @@ def pocr_jqgrid(request):
 
 
 @csrf_exempt
+def dcbps(request, id=None):
+    """DCBP(DjangoCeleryBeatPeriodicTask)的CURD操作REST接口"""
+    if request.method == 'POST':
+        name = request.POST.get("name")
+        args = request.POST.get("args")
+        kwargs = request.POST.get("kwargs")
+        queue = request.POST.get("queue")
+        exchange = request.POST.get("exchange")
+        routing_key = request.POST.get("routing_key")
+        expires = request.POST.get("expires")
+        enabled = request.POST.get("enabled")
+        last_run_at = request.POST.get("last_run_at")
+        total_run_count = request.POST.get("total_run_count")
+        date_changed = request.POST.get("dete_changed")
+        description = request.POST.get("description")
+        crontab_id = request.POST.get("crontab_id")
+        obj = PeriodicTask.objects.create(name=name, args=args, kwargs=kwargs, queue=queue, exchange=exchange,
+                                          routing_key=routing_key, expires=expires, enabled=enabled,
+                                          last_run_at=last_run_at, total_run_count=total_run_count,
+                                          date_changed=date_changed, description=description, crontab_id=crontab_id)
+        if not obj:
+            result = json_result("error", "添加定时任务失败:-(")
+        else:
+            result = json_result("success", "添加定时任务成功:-)")
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
+    elif request.method == 'DELETE':
+        obj = PeriodicTask.objects.filter(id=id).delete()
+        if not obj or obj[0] == 0:
+            result = json_result("error", "删除定时任务失败:-(")
+        else:
+            result = json_result("success", "删除定时任务成功:-)")
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
+    elif request.method == 'PUT':
+        put = QueryDict(request.body)
+        id = put.get("id")
+        name = put.get("name")
+        args = put.get("args")
+        kwargs = put.get("kwargs")
+        queue = put.get("queue")
+        exchange = put.get("exchange")
+        routing_key = put.get("routing_key")
+        expires = put.get("expires")
+        enabled = put.get("enabled")
+        last_run_at = put.get("last_run_at")
+        total_run_count = put.get("total_run_count")
+        date_changed = put.get("dete_changed")
+        description = put.get("description")
+        crontab_id = put.get("crontab_id")
+        obj = PeriodicTask.objects.filter(id=id).update(name=name, args=args, kwargs=kwargs, queue=queue, exchange=exchange,
+                                                 routing_key=routing_key, expires=expires, enabled=enabled,
+                                                 last_run_at=last_run_at, total_run_count=total_run_count,
+                                                 date_changed=date_changed, description=description, crontab_id=crontab_id)
+        if obj == 0:
+            result = json_result("error", "更新定时任务失败:-(")
+        else:
+            result = json_result("success", "更新定时任务成功:-)")
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
+    elif request.method == 'GET':
+        if id:
+            obj = PeriodicTask.objects.filter(id=id)
+            if not isinstance(obj, QuerySet):
+                result = json_result("error", "查询定时任务失败:-(")
+            else:
+                data = list()
+                data.append(to_json_dict(obj))
+                result = json_result("success", "查询定时任务成功:-)", data=data)
+        else:
+            rows = int(request.GET.get("rows")) if request.GET.get("rows") else 10
+            page = int(request.GET.get("page")) if request.GET.get("page") else 1
+            start = (page - 1) * rows
+            end = start + rows
+            objs = PeriodicTask.objects.all()[start: end]
+            if not isinstance(objs, QuerySet):
+                result = json_result("error", "查询定时任务失败:-(")
+            else:
+                data = list()
+                for obj in objs:
+                    data.append(to_json_dict(obj))
+                recoards = PeriodicTask.objects.count()
+                total_pages = math.floor(recoards / rows) + 1
+                result = json_result("success", "查询定时任务成功:-)", data=data, page=page,
+                                     total=total_pages, records=recoards)
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
+    else:
+        return render(request, 'isadmin/error/error-404.html')
+
+
+@csrf_exempt
+def dcbps_jqgrid(request):
+    """DCBP(DjangoCeleryBeatPeriodicTask)的CURD操作jqgrid接口"""
+    if request.method == "POST":
+        oper = request.POST.get("oper")
+        if oper == "add":
+            return dcbps(request)
+        elif oper == "del":
+            id = request.POST.get("id")
+            request.method = "DELETE"
+            return dcbps(request, id=id)
+        elif oper == "edit":
+            request.method = "PUT"
+            return dcbps(request)
+    elif request.method == "GET":
+        return dcbps(request)
+    else:
+        return render(request, 'isadmin/error/error-404.html')
+
+
+@csrf_exempt
 def redirect_records_datas(request):
     draw = request.GET.get("draw")
     start = int(request.GET.get("start"))
@@ -902,12 +1104,17 @@ def compare_unique_datas(request):
     draw = request.GET.get("draw")
     start = request.GET.get("start")
     length = request.GET.get("length")
+    filter = request.GET.get("search[value]")
     sql = "SELECT snapshot.id, snapshot.request_url, private_out_chain_records.out_chain, " \
           "private_out_chain_records.checked, private_out_chain_records.result, " \
           "snapshot.send_ip, snapshot.server_ip, snapshot.get_time, private_out_chain_records.id " \
           "FROM snapshot INNER JOIN private_out_chain_records " \
-          "ON snapshot.id = private_out_chain_records.ss_id " \
-          "LIMIT %s,%s;"
+          "ON snapshot.id = private_out_chain_records.ss_id "
+    if filter == "未检查":
+        sql += "WHERE private_out_chain_records.checked=0 "
+    elif "恶意" in filter:
+        sql += "WHERE private_out_chain_records.checked=1 AND private_out_chain_records.result=1 "
+    sql += "LIMIT %s,%s;"
     with connection.cursor() as cursor:
         cursor.execute(sql, (int(start), int(length)))
         rows = cursor.fetchall()
@@ -926,7 +1133,12 @@ def compare_unique_datas(request):
         item["id"] = row[8]
         data.append(item)
     sql = "SELECT COUNT(*) FROM snapshot INNER JOIN private_out_chain_records " \
-          "ON snapshot.id = private_out_chain_records.ss_id;"
+          "ON snapshot.id = private_out_chain_records.ss_id "
+    if filter == "未检查":
+        sql += "WHERE private_out_chain_records.checked=0 "
+    elif "恶意" in filter:
+        sql += "WHERE private_out_chain_records.checked=1 AND private_out_chain_records.result=1 "
+    sql += ";"
     with connection.cursor() as cursor:
         cursor.execute(sql)
         re = cursor.fetchone()
@@ -953,7 +1165,6 @@ def filted_suspicious_datas(request):
     elif "恶意" in filter:
         sql += "WHERE suspicious_records.checked=1 AND suspicious_records.result=1 "
     sql += "LIMIT %s,%s;"
-    print(sql)
     with connection.cursor() as cursor:
         cursor.execute(sql, (int(start), int(length)))
         rows = cursor.fetchall()

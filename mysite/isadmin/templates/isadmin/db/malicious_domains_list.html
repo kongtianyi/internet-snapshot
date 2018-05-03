@@ -3,7 +3,7 @@
 	<head>
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 		<meta charset="utf-8" />
-		<title>私有正常外链主域名</title>
+		<title>恶意外链主域名</title>
         {% load static %}
 
 		<meta name="description" content="Dynamic tables and grids using jqGrid plugin" />
@@ -48,8 +48,7 @@
 	</head>
 
 	<body class="no-skin" style="background: white">
-
-			<div class="main-content">
+        <div class="main-content">
 				<div class="main-content-inner">
 					<div class="breadcrumbs ace-save-state" id="breadcrumbs">
 						<ul class="breadcrumb">
@@ -61,7 +60,7 @@
 							<li>
 								<a href="#">数据库管理</a>
 							</li>
-							<li class="active">私有正常外链主域名列表</li>
+							<li class="active">恶意外链主域名列表</li>
 						</ul><!-- /.breadcrumb -->
 
 						<div class="nav-search" id="nav-search">
@@ -75,13 +74,12 @@
 					</div>
 
 					<div class="page-content">
-
 						<div class="page-header">
 							<h1>
-								私有正常外链主域名列表
+								恶意外链主域名列表
 								<small>
 									<i class="ace-icon fa fa-angle-double-right"></i>
-									私有正常外链主域名下的链接出现在属主页面中认为绿色无害。
+									即外链黑名单，存在于任何合法网站中都是不正常的。
 								</small>
 							</h1>
 						</div><!-- /.page-header -->
@@ -101,7 +99,6 @@
 				</div>
 			</div><!-- /.main-content -->
 
-
 		<!-- basic scripts -->
 
 		<!--[if !IE]> -->
@@ -110,8 +107,8 @@
 		<!-- <![endif]-->
 
 		<!--[if IE]>
-            <script src="{% static 'isadmin/js/jquery-1.11.3.min.js' %}"></script>
-        <![endif]-->
+<script src="{% static 'isadmin/js/jquery-1.11.3.min.js' %}"></script>
+<![endif]-->
 		<script type="text/javascript">
 			if('ontouchstart' in document.documentElement) document.write("<script src='{% static 'isadmin/js/jquery.mobile.custom.min.js' %}'>"+"<"+"/script>");
 		</script>
@@ -150,13 +147,13 @@
 			    })
 
 				jQuery(grid_selector).jqGrid({
-                    url: "/isadmin/prisocs_jqgrid",
+                    url: "/isadmin/malicious_domains_jqgrid",
 					datatype: "json",
                     jsonReader: {
                         root: "data"
                     },
 					height: 395,
-					colNames:[' ', 'ID', '主域名', '属主', '备注'],
+					colNames:[' ', 'ID','主域名','备注'],
 					colModel:[
 						{name:'myac',index:'', width:80, fixed:true, sortable:false, resize:false,
 							formatter:'actions',
@@ -167,8 +164,7 @@
 						},
 						{name:'id',index:'id', width:60, sorttype:"int", editable: false},
 						{name:'mydomain',index:'mydomain', width:200,editable: true,editoptions:{size:"20",maxlength:"50"}},
-                        {name: 'owner', index: 'owner', width: 200, editable: true, editoptions: {size: "20", maxlength: "50"}},
-                        {name:'remark',index:'remark', width:200, sortable:false,editable: true,edittype:"textarea", editoptions:{rows:"2",cols:"20"}}
+						{name:'remark',index:'remark', width:200, sortable:false,editable: true,edittype:"textarea", editoptions:{rows:"2",cols:"20"}}
 					],
 
 					viewrecords : true,
@@ -193,8 +189,8 @@
 						}, 0);
 					},
 
-					editurl: "/isadmin/prisocs_jqgrid",
-					caption: "私有正常外链主域名列表"
+					editurl: "/isadmin/malicious_domains_jqgrid",
+					caption: "恶意外链主域名列表"
 				});
 				$(window).triggerHandler('resize.jqGrid');//trigger window resize to make the grid get the correct size
 

@@ -109,6 +109,10 @@ class SingletonDownloader(metaclass=Singleton):
             self.driver.execute_script("window.stop()")
         except WebDriverException as e:
             logging.error("When download page, error class: %s, message: %s." % (e.__class__, e.msg))
+            options = Options()
+            options.add_argument('-headless')
+            self.driver = Firefox(firefox_options=options)
+            logging.info("Webdriver reinit")
         finally:
             load_time = time.time() - start_time
             logging.info("Get url:" + main_item.request_url + " spend " + str(load_time) + "s.")

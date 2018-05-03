@@ -3,7 +3,10 @@
 from urllib import parse
 from publicsuffix import fetch
 from publicsuffix import PublicSuffixList
-import codecs, re, os
+import codecs
+import re
+import os
+import urllib
 
 
 class UrlUtil:
@@ -17,13 +20,13 @@ class UrlUtil:
     def get_protocol(cls, url):
         """抽取url的协议"""
         parse_result = parse.urlparse(url=url)
-        return parse_result[0]
+        return parse_result[0].strip()  # 加上strip以防万一
 
     @classmethod
     def get_domain(cls, url):
         """抽取url的域名"""
         parse_result = parse.urlparse(url=url)
-        return parse_result[1]
+        return parse_result[1].strip()  # 有的链接域名最后跟了空白，chrome还能够正确的识别解析，神奇……
 
     @classmethod
     def get_top_domain(cls, url):
@@ -44,6 +47,29 @@ class UrlUtil:
         elif len(splites) == 4 and splites[-1] == "":
             return url[:-1]
         return "/".join(url.split('/')[:-1])
+
+    @classmethod
+    def is_gov_or_edu(cls, url):
+        """判断url是否是政府或教育机构域名"""
+        domain = UrlUtil.get_domain(url)
+        if len(domain) > 7 and domain[-7:] in (".gov.cn", ".edu.cn"):
+            return True
+        return False
+
+    @classmethod
+    def top_domain_is_gov_or_edu(cls, top_domain):
+        """判断主域名是否是政府或教育机构"""
+        if top_domain in ("gov.cn", "edu.cn"):
+            return True
+        return False
+
+    @classmethod
+    def get_url_suffix(cls, url):
+        """获取网页后缀名（如html、js、css）"""
+        path = urllib.parse.urlsplit(url)[2]
+        if '.' not in path.split('/')[-1]:
+            return ""
+        return path.split('.')[-1]
 
 
 if __name__ == "__main__":
