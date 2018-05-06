@@ -1,16 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<script type="text/javascript">
-	var ws = new WebSocket('ws://118.24.106.218:8080/');
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <title>实时日志</title>
 
-	ws.onmessage = function(event) {
-  		console.log('Count is: ' + event.data);
-	};
-</script>
+    {% load static %}
+
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <!-- bootstrap & fontawesome -->
+    <link rel="stylesheet" href="{% static 'isadmin/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'isadmin/font-awesome/4.5.0/css/font-awesome.min.css' %}" />
+
+
+    <!-- page specific plugin styles -->
+
+    <!-- text fonts -->
+    <link rel="stylesheet" href="{% static 'isadmin/css/fonts.googleapis.com.css' %}" />
+
+    <!-- ace styles -->
+    <link rel="stylesheet" href="{% static 'isadmin/css/ace.min.css' %}" class="ace-main-stylesheet" id="main-ace-style" />
+
+    <!--[if lte IE 9]>
+		   	<link rel="stylesheet" href="{% static 'isadmin/css/ace-part2.min.css' %}" class="ace-main-stylesheet" />
+		<![endif]-->
+    <link rel="stylesheet" href="{% static 'isadmin/css/ace-skins.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'isadmin/css/ace-rtl.min.css' %}" />
+
+    <!--[if lte IE 9]>
+		    <link rel="stylesheet" href="{% static 'isadmin/css/ace-ie.min.css' %}" />
+		<![endif]-->
+
+    <!-- inline styles related to this page -->
+
+    <!-- ace settings handler -->
+    <script src="{% static 'isadmin/js/ace-extra.min.js' %}"></script>
+
+    <!-- HTML5shiv and Respond.js for IE8 to support HTML5 elements and media queries -->
+
+    <!--[if lte IE 8]>
+		    <script src="{% static 'isadmin/js/html5shiv.min.js' %}"></script>
+		    <script src="{% static 'isadmin/js/respond.min.js' %}"></script>
+		<![endif]-->
+</head>
+<body class="no-skin" style="background-color: white">
+    <div class="main-content">
+        <div class="main-content-inner">
+            <div class="breadcrumbs ace-save-state" id="breadcrumbs">
+                <ul class="breadcrumb">
+                    <li>
+                        <i class="ace-icon fa fa-home home-icon"></i>
+                        <a href="#">Home</a>
+                    </li>
+
+                    <li>
+                        <a href="#">日志管理</a>
+                    </li>
+                    <li class="active">实时日志</li>
+                </ul><!-- /.breadcrumb -->
+
+                <div class="nav-search" id="nav-search">
+                    <form class="form-search">
+                        <span class="input-icon">
+                            <input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off" />
+                            <i class="ace-icon fa fa-search nav-search-icon"></i>
+                        </span>
+                    </form>
+                </div><!-- /.nav-search -->
+            </div>
+
+            <div class="page-content">
+                <div class="page-header">
+                        <h1>
+                            实时日志
+                            <small>
+                                <i class="ace-icon fa fa-angle-double-right"></i>
+                                实时日志的监控。
+                            </small>
+                        </h1>
+                    </div><!-- /.page-header -->
+                <div class="row">
+                    <div class="col-xs-12">
+                        <span>服务器IP:</span>
+                        <select id="server_ip">
+                            <option value="118.24.106.218">118.24.106.218</option>
+                            <option value="114.67.225.0">114.67.225.0</option>
+                            <option value="120.79.178.39">120.79.178.39</option>
+                        </select>
+                        <span>日志文件:</span>
+                        <select id="log_file">
+                            <option value="beijing_download_queue.log">isSpider/chengdu_download_queue.log</option>
+                            <option value="beijing_queue.log">isSpider/chengdu_queue.log</option>
+                            <option value="default_queue.log">isSpider/default_queue.log</option>
+                        </select>
+                        <button id="start_log" class="btn btn-primary btn-sm" onclick="start_ws()">开始</button>
+                        <button id="stop_log" class="btn btn-primary btn-sm" onclick="stop_ws()">停止</button>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <textarea readonly id="log_area" class="col-xs-12" style="margin: 5px 0px 0px 0px;"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.page-content -->
+            </div>
+        </div><!-- /.main-content -->
+    </div>
+    <!-- basic scripts -->
+    <!--[if !IE]> -->
+    <script src="{% static 'isadmin/js/jquery-2.1.4.min.js' %}"></script>
+    <!-- <![endif]-->
+
+    <!--[if IE]>
+        <script src="{% static 'isadmin/js/jquery-1.11.3.min.js' %}"></script>
+    <![endif]-->
+    <script type="text/javascript">
+        if('ontouchstart' in document.documentElement) document.write("<script src='{% static 'isadmin/js/jquery.mobile.custom.min.js' %}'>"+"<"+"/script>");
+    </script>
+    <script src="{% static 'isadmin/js/bootstrap.min.js' %}"></script>
+
+    <!-- page specific plugin scripts -->
+
+    <!-- ace scripts -->
+    <script src="{% static 'isadmin/js/ace-elements.min.js' %}"></script>
+    <script src="{% static 'isadmin/js/ace.min.js' %}"></script>
+
+    <!-- inline scripts related to this page -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var log_area = $("#log_area");
+            log_area.height($(window).height()-188);
+        });
+
+
+        var log_area = $("#log_area");
+        var ws;
+        var interval;
+
+        function start_ws() {
+            if(!"WebSocket" in window) {
+                log_area.val(log_area.val() + "当前浏览器不支持WebSocket，此功能无法使用。");
+                return;
+            }
+            var server_ip = $("#server_ip").val();
+            var server_port = "8080";
+            var log_file = $("#log_file").val();
+            ws = new WebSocket("ws://"+server_ip+":"+server_port+"/");
+            interval = setInterval('send_msg()',1000);
+            ws.onopen = function () {
+                ws.send(log_file);
+                log_area.val(log_area.val() + "连接建立成功。\n");
+            };
+            ws.onmessage = function (event) {
+                log_area.val(log_area.val() + event.data + "\n");
+                var log_area_elem = document.getElementById("log_area");
+                log_area_elem.scrollTop = log_area_elem.scrollHeight;
+            };
+            ws.onerror = function () {
+                log_area.val(log_area.val() + "Some error occurred.\n");
+            };
+            ws.onclose = function () {
+                log_area.val(log_area.val() + "连接关闭。\n");
+            };
+        }
+
+        function stop_ws() {
+            if(ws instanceof WebSocket) {
+                ws.send("stop");
+                clearInterval(interval);
+                ws.close();
+            } else {
+                log_area.val(log_area.val() + "连接已关闭或并未开启。\n");
+            }
+        }
+
+        // 在窗口关闭前关闭websocket连接
+        window.onbeforeunload = function () {
+            stop_ws();
+        };
+
+        function send_msg() {
+            function complement_zero(num) {
+                if((typeof num == "number" && num < 10) || (typeof num == "string" && num.length == 1))
+                    num = "0" + num;
+                return num;
+            }
+            var now = new Date();
+            var year = now.getFullYear();
+            var month = now.getMonth();
+            var day = now.getDate();
+            var hour = now.getHours();
+            var minute = now.getMinutes();
+            var second = now.getSeconds() - 1;
+            month++;
+            month = complement_zero(month);
+            day = complement_zero(day);
+            hour = complement_zero(hour);
+            minute = complement_zero(minute);
+            second = complement_zero(second);
+            var format_now = year + "-" +  month + "-" + day + " " + hour + ":" + minute + ":" + second;
+            ws.send(format_now);
+        }
+    </script>
 </body>
 </html>
