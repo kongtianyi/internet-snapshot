@@ -3,6 +3,7 @@
 
 from sys import stdin
 from sys import stdout
+import time
 import re
 
 
@@ -40,23 +41,25 @@ def tail(file, taillines=500, return_str=True, avg_line_length=None):
 
         return "".join(lines) if return_str else lines
 
-file_path = "/home/internet-snapshot/"
-file_name = stdin.readline()[:-1]
+# file_path = "/home/internet-snapshot/"
+# file_name = stdin.readline()[:-1]
 while True:
     front_sent = stdin.readline()[:-1]  # 前端传来的时间或终止信号
     if front_sent == "stop":
         break
-    file_tail = tail(file_path + file_name, taillines=200)
-    # file_tail = tail("C:\\Users\\KongWei\\Desktop\\beijing_download_queue.log", taillines=200)
+    # file_tail = tail(file_path + file_name, taillines=200)
+    file_tail = tail("C:\\Users\\KongWei\\Desktop\\beijing_download_queue.log", taillines=200)
     date_pattern = "^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$"
     if not re.match(date_pattern, front_sent):
-        stdout.write("前端发送时间格式错误。")
+        stdout.write("Date format error.")
         stdout.flush()
         break
-    first_index = file_tail.find(front_sent)-1  # 这一秒的第一条记录起点
+    now = time.mktime(time.strptime(front_sent, '%Y-%m-%d %H:%M:%S'))
+    last_second = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(now-1))  # 前端传过来那一时刻的上一秒
+    first_index = file_tail.find(last_second)-1  # 这一秒的第一条记录起点
     if first_index == -2:
         continue
-    last_index = file_tail.rfind(front_sent)  # 这一秒的最后一条记录起点
+    last_index = file_tail.rfind(last_second)  # 这一秒的最后一条记录起点
     end_index = file_tail.find("\n", last_index)  # 这一秒的最后一条记录终点
     if end_index == -1:
         end_index = len(file_tail)

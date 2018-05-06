@@ -193,7 +193,7 @@
             var day = now.getDate();
             var hour = now.getHours();
             var minute = now.getMinutes();
-            var second = now.getSeconds() - 1;
+            var second = now.getSeconds();
             month++;
             month = complement_zero(month);
             day = complement_zero(day);
@@ -201,6 +201,7 @@
             minute = complement_zero(minute);
             second = complement_zero(second);
             var format_now = year + "-" +  month + "-" + day + " " + hour + ":" + minute + ":" + second;
+            console.log(format_now)
             ws.send(format_now);
         }
     </script>
