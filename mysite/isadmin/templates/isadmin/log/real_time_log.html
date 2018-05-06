@@ -91,9 +91,9 @@
                         </select>
                         <span>日志文件:</span>
                         <select id="log_file">
-                            <option value="beijing_download_queue.log">isSpider/chengdu_download_queue.log</option>
-                            <option value="beijing_queue.log">isSpider/chengdu_queue.log</option>
-                            <option value="default_queue.log">isSpider/default_queue.log</option>
+                            <option value="isSpider/chengdu_download_queue.log">isSpider/chengdu_download_queue.log</option>
+                            <option value="isSpider/chengdu_queue.log">isSpider/chengdu_queue.log</option>
+                            <option value="isSpider/default_queue.log">isSpider/default_queue.log</option>
                         </select>
                         <button id="start_log" class="btn btn-primary btn-sm" onclick="start_ws()">开始</button>
                         <button id="stop_log" class="btn btn-primary btn-sm" onclick="stop_ws()">停止</button>
@@ -168,8 +168,8 @@
 
         function stop_ws() {
             if(ws instanceof WebSocket) {
-                ws.send("stop");
                 clearInterval(interval);
+                ws.send("stop");
                 ws.close();
             } else {
                 log_area.val(log_area.val() + "连接已关闭或并未开启。\n");

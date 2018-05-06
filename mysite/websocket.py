@@ -54,6 +54,8 @@ while True:
         stdout.flush()
         break
     first_index = file_tail.find(front_sent)-1  # 这一秒的第一条记录起点
+    if first_index == -2:
+        pass
     last_index = file_tail.rfind(front_sent)  # 这一秒的最后一条记录起点
     end_index = file_tail.find("\n", last_index)  # 这一秒的最后一条记录终点
     if end_index == -1:
