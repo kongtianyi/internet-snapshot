@@ -93,6 +93,7 @@
                         <select id="log_file">
                             <option value="isSpider/chengdu_download_queue.log">isSpider/chengdu_download_queue.log</option>
                             <option value="isSpider/chengdu_queue.log">isSpider/chengdu_queue.log</option>
+                            <option value="isSpider/parse_queue.log">isSpider/parse_queue.log</option>
                             <option value="isSpider/default_queue.log">isSpider/default_queue.log</option>
                         </select>
                         <button id="start_log" class="btn btn-primary btn-sm" onclick="start_ws()">开始</button>
@@ -201,7 +202,7 @@
             minute = complement_zero(minute);
             second = complement_zero(second);
             var format_now = year + "-" +  month + "-" + day + " " + hour + ":" + minute + ":" + second;
-            console.log(format_now)
+            console.log(format_now);
             ws.send(format_now);
         }
     </script>

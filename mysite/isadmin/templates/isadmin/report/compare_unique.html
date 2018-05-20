@@ -142,6 +142,7 @@
         <script src="{% static 'isadmin/js/jquery.flot.min.js' %}"></script>
         <script src="{% static 'isadmin/js/jquery.flot.pie.min.js' %}"></script>
         <script src="{% static 'isadmin/js/jquery.flot.resize.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/bootbox.js' %}"></script>
 
         <!-- ace scripts -->
         <script src="{% static 'isadmin/js/ace-elements.min.js' %}"></script>
@@ -326,9 +327,9 @@
                     },
                     success: function (data) {
                         if(data["status"] == "error") {
-                            alert(data["message"]);
+                            bootbox.alert(data["message"]);
                         } else {
-                            alert(data["message"]);
+                            bootbox.alert(data["message"]);
                             myTable.ajax.reload();
                         }
                     }

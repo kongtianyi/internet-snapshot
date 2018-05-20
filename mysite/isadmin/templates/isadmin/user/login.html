@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-Han">
+	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<meta charset="utf-8" />
+		<title>登陆 - 互联网站点劫持检测系统</title>
+        {% load static %}
+
+		<meta name="description" content="User login page" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+        <link rel="shortcut icon" href="/static/isadmin/images/favicon.ico">
+
+		<!-- bootstrap & fontawesome -->
+        <link rel="stylesheet" href="{% static 'isadmin/css/bootstrap.min.css' %}" />
+        <link rel="stylesheet" href="{% static 'isadmin/font-awesome/4.5.0/css/font-awesome.min.css' %}" />
+
+		<!-- text fonts -->
+        <link rel="stylesheet" href="{% static 'isadmin/css/fonts.googleapis.com.css' %}" />
+
+        <!-- ace styles -->
+        <link rel="stylesheet" href="{% static 'isadmin/css/ace.min.css' %}" class="ace-main-stylesheet" id="main-ace-style" />
+
+		<!--[if lte IE 9]>
+			<link rel="stylesheet" href="{% static 'isadmin/css/ace-part2.min.css' %}" class="ace-main-stylesheet" />
+		<![endif]-->
+        <link rel="stylesheet" href="{% static 'isadmin/css/ace-skins.min.css' %}" />
+        <link rel="stylesheet" href="{% static 'isadmin/css/ace-rtl.min.css' %}" />
+
+        <!--[if lte IE 9]>
+		    <link rel="stylesheet" href="{% static 'isadmin/css/ace-ie.min.css' %}" />
+		<![endif]-->
+
+        <!-- inline styles related to this page -->
+
+        <!-- ace settings handler -->
+        <script src="{% static 'isadmin/js/ace-extra.min.js' %}"></script>
+
+        <!-- HTML5shiv and Respond.js for IE8 to support HTML5 elements and media queries -->
+
+        <!--[if lte IE 8]>
+		    <script src="{% static 'isadmin/js/html5shiv.min.js' %}"></script>
+		    <script src="{% static 'isadmin/js/respond.min.js' %}"></script>
+		<![endif]-->
+	</head>
+
+	<body class="login-layout">
+		<div class="main-container">
+			<div class="main-content">
+				<div class="row">
+					<div class="col-sm-10 col-sm-offset-1">
+						<div class="login-container">
+							<div class="center">
+								<h1>
+									<i class="ace-icon fa fa-leaf green"></i>
+									<span class="red">互联网站点</span>
+                                    <br>
+									<span class="white" id="id-text2">劫持检测系统</span>
+								</h1>
+								<h4 class="blue" id="id-company-text">&copy; <a href="https://github.com/kongtianyi" target="_blank">kongtianyi</a></h4>
+							</div>
+
+							<div class="space-6"></div>
+
+							<div class="position-relative">
+								<div id="login-box" class="login-box visible widget-box no-border">
+									<div class="widget-body">
+										<div class="widget-main">
+											<h4 class="header blue lighter bigger">
+												<i class="ace-icon fa fa-coffee green"></i>
+												请输入您的账号密码：
+											</h4>
+
+											<div class="space-6"></div>
+
+											<form method="post">
+												<fieldset>
+													<label class="block clearfix">
+														<span class="block input-icon input-icon-right">
+															<input id="login_nickname" name="login_nickname" type="text" class="form-control" placeholder="用户名" />
+															<i class="ace-icon fa fa-user"></i>
+														</span>
+													</label>
+
+													<label class="block clearfix">
+														<span class="block input-icon input-icon-right">
+															<input id="login_password" name="login_password" type="password" class="form-control" placeholder="密码" />
+															<i class="ace-icon fa fa-lock"></i>
+														</span>
+													</label>
+
+													<div class="space"></div>
+
+													<div class="clearfix">
+														<label class="inline">
+															<input type="checkbox" class="ace" />
+															<span class="lbl"> 记住我</span>
+														</label>
+
+														<button onclick="login();" type="button" class="width-35 pull-right btn btn-sm btn-primary">
+															<i class="ace-icon fa fa-key"></i>
+															<span class="bigger-110">登陆</span>
+														</button>
+													</div>
+
+													<div class="space-4"></div>
+												</fieldset>
+											</form>
+
+											<div class="social-or-login center">
+												<span class="bigger-110">或者上网冲浪……</span>
+											</div>
+
+											<div class="space-6"></div>
+
+											<div class="social-login center">
+												<a class="btn btn-primary">
+													<i class="ace-icon fa fa-facebook"></i>
+												</a>
+
+												<a class="btn btn-info" href="https://twitter.com" target="_blank">
+													<i class="ace-icon fa fa-twitter"></i>
+												</a>
+
+												<a class="btn btn-grey" href="https://github.com" target="_blank">
+													<i class="ace-icon fa fa-github"></i>
+												</a>
+											</div>
+										</div><!-- /.widget-main -->
+
+										<div class="toolbar clearfix">
+											<div>
+												<a href="#" data-target="#forgot-box" class="forgot-password-link">
+													<i class="ace-icon fa fa-arrow-left"></i>
+													忘记密码
+												</a>
+											</div>
+
+											<div>
+												<a href="#" data-target="#signup-box" class="user-signup-link">
+													现在注册
+													<i class="ace-icon fa fa-arrow-right"></i>
+												</a>
+											</div>
+										</div>
+									</div><!-- /.widget-body -->
+								</div><!-- /.login-box -->
+
+								<div id="forgot-box" class="forgot-box widget-box no-border">
+									<div class="widget-body">
+										<div class="widget-main">
+											<h4 class="header red lighter bigger">
+												<i class="ace-icon fa fa-key"></i>
+												重置密码
+											</h4>
+
+											<div class="space-6"></div>
+											<p>
+												请输入您的注册电子邮箱以获得链接地址：
+											</p>
+
+											<form>
+												<fieldset>
+													<label class="block clearfix">
+														<span class="block input-icon input-icon-right">
+															<input id="retrieve_email" type="email" class="form-control" placeholder="电子邮箱" />
+															<i class="ace-icon fa fa-envelope"></i>
+														</span>
+													</label>
+
+													<div class="clearfix">
+														<button onclick="retrieve();" type="button" class="width-35 pull-right btn btn-sm btn-danger">
+															<i class="ace-icon fa fa-lightbulb-o"></i>
+															<span class="bigger-110">发送!</span>
+														</button>
+													</div>
+												</fieldset>
+											</form>
+										</div><!-- /.widget-main -->
+
+										<div class="toolbar center">
+											<a href="#" data-target="#login-box" class="back-to-login-link">
+												返回登陆
+												<i class="ace-icon fa fa-arrow-right"></i>
+											</a>
+										</div>
+									</div><!-- /.widget-body -->
+								</div><!-- /.forgot-box -->
+
+								<div id="signup-box" class="signup-box widget-box no-border">
+									<div class="widget-body">
+										<div class="widget-main">
+											<h4 class="header green lighter bigger">
+												<i class="ace-icon fa fa-users blue"></i>
+												注册新用户
+											</h4>
+
+											<div class="space-6"></div>
+											<p> 请输入您的相关信息: </p>
+
+											<form>
+												<fieldset>
+													<label class="block clearfix">
+														<span class="block input-icon input-icon-right">
+															<input id="register_nickname" name="nickname" type="text" class="form-control" placeholder="用户名" />
+															<i class="ace-icon fa fa-user"></i>
+														</span>
+													</label>
+
+                                                    <label class="block clearfix">
+														<span class="block input-icon input-icon-right">
+															<input id="register_email" name="email" type="text" class="form-control" placeholder="电子邮箱" />
+															<i class="ace-icon fa fa-envelope"></i>
+														</span>
+													</label>
+
+                                                    <label class="block clearfix">
+														<span class="block input-icon input-icon-right">
+															<input id="register_invite_code" name="invite_code" type="text" class="form-control" placeholder="邀请码" />
+															<i class="ace-icon fa fa-gift"></i>
+														</span>
+													</label>
+
+													<label class="block clearfix">
+														<span class="block input-icon input-icon-right">
+															<input id="register_password" name="password" type="password" class="form-control" placeholder="密码" />
+															<i class="ace-icon fa fa-lock"></i>
+														</span>
+													</label>
+
+													<label class="block clearfix">
+														<span class="block input-icon input-icon-right">
+															<input id="register_repeat_password" name="repeat_password" type="password" class="form-control" placeholder="重复密码" />
+															<i class="ace-icon fa fa-retweet"></i>
+														</span>
+													</label>
+
+													<label class="block">
+														<input type="checkbox" class="ace" />
+														<span class="lbl">
+															我同意
+															<a href="#">《系统使用协议》</a>
+														</span>
+													</label>
+
+													<div class="space-24"></div>
+
+													<div class="clearfix">
+														<button type="reset" class="width-30 pull-left btn btn-sm">
+															<i class="ace-icon fa fa-refresh"></i>
+															<span class="bigger-110">重置</span>
+														</button>
+
+														<button onclick="register();" type="button" class="width-65 pull-right btn btn-sm btn-success">
+															<span class="bigger-110">注册</span>
+
+															<i class="ace-icon fa fa-arrow-right icon-on-right"></i>
+                                                        </button>
+													</div>
+												</fieldset>
+											</form>
+										</div>
+
+										<div class="toolbar center">
+											<a href="#" data-target="#login-box" class="back-to-login-link">
+												<i class="ace-icon fa fa-arrow-left"></i>
+												返回登陆
+											</a>
+										</div>
+									</div><!-- /.widget-body -->
+								</div><!-- /.signup-box -->
+							</div><!-- /.position-relative -->
+
+							<div class="navbar-fixed-top align-right">
+								<br />
+								&nbsp;
+								<a id="btn-login-dark" href="#">Dark</a>
+								&nbsp;
+								<span class="blue">/</span>
+								&nbsp;
+								<a id="btn-login-blur" href="#">Blur</a>
+								&nbsp;
+								<span class="blue">/</span>
+								&nbsp;
+								<a id="btn-login-light" href="#">Light</a>
+								&nbsp; &nbsp; &nbsp;
+							</div>
+						</div>
+					</div><!-- /.col -->
+				</div><!-- /.row -->
+			</div><!-- /.main-content -->
+		</div><!-- /.main-container -->
+
+		<!-- basic scripts -->
+
+		<!--[if !IE]> -->
+		<script src="{% static 'isadmin/js/jquery-2.1.4.min.js' %}"></script>
+
+		<!-- <![endif]-->
+
+		<!--[if IE]>
+            <script src="{% static 'isadmin/js/jquery-1.11.3.min.js' %}"></script>
+        <![endif]-->
+		<script type="text/javascript">
+			if('ontouchstart' in document.documentElement) document.write("<script src='{% static 'isadmin/js/jquery.mobile.custom.min.js' %}'>"+"<"+"/script>");
+		</script>
+
+        <!-- page specific plugin scripts -->
+        <script src="{% static 'isadmin/js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/bootbox.js' %}"></script>
+
+		<!-- inline scripts related to this page -->
+		<script type="text/javascript">
+            jQuery(function($) {
+                $(document).on('click', '.toolbar a[data-target]', function(e) {
+                    e.preventDefault();
+                    var target = $(this).data('target');
+                    $('.widget-box.visible').removeClass('visible');//hide others
+                    $(target).addClass('visible');//show target
+                });
+            });
+
+
+
+            //you don't need this, just used for changing background
+            jQuery(function($) {
+                $('#btn-login-dark').on('click', function(e) {
+                    $('body').attr('class', 'login-layout');
+                    $('#id-text2').attr('class', 'white');
+                    $('#id-company-text').attr('class', 'blue');
+
+                    e.preventDefault();
+                });
+                $('#btn-login-light').on('click', function(e) {
+                    $('body').attr('class', 'login-layout light-login');
+                    $('#id-text2').attr('class', 'grey');
+                    $('#id-company-text').attr('class', 'blue');
+
+                    e.preventDefault();
+                });
+                $('#btn-login-blur').on('click', function(e) {
+                    $('body').attr('class', 'login-layout blur-login');
+                    $('#id-text2').attr('class', 'white');
+                    $('#id-company-text').attr('class', 'light-blue');
+
+                    e.preventDefault();
+                });
+
+            });
+
+			/* 注册请求 */
+            function register() {
+                $.ajax({
+                    "url": "/isadmin/register_action",
+                    "method": "post",
+                    "data": {
+                        "nickname": $("#register_nickname").val(),
+                        "email": $("#register_email").val(),
+                        "password": $("#register_password").val(),
+                        "repeat_password": $("#register_repeat_password").val(),
+                        "invite_code": $("#register_invite_code").val()
+                    },
+                    "success": function(data) {
+                        if(data["status"] == "success") {
+                            bootbox.dialog({
+                                message: "注册成功，点击确定跳转登陆页。",
+                                buttons: {
+                                    "success": {
+                                        "label": "确定",
+                                        "className": "btn-sm btn-primary",
+                                        "callback": function () {
+                                            window.location.href="/isadmin/login";
+                                        }
+                                    }
+                                }
+                            });
+                        } else {
+                            bootbox.dialog({
+                                message: data["message"],
+                                buttons: {
+                                    "success": {
+                                        "label": "确定",
+                                        "className": "btn-sm btn-primary"
+                                    }
+                                }
+                            });
+                        }
+                    },
+                    "error": function() {
+                        bootbox.dialog({
+                            message: "服务端出错，请稍后重试。",
+                            buttons: {
+                                "success": {
+                                    "label": "OK",
+                                    "className": "btn-sm btn-primary"
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+
+            /* 重置密码请求 */
+            function retrieve() {
+                $.ajax({
+                    "url": "/isadmin/retrieve_email_action",
+                    "type": "post",
+                    "data": {
+                        "email": $("#retrieve_email").val()
+                    },
+                    "success": function (data) {
+                        if(data["status"] == "success") {
+                            bootbox.alert("发送成功，请接收邮件并进行后续操作。");
+                        } else {
+                            bootbox.dialog({
+                                message: data["message"],
+                                buttons: {
+                                    "success": {
+                                        "label": "确定",
+                                        "className": "btn-sm btn-primary"
+                                    }
+                                }
+                            });
+                        }
+                    },
+                    "error": function () {
+                        bootbox.alert("服务端出错，请稍后重试。");
+                    }
+                });
+            }
+
+            /* 登陆请求 */
+            function login() {
+                $.ajax({
+                    "url": "/isadmin/login_action",
+                    "type": "post",
+                    "data": {
+                        "nickname": $("#login_nickname").val(),
+                        "password": $("#login_password").val()
+                    },
+                    "success": function (data) {
+                        if(data["status"] == "success") {
+                            window.location.href="/isadmin/index";
+                        } else {
+                            bootbox.dialog({
+                                message: data["message"],
+                                buttons: {
+                                    "success": {
+                                        "label": "确定",
+                                        "className": "btn-sm btn-primary"
+                                    }
+                                }
+                            });
+                        }
+                    },
+                    "error": function () {
+                        bootbox.alert("服务端出错，请稍后重试。");
+                    }
+                });
+            }
+		</script>
+	</body>
+</html>

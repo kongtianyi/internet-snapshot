@@ -131,6 +131,7 @@
         <script src="{% static 'isadmin/js/buttons.print.min.js' %}"></script>
         <script src="{% static 'isadmin/js/buttons.colVis.min.js' %}"></script>
         <script src="{% static 'isadmin/js/dataTables.select.min.js' %}"></script>
+        <script src="{% static 'isadmin/js/bootbox.js' %}"></script>
 
 		<!--[if lte IE 8]>
 		  <script src="{% static 'isadmin/js/excanvas.min.js' %}"></script>
@@ -339,9 +340,9 @@
                     },
                     success: function (data) {
                         if(data["status"] == "error") {
-                            alert(data["message"]);
+                            bootbox.alert(data["message"]);
                         } else {
-                            alert(data["message"]);
+                            bootbox.alert(data["message"]);
                             myTable.draw(false);
                         }
                     }

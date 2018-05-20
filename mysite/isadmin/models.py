@@ -113,5 +113,27 @@ class VpsStatus(models.Model):
         db_table = 'vps_status'
 
 
+class SysUser(models.Model):
+    nickname = models.CharField(unique=True, max_length=18)
+    pw = models.CharField(max_length=32)
+    salt = models.CharField(max_length=16)
+    icon = models.CharField(max_length=100)
+    email = models.CharField(max_length=1000)
+
+    class Meta:
+        managed = False
+        db_table = 'sys_user'
+
+
+class Invite(models.Model):
+    inviter_id = models.IntegerField()
+    invite_code = models.CharField(max_length=255)
+    left_time = models.PositiveIntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'invite'
+
+
 def to_json_dict(o):
     return dict([(attr, getattr(o, attr)) for attr in [f.name for f in o._meta.fields]])

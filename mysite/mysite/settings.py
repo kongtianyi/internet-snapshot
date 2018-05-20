@@ -102,3 +102,18 @@ CELERY_ENABLE_UTC = False
 CELERY_ACKS_LATE = True
 CELERY_PREFETCH_MULTIPLIER = 1  # 预取任务数
 CELERY_CONCURRENCY = 1  # 单一worker的并发数，目前多了会导致webdriver出错，后期优化
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.163.com'
+EMAIL_PORT = 25
+# 发送邮件的邮箱
+EMAIL_HOST_USER = '17862703685@163.com'
+# 在邮箱中设置的客户端授权密码
+EMAIL_HOST_PASSWORD = 'kong19960412'
+# 收件人看到的发件人
+EMAIL_FROM = '互联网站点劫持检测系统<17862703685@163.com>'
+
+# RETRIEVE_ADDRESS = 'http://118.24.106.218/isadmin/retrieve'
+RETRIEVE_ADDRESS = 'http://localhost:8000/isadmin/retrieve'
+
+DES_KEY = b"sPp0$yve&xpuKBCY4$YGuzlS"
