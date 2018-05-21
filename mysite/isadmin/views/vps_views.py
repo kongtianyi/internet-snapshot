@@ -1,11 +1,12 @@
 import json
 
+import time
 from django.db import connection
 from django.http import HttpResponse
 from django.shortcuts import render
 
 from isadmin.decorators import check_session
-from isadmin.models import Vps
+from isadmin.models import Vps, VpsStatus
 from isadmin.tools.tools import byte_to_gb, float_to_percent, json_result
 
 
@@ -114,7 +115,8 @@ def cpu_chart(request):
     vps_id = request.GET.get("vps_id")
     try:
         vps_status_count = VpsStatus.objects.filter(vps_id=vps_id).count()
-        vps_statuses = VpsStatus.objects.filter(vps_id=vps_id)[vps_status_count-288:]
+        start_index = vps_status_count-288 if vps_status_count > 288 else 0
+        vps_statuses = VpsStatus.objects.filter(vps_id=vps_id)[start_index:]
     except:
         return render(request, "isadmin/error/error-500.html")
     result = {
@@ -136,7 +138,8 @@ def memory_chart(request):
     try:
         vps = Vps.objects.filter(id=vps_id)
         vps_status_count = VpsStatus.objects.filter(vps_id=vps_id).count()
-        vps_statuses = VpsStatus.objects.filter(vps_id=vps_id)[vps_status_count-288:]
+        start_index = vps_status_count-288 if vps_status_count>288 else 0
+        vps_statuses = VpsStatus.objects.filter(vps_id=vps_id)[start_index:]
     except:
         return render(request, "isadmin/error/error-500.html")
     memory_total = vps[0].memory
@@ -159,7 +162,8 @@ def disks_chart(request):
     try:
         vps = Vps.objects.filter(id=vps_id)
         vps_status_count = VpsStatus.objects.filter(vps_id=vps_id).count()
-        vps_statuses = VpsStatus.objects.filter(vps_id=vps_id)[vps_status_count-288:]
+        start_index = vps_status_count-288 if vps_status_count>288 else 0
+        vps_statuses = VpsStatus.objects.filter(vps_id=vps_id)[start_index:]
     except:
         return render(request, "isadmin/error/error-500.html")
     disks = json.loads(vps[0].disks)

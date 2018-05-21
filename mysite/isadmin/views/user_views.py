@@ -53,6 +53,7 @@ def login_action(request):
         return render(request, 'isadmin/error/error-403.html')
     nickname = request.POST.get("nickname")
     password = request.POST.get("password")
+    remain = request.POST.get("remain")
     user = SysUser.objects.filter(nickname=nickname)
     salt = user[0].salt
     real_password = user[0].pw
@@ -60,6 +61,12 @@ def login_action(request):
     hl = hashlib.md5()
     hl.update((password+salt).encode(encoding='utf-8'))
     if real_password == hl.hexdigest():
+        half_hour = 60 * 30
+        seven_days = 60 * 60 * 24 * 7
+        if int(remain) == 0:
+            request.session.set_expiry(half_hour)
+        else:
+            request.session.set_expiry(seven_days)
         request.session["id"] = user[0].id
         request.session["nickname"] = nickname
         result = json_result("success", "登陆成功。")
@@ -137,6 +144,10 @@ def retrieve_email_action(request):
     if request.method != "POST":
         return render(request, 'isadmin/error/error-403.html')
     email = request.POST.get("email")
+    user = SysUser.objects.filter(email=email)
+    if user is None or len(user) == 0:
+        result = json_result("error", "该邮箱没有注册过本系统。")
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
     now = str(int(time.time()))
     triple_des = pyDes.triple_des(settings.DES_KEY, padmode=pyDes.PAD_PKCS5)
     encrypt = triple_des.encrypt(email + '+' + now)  # 3DES加密

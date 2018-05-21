@@ -93,7 +93,7 @@
 
 													<div class="clearfix">
 														<label class="inline">
-															<input type="checkbox" class="ace" />
+															<input onchange="remain();" id="login_remain" type="checkbox" class="ace" value="0" />
 															<span class="lbl"> 记住我</span>
 														</label>
 
@@ -236,10 +236,10 @@
 													</label>
 
 													<label class="block">
-														<input type="checkbox" class="ace" />
+														<input value="0" onchange="agree();" id="register_agree" type="checkbox" class="ace" />
 														<span class="lbl">
 															我同意
-															<a href="#">《系统使用协议》</a>
+															<a href="#"  data-toggle="modal" data-target="#protocol_modal">《系统使用协议》</a>
 														</span>
 													</label>
 
@@ -251,7 +251,7 @@
 															<span class="bigger-110">重置</span>
 														</button>
 
-														<button onclick="register();" type="button" class="width-65 pull-right btn btn-sm btn-success">
+														<button disabled onclick="register();" id="register_submit" type="button" class="width-65 pull-right btn btn-sm btn-success">
 															<span class="bigger-110">注册</span>
 
 															<i class="ace-icon fa fa-arrow-right icon-on-right"></i>
@@ -291,6 +291,24 @@
 			</div><!-- /.main-content -->
 		</div><!-- /.main-container -->
 
+        <div id="protocol_modal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">系统使用协议</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>随便用。</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+
 		<!-- basic scripts -->
 
 		<!--[if !IE]> -->
@@ -308,6 +326,7 @@
         <!-- page specific plugin scripts -->
         <script src="{% static 'isadmin/js/bootstrap.min.js' %}"></script>
         <script src="{% static 'isadmin/js/bootbox.js' %}"></script>
+        <script src="{% static 'isadmin/js/check.js' %}"></script>
 
 		<!-- inline scripts related to this page -->
 		<script type="text/javascript">
@@ -319,8 +338,6 @@
                     $(target).addClass('visible');//show target
                 });
             });
-
-
 
             //you don't need this, just used for changing background
             jQuery(function($) {
@@ -348,17 +365,50 @@
 
             });
 
+            /* 同意用户协议才让注册 */
+            function agree() {
+                var register_agree = $("#register_agree");
+                var register_submit = $("#register_submit");
+                if(register_agree.val() == 0) {
+                    register_agree.val(1);
+                    register_submit.removeAttr("disabled");
+                } else {
+                    register_agree.val(0);
+                    register_submit.attr("disabled", "disabled");
+                }
+            }
+
 			/* 注册请求 */
             function register() {
+                var nickname = $("#register_nickname");
+                var email = $("#register_email");
+                var password =  $("#register_password");
+                var repeat_password = $("#register_repeat_password");
+                var invite_code = $("#register_invite_code");
+                var jq_list = [nickname, email, password, repeat_password, invite_code];
+                var show_list = ["用户名", "电子邮件", "密码","重复密码", "邀请码"];
+                for(var i=0;i<jq_list.length;i++) {
+                    var value = $.trim(jq_list[i].val());
+                    if(value == "") {
+                        bootbox.alert("请填写"+show_list[i]+"。");
+                        jq_list[i][0].focus();  // 不生效，请教一下前端
+                        return;
+                    }
+                    if(show_list[i] == "电子邮件" && !isEmail(value)) {
+                        bootbox.alert("电子邮件格式不正确，请检查。")
+                        jq_list[i][0].focus();
+                        return;
+                    }
+                }
                 $.ajax({
                     "url": "/isadmin/register_action",
                     "method": "post",
                     "data": {
-                        "nickname": $("#register_nickname").val(),
-                        "email": $("#register_email").val(),
-                        "password": $("#register_password").val(),
-                        "repeat_password": $("#register_repeat_password").val(),
-                        "invite_code": $("#register_invite_code").val()
+                        "nickname": nickname.val(),
+                        "email": email.val(),
+                        "password": password.val(),
+                        "repeat_password": repeat_password.val(),
+                        "invite_code": invite_code.val()
                     },
                     "success": function(data) {
                         if(data["status"] == "success") {
@@ -402,11 +452,20 @@
 
             /* 重置密码请求 */
             function retrieve() {
+                var retrieve_email = $("#retrieve_email");
+                var retrieve_email_value = $.trim(retrieve_email.val());
+                if(retrieve_email_value == "") {
+                    bootbox.alert("请输入电子邮件。");
+                    return;
+                } else if(!isEmail(retrieve_email_value)) {
+                    bootbox.alert("电子邮件格式不正确。");
+                    return;
+                }
                 $.ajax({
                     "url": "/isadmin/retrieve_email_action",
                     "type": "post",
                     "data": {
-                        "email": $("#retrieve_email").val()
+                        "email": retrieve_email_value
                     },
                     "success": function (data) {
                         if(data["status"] == "success") {
@@ -429,6 +488,11 @@
                 });
             }
 
+            function remain() {
+                var login_remain = $("#login_remain");
+                login_remain.val(login_remain.val() == 0 ? 1 : 0);
+            }
+
             /* 登陆请求 */
             function login() {
                 $.ajax({
@@ -436,7 +500,8 @@
                     "type": "post",
                     "data": {
                         "nickname": $("#login_nickname").val(),
-                        "password": $("#login_password").val()
+                        "password": $("#login_password").val(),
+                        "remain": $("#login_remain").val()
                     },
                     "success": function (data) {
                         if(data["status"] == "success") {
