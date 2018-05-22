@@ -48,7 +48,6 @@ while True:
     if front_sent == "stop":
         break
     file_tail = tail(file_path + file_name, taillines=200)
-    # file_tail = tail("C:\\Users\\KongWei\\Desktop\\beijing_download_queue.log", taillines=200)
     date_pattern = "^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$"
     if not re.match(date_pattern, front_sent):
         stdout.write("Date format error.")

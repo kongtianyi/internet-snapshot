@@ -190,13 +190,23 @@
                         yAxis: {
                             name: '利用率(%)',
                             type: 'value',
-                            min: 0,
-                            max: 100
+                            min: Math.min.apply(Math, data["data"]["rates"]),
+                            max: Math.max.apply(Math, data["data"]["rates"])
                         },
                         series: [{
                             type: 'line',
-                            data: data["data"]["rates"]
-                        }]
+                            data: data["data"]["rates"],
+                            smooth: true
+                        }],
+                        tooltip : {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'cross',
+                                label: {
+                                    backgroundColor: '#6a7985'
+                                }
+                            }
+                        },
                     });
                 }
             });
@@ -230,13 +240,23 @@
                         yAxis: {
                             name: '利用率(%)',
                             type: 'value',
-                            min: 0,
-                            max: 100
+                            min: Math.min.apply(Math, data["data"]["rates"]),
+                            max: Math.max.apply(Math, data["data"]["rates"])
                         },
                         series: [{
                             type: 'line',
-                            data: data["data"]["rates"]
-                        }]
+                            data: data["data"]["rates"],
+                            smooth: true
+                        }],
+                        tooltip : {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'cross',
+                                label: {
+                                    backgroundColor: '#6a7985'
+                                }
+                            }
+                        },
                     });
                 }
             });
@@ -265,16 +285,27 @@
                             name: '时间',
                             type: 'category',
                             data: data["data"]["times"],
-
                         },
                         yAxis: {
                             name: '剩余空间(GB)',
                             type: 'value',
+                            min: Math.min.apply(Math, data["data"]["lefts"]),
+                            max: Math.max.apply(Math, data["data"]["lefts"])
                         },
                         series: [{
                             type: 'line',
-                            data: data["data"]["lefts"]
-                        }]
+                            data: data["data"]["lefts"],
+                            smooth: true
+                        }],
+                        tooltip : {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'cross',
+                                label: {
+                                    backgroundColor: '#6a7985'
+                                }
+                            }
+                        },
                     });
                 }
             });

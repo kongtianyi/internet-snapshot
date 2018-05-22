@@ -495,12 +495,23 @@
 
             /* 登陆请求 */
             function login() {
+                var nickname = $("#login_nickname");
+                var password = $("#login_password");
+                var jq_list = [nickname, password];
+                var show_list = ["用户名", "密码"];
+                for(var i=0;i<jq_list.length;i++) {
+                    if($.trim(jq_list[i].val()) == "") {
+                        bootbox.alert("请输入"+show_list[i]+"。");
+                        jq_list[i][0].focus();
+                        return;
+                    }
+                }
                 $.ajax({
                     "url": "/isadmin/login_action",
                     "type": "post",
                     "data": {
-                        "nickname": $("#login_nickname").val(),
-                        "password": $("#login_password").val(),
+                        "nickname": nickname.val(),
+                        "password": password.val(),
                         "remain": $("#login_remain").val()
                     },
                     "success": function (data) {

@@ -153,7 +153,54 @@ def retrieve_email_action(request):
     encrypt = triple_des.encrypt(email + '+' + now)  # 3DES加密
     token = base64.b64encode(encrypt).decode()  # base64加密解码成字符串
     token = urllib.parse.quote(token)  # 避免特殊字符如+丢失
-    msg = '<a href="' + settings.RETRIEVE_ADDRESS + '?token=' + token + '" target="_blank">点击链接重置密码。</a>'
+    msg = '''
+    <table cellpadding="0" cellspacing="0" width="100%" style="max-width:744px; border: 1px solid #dedede;border-radius: 3px">
+      <tbody><tr>
+      <td style="padding: 10px 20px 10px 20px;">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tbody><tr>
+        <td align="left" style="font-size: 17px; padding:20px 0 10px 0;">
+          <b>亲爱的''' + user[0].nickname + '''：</b>
+        </td>
+      </tr>
+      <tr>
+        <td align="left" style="font-size:15px; padding: 10px 0px 10px 0px;">
+          你的密码重设要求已经得到验证。请点击以下按钮设置新的密码：
+        </td>
+      </tr>
+      <tr>
+        <td align="center" style="padding: 10px 0px 10px 0px;">
+          <table border="0" cellpadding="0" cellspacing="0">
+            <tbody><tr>
+              <td>
+                <div style="font-size:20px;font-weight:700;padding:5px 10px 5px 10px;text-align:center;background-color:#3aa252;border-radius: 3px;">
+                  <a href="''' + settings.RETRIEVE_ADDRESS + '''?token=''' + token + ''''" class="button" style="text-decoration: none;color:white;" target="_blank">重设密码</a>
+                </div>
+              </td>
+            </tr>
+          </tbody></table>
+        </td>
+      </tr>
+      <tr>
+        <td align="left" style="font-size:15px; padding: 10px 0px 10px 0px;">
+          感谢你对互联网站点劫持检测系统的支持，希望你在互联网站点劫持检测系统的体验有益且愉快。
+        </td>
+      </tr>
+      <tr>
+        <td align="left" style="font-size:15px; padding: 10px 0px 10px 0px;">
+          互联网站点劫持检测系统 <a href="http://''' + settings.SITE_DOMAIN + '''/isadmin" target="_blank">https://''' + settings.SITE_DOMAIN + '''/isadmin</a>
+        </td>
+      </tr>
+      <tr>
+        <td align="left" style="font-size:15px; padding: 10px 0px 10px 0px;">
+            (这是一封自动产生的email，请勿回复。)
+        </td>
+      </tr>
+    </tbody></table>
+        </td>
+      </tr>
+    </tbody></table>
+    '''
     try:
         send_mail('密码重置链接', '', settings.EMAIL_FROM, [email, ], html_message=msg)
     except Exception as e:

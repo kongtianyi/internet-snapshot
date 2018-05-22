@@ -190,12 +190,23 @@
 
             /* 重置密码请求 */
             function retrieve() {
+                var retrieve_password  = $("#retrieve_password");
+                var retrieve_repeat_password = $("#retrieve_repeat_password");
+                var jq_list = [retrieve_password, retrieve_repeat_password];
+                var show_list = ["新密码", "重复新密码"];
+                for(var i=0;i<jq_list.length;i++) {
+                    if($.trim(jq_list[i].val()) == "") {
+                        bootbox.alert("请输入"+show_list[i]+"。");
+                        jq_list[i][0].focus();
+                        return;
+                    }
+                }
                 $.ajax({
                     "url": "/isadmin/retrieve_action",
                     "type": "post",
                     "data": {
-                        "password": $("#retrieve_password").val(),
-                        "repeat_password": $("#retrieve_repeat_password").val(),
+                        "password": retrieve_password.val(),
+                        "repeat_password": retrieve_repeat_password.val(),
                         "token": "{{ token }}"
                     },
                     "success": function (data) {

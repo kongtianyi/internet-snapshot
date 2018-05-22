@@ -86,5 +86,7 @@ urlpatterns = {
     url('^beat_stop$', views.beat_stop, name="beat_stop"),
     url('^beat_restart$', views.beat_restart, name="beat_restart"),
     # 快照任务
-    url(r'^tasks$', task_views.tasks, name="tasks")
+    url(r'^tasks$', task_views.tasks, name="tasks"),
+    # 日志模块
+    url(r'^get_log_files$', log_views.get_log_files, name="get_log_files")
 }

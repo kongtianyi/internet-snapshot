@@ -84,17 +84,13 @@
                 <div class="row">
                     <div class="col-xs-12">
                         <span>服务器IP:</span>
-                        <select id="server_ip">
-                            <option value="118.24.106.218">118.24.106.218</option>
-                            <option value="114.67.225.0">114.67.225.0</option>
-                            <option value="120.79.178.39">120.79.178.39</option>
+                        <select id="server_ip" onchange="get_log_files();">
+                            {% for vps_ip in vps_ips %}
+                                <option value="{{ vps_ip }}">{{ vps_ip }}</option>
+                            {% endfor %}
                         </select>
                         <span>日志文件:</span>
                         <select id="log_file">
-                            <option value="isSpider/chengdu_download_queue.log">isSpider/chengdu_download_queue.log</option>
-                            <option value="isSpider/chengdu_queue.log">isSpider/chengdu_queue.log</option>
-                            <option value="isSpider/parse_queue.log">isSpider/parse_queue.log</option>
-                            <option value="isSpider/default_queue.log">isSpider/default_queue.log</option>
                         </select>
                         <button id="start_log" class="btn btn-primary btn-sm" onclick="start_ws()">开始</button>
                         <button id="stop_log" class="btn btn-primary btn-sm" onclick="stop_ws()">停止</button>
@@ -123,6 +119,7 @@
     <script src="{% static 'isadmin/js/bootstrap.min.js' %}"></script>
 
     <!-- page specific plugin scripts -->
+    <script  src="{% static 'isadmin/js/bootbox.js' %}"></script>
 
     <!-- ace scripts -->
     <script src="{% static 'isadmin/js/ace-elements.min.js' %}"></script>
@@ -130,9 +127,31 @@
 
     <!-- inline scripts related to this page -->
     <script type="text/javascript">
+
+        function get_log_files() {
+            var log_file = $("#log_file");
+            $.ajax({
+                "url": "/isadmin/get_log_files",
+                "type": "post",
+                "data": {
+                    "ip": $("#server_ip").val()
+                },
+                "success": function (data) {
+                    log_file.empty();
+                    for(var i=0;i<data["data"].length;i++) {
+                        log_file.append($('<option value="'+ data["data"][i] +'">' + data["data"][i] + '</option>'));
+                    }
+                },
+                "error": function () {
+                    bootbox.alert("获取日志列表出错。");
+                }
+            });
+        }
+
         $(document).ready(function () {
             var log_area = $("#log_area");
             log_area.height($(window).height()-188);
+            get_log_files();
         });
 
 

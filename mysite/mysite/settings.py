@@ -113,7 +113,8 @@ EMAIL_HOST_PASSWORD = 'kong19960412'
 # 收件人看到的发件人
 EMAIL_FROM = '互联网站点劫持检测系统<17862703685@163.com>'
 
-# RETRIEVE_ADDRESS = 'http://118.24.106.218/isadmin/retrieve'
-RETRIEVE_ADDRESS = 'http://localhost:8000/isadmin/retrieve'
+# SITE_DOMAIN = 118.24.106.218
+SITE_DOMAIN = 'localhost:8000'
+RETRIEVE_ADDRESS = 'http://%s/isadmin/retrieve' % (SITE_DOMAIN,)
 
 DES_KEY = b"sPp0$yve&xpuKBCY4$YGuzlS"

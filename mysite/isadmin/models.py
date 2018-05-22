@@ -135,5 +135,15 @@ class Invite(models.Model):
         db_table = 'invite'
 
 
+class LogFiles(models.Model):
+    vps_id = models.PositiveIntegerField()
+    path = models.CharField(max_length=100)
+    filename = models.CharField(max_length=30)
+
+    class Meta:
+        managed = False
+        db_table = 'log_files'
+
+
 def to_json_dict(o):
     return dict([(attr, getattr(o, attr)) for attr in [f.name for f in o._meta.fields]])
