@@ -194,6 +194,7 @@
                             max: Math.max.apply(Math, data["data"]["rates"])
                         },
                         series: [{
+                            name: 'CPU利用率(%)',
                             type: 'line',
                             data: data["data"]["rates"],
                             smooth: true
@@ -244,6 +245,7 @@
                             max: Math.max.apply(Math, data["data"]["rates"])
                         },
                         series: [{
+                            name: "内存利用率(%)",
                             type: 'line',
                             data: data["data"]["rates"],
                             smooth: true
@@ -293,6 +295,7 @@
                             max: Math.max.apply(Math, data["data"]["lefts"])
                         },
                         series: [{
+                            name: "剩余空间(GB)",
                             type: 'line',
                             data: data["data"]["lefts"],
                             smooth: true
