@@ -54,7 +54,10 @@ while True:
         stdout.flush()
         break
     now = time.mktime(time.strptime(front_sent, '%Y-%m-%d %H:%M:%S'))
-    last_second = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(now-5))  # 前端传过来那一时刻的上五秒
+    if "mysite.log" in file_name:
+        last_second = time.strftime('%d/%b/%Y %H:%M:%S', time.localtime(now-5))
+    else:
+        last_second = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(now-5))  # 前端传过来那一时刻的上五秒
     first_index = file_tail.find(last_second)-1  # 这一秒的第一条记录起点
     if first_index == -2:
         continue
