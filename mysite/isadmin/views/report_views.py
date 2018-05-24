@@ -208,7 +208,7 @@ def check_compare_unique(request):
         # 联动处理
         uncheked_records = PrivateOutChainRecords.objects.filter(checked=0)
         for uncheked_record in uncheked_records:
-            if UrlUtil.get_top_domain(uncheked_record,out_chain) == UrlUtil.get_top_domain(out_chain):
+            if UrlUtil.get_top_domain(uncheked_record.out_chain) == UrlUtil.get_top_domain(out_chain):
                 PrivateOutChainRecords.objects.filter(id=uncheked_record.id).update(checked=1, result=0,
                                                                                            check_time=time.strftime(
                                                                                                '%Y-%m-%d %H:%M:%S',

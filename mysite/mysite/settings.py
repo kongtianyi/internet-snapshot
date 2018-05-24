@@ -103,6 +103,11 @@ CELERY_ACKS_LATE = True
 CELERY_PREFETCH_MULTIPLIER = 1  # 预取任务数
 CELERY_CONCURRENCY = 1  # 单一worker的并发数，目前多了会导致webdriver出错，后期优化
 
+# 以下三个配置项用于ssh连接beat宿主机进行启动、停止、重启操作
+CELERY_BEAT_IP = "118.24.106.218"  # beat宿主机IP
+CELERY_BEAT_USER = "root"  # beat宿主机登陆用户
+CELERY_BEAT_PW =  "KONG64530322931."  # beat宿主机登陆用户密码
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.163.com'
 EMAIL_PORT = 25

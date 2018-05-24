@@ -7,25 +7,16 @@ import pymysql
 from lxml import etree
 
 from tools.url_util import UrlUtil
+import projectconfig
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S', )
 
-mysql_config = {
-    'host': '120.79.178.39',
-    'port': 3306,
-    'user': 'root',
-    'password': 'KONG64530322931',
-    'db': 'internet_snapshot',
-    'charset': 'utf8mb4',
-    'cursorclass': pymysql.cursors.DictCursor,
-}
-
 
 def get_html_from_mysql(html_id):
     """根据snapshot的id查html和final_url"""
-    connection = pymysql.connect(**mysql_config)
+    connection = pymysql.connect(**projectconfig.mysql_config)
     sql = 'SELECT final_url FROM snapshot WHERE id=%s;'
     with connection.cursor() as cursor:
         cursor.execute(sql, (html_id,))
@@ -105,7 +96,7 @@ class HtmlUtil:
 
         # 过滤一下安全外链
         safe_chains = set()
-        connection = pymysql.connect(**mysql_config)
+        connection = pymysql.connect(**projectconfig.mysql_config)
         # 拿到公共安全外链主域名
         with connection.cursor() as cursor:
             sql = 'SELECT mydomain FROM public_safe_out_chains;'
@@ -150,9 +141,6 @@ class HtmlUtil:
             result.append(list(out_chains & diff))
         result.append(list(diff))
         return result
-
-
-
 
     # todo this
     # html = re.sub('(?P<prefix>(=\s?["\'])|(url\(["\']?))'

@@ -33,7 +33,6 @@ class HtmlUtil:
     #                         + '/' + m.group("url") + m.group("suffix"),
     #               html, flags=re.M)  # 处理“xx.xx”类型的链接（当前目录文件）
 
-
     @classmethod
     def parse_aim(cls, html, aim):
         """将目标域名下的外链高亮显示"""

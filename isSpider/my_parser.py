@@ -1,7 +1,13 @@
 # !/usr/bin/python
 # -*- encoding: utf-8 -*-
 
-import json, time, logging, re, pymysql, redis, urllib.parse
+import json
+import time
+import logging
+import re
+import pymysql
+import redis
+import projectconfig
 from lxml import etree
 from items import MainItem, SuspiciousItem, SsHtmlItem, PrivateOutChainRecordItem, main_item_to_json
 from tools.html_util import HtmlUtil, get_html_from_mysql
@@ -10,25 +16,13 @@ from tools.url_util import UrlUtil
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S', )
-mysql_config = {
-    'host': '120.79.178.39',
-    'port': 3306,
-    'user': 'root',
-    'password': 'KONG64530322931',
-    'db': 'internet_snapshot',
-    'charset': 'utf8mb4',
-    'cursorclass': pymysql.cursors.DictCursor,
-}
-
-redis_address = "redis://:kongtianyideredis@114.67.225.0:6379/0"
-
 
 class Parser:
     """内容解析器，职责：1.抽取继续迭代的內链存队列；2.格式化数据并存库"""
     def __init__(self, downloader_item):
         self.downloader_item = downloader_item
-        self.connection = pymysql.connect(**mysql_config)  # 建立数据库链接
-        self.redis_conn = redis.Redis.from_url(redis_address)
+        self.connection = pymysql.connect(**projectconfig.mysql_config)  # 建立数据库链接
+        self.redis_conn = redis.Redis.from_url(projectconfig.REDIS_URL)
         self.safe_chains = set()
         # 拿到公共安全外链主域名
         with self.connection.cursor() as cursor:
@@ -98,7 +92,7 @@ class Parser:
         request_top_domain = UrlUtil.get_top_domain(self.downloader_item.request_url)
         for href in hrefs:
             this_top_domain = UrlUtil.get_top_domain(href)
-            if request_top_domain == this_top_domain and get_url_suffix(href) != "js":
+            if request_top_domain == this_top_domain and UrlUtil.get_url_suffix(href) != "js":
                 inner_chains.add(href)
             elif this_top_domain not in self.safe_chains and not UrlUtil.is_gov_or_edu(href):
                 # 主域名不在白名单里而且不是政府或教育机构网站
@@ -150,7 +144,7 @@ class CompareParser:
     """不同地区同一页面比对，获取每个页面独有url并存库的后处理器"""
     @classmethod
     def parse_by_task_id(cls, task_id):
-        connection = pymysql.connect(**mysql_config)  # 建立数据库链接
+        connection = pymysql.connect(**projectconfig.mysql_config)  # 建立数据库链接
         # 读黑名单
         sql = "SELECT mydomain FROM malicious_domains;"
         with connection.cursor() as cursor:
@@ -203,14 +197,6 @@ class CompareParser:
         connection.close()
 
 
-def get_url_suffix(url):
-    """获取网页后缀名（如html、js、css）"""
-    path = urllib.parse.urlsplit(url)[2]
-    if '.' not in path.split('/')[-1]:
-        return ""
-    return path.split('.')[-1]
-
-
 def href_clean(hrefs):
     """清洗从a标签中提取出的href属性，去掉不是网页的条目"""
     result = list()
@@ -219,7 +205,7 @@ def href_clean(hrefs):
         for href in hrefs:
             # 是url并且是网页
             if re.match('[a-zA-z]+://[^\s]*', href) \
-                    and get_url_suffix(href) not in not_web_page:
+                    and UrlUtil.get_url_suffix(href) not in not_web_page:
                 # 把lxml.etree._ElementUnicodeResult对象做下转换并去掉两侧无用空白字符
                 href = str(href).strip()
                 result.append(href)

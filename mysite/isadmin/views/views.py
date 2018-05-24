@@ -2,6 +2,7 @@ from django.db.models import QuerySet
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 from isadmin.models import Snapshot, SsHtml, SysUser
 from isadmin.tools.html_util import HtmlUtil
 from isadmin.tools.url_util import UrlUtil
@@ -62,9 +63,9 @@ def one_button(request):
 @check_session_json
 @csrf_exempt
 def beat_start(request):
-    ip = "118.24.106.218"
-    user = "root"
-    password = "KONG64530322931."
+    ip = settings.CELERY_BEAT_IP
+    user = settings.CELERY_BEAT_USER
+    password = settings.CELERY_BEAT_PW
     if platform.system() != "Linux":
         result = json_result("error", "WEB服务器操作系统不支持此操作！:-(")
         return HttpResponse(result, content_type="application/json;charset=utf-8")
@@ -101,9 +102,9 @@ def beat_start(request):
 @csrf_exempt
 def beat_stop(request):
     '''停止beat'''
-    ip = "118.24.106.218"
-    user = "root"
-    password = "KONG64530322931."
+    ip = settings.CELERY_BEAT_IP
+    user = settings.CELERY_BEAT_USER
+    password = settings.CELERY_BEAT_PW
     if platform.system() != "Linux":
         result = json_result("error", "WEB服务器操作系统不支持此操作！:-(")
         return HttpResponse(result, content_type="application/json;charset=utf-8")
@@ -139,9 +140,9 @@ def beat_stop(request):
 @csrf_exempt
 def beat_restart(request):
     '''重启django-celery-beat使定时任务修改生效'''
-    ip = "118.24.106.218"
-    user = "root"
-    password = "KONG64530322931."
+    ip = settings.CELERY_BEAT_IP
+    user = settings.CELERY_BEAT_USER
+    password = settings.CELERY_BEAT_PW
     if platform.system() != "Linux":
         result = json_result("error", "WEB服务器操作系统不支持此操作！:-(")
         return HttpResponse(result, content_type="application/json;charset=utf-8")
@@ -172,5 +173,3 @@ def beat_restart(request):
             child.sendline("exit")
             child.close()
     return HttpResponse(result, content_type="application/json;charset=utf-8")
-
-

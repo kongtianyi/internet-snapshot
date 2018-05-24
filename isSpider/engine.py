@@ -7,6 +7,7 @@ import time
 import uuid
 import pymysql
 import redis
+import projectconfig
 from celery import Celery
 
 from items import MainItem, main_item_to_json
@@ -23,18 +24,7 @@ logging.basicConfig(level=logging.INFO,
 app = Celery()
 app.config_from_object('celeryconfig')
 
-redis_conn = redis.Redis.from_url("redis://:kongtianyideredis@114.67.225.0:6379/0")
-
-mysql_config = {
-    'host': '120.79.178.39',
-    'port': 3306,
-    'user': 'root',
-    'password': 'KONG64530322931',
-    'db': 'internet_snapshot',
-    'charset': 'utf8mb4',
-    'cursorclass': pymysql.cursors.DictCursor,
-}
-
+redis_conn = redis.Redis.from_url(projectconfig.REDIS_URL)
 
 class Engine:
     """
@@ -58,7 +48,7 @@ class Engine:
         self.max_num = int(max_num)
 
     def run(self):
-        connection = pymysql.connect(**mysql_config)
+        connection = pymysql.connect(**projectconfig.mysql_config)
         sql = "INSERT INTO download_tasks (task_id) VALUES (%s);"
         with connection.cursor() as cursor:
             re = cursor.execute(sql, (self.main_item.task_id,))

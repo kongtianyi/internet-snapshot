@@ -5,21 +5,17 @@ from downloader import SingletonDownloader
 from items import MainItem, main_item_to_json, json_to_main_item
 from my_parser import Parser, CompareParser
 from engine import Engine
-import redis, logging, pymysql, psutil, json, time
+import redis
+import logging
+import pymysql
+import psutil
+import json
+import time
+import projectconfig
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S', )
-
-mysql_config = {
-    'host': '120.79.178.39',
-    'port': 3306,
-    'user': 'root',
-    'password': 'KONG64530322931',
-    'db': 'internet_snapshot',
-    'charset': 'utf8mb4',
-    'cursorclass': pymysql.cursors.DictCursor,
-}
 
 app = Celery()
 app.config_from_object('celeryconfig')
@@ -53,7 +49,7 @@ def parse(main_item):
 @app.task
 def clean_abnormal_engine():
     """清理redis中engine命名空间下的僵尸key"""
-    redis_conn = redis.Redis.from_url("redis://:kongtianyideredis@114.67.225.0:6379/0")
+    redis_conn = redis.Redis.from_url(projectconfig.REDIS_URL)
     keys = redis_conn.keys(pattern="engine:*")
     for key in keys:
         if redis_conn.ttl(key) == -1:  # 在engine命名空间下却没有设置过期时间，故为异常key
@@ -86,7 +82,7 @@ def save_vps_status():
     # 网络情况
     network_status = json.dumps(psutil.net_io_counters(pernic=True))
     # 存库
-    connection = pymysql.connect(**mysql_config)
+    connection = pymysql.connect(**projectconfig.mysql_config)
     sql = "INSERT INTO vps_status (vps_id, cpu_status, memory_used, swap_used, disks_status, network_status) " \
           "VALUES (%s, %s, %s, %s, %s, %s);"
     with connection.cursor() as cursor:
@@ -98,7 +94,7 @@ def save_vps_status():
 @app.task
 def vps_status_clean():
     """清理vps_status表，使其只保持近七天的数据（0点清除六天前的数据）"""
-    connection = pymysql.connect(**mysql_config)
+    connection = pymysql.connect(**projectconfig.mysql_config)
     SIX_DAYS = 60 * 60 * 24 * 6
     now = int(time.time())
     six_days_ago = now - SIX_DAYS
@@ -118,7 +114,7 @@ def vps_status_clean():
 @app.task
 def compare_parse():
     """对未进行比对的任务进行比对"""
-    connection = pymysql.connect(**mysql_config)
+    connection = pymysql.connect(**projectconfig.mysql_config)
     # 查找出还未进行比对的所有任务id
     sql = "SELECT task_id FROM download_tasks WHERE compared=0;"
     with connection.cursor() as cursor:
