@@ -226,7 +226,7 @@
                             $("#memory-used-"+vpss[i]["id"]+" .percent").text(vpss[i]["memory_percent"]);
                             mem_used_pie.data('easyPieChart').update(vpss[i]["memory_percent"]);
                             $("#memory-total").text(vpss[i]["memory_total"]);
-                            $("#memory-left").text(vpss[i]["memory_total"]-vpss[i]["memory_used"]);
+                            $("#memory-left").text((vpss[i]["memory_total"]-vpss[i]["memory_used"]).toFixed(2));
                             // 刷新交换区信息
                             var swap_used_pie = $("#swap-used-"+vpss[i]["id"]);
                             swap_used_pie.attr("data-percent", vpss[i]["swap_percent"]);
@@ -240,7 +240,7 @@
                             $("#disks-used-"+vpss[i]["id"]+" .percent").text(vpss[i]["disks_percent"]);
                             disks_used_pie.data('easyPieChart').update(vpss[i]["disks_percent"]);
                             $("#disks-total").text(vpss[i]["disks_total"]);
-                            $("#disks-left").text(vpss[i]["disks_total"]-vpss[i]["disks_used"]);
+                            $("#disks-left").text((vpss[i]["disks_total"]-vpss[i]["disks_used"]).toFixed(2));
                         }
                     }
                 });

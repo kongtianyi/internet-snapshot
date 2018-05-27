@@ -32,8 +32,6 @@ def show_snapshot(request, id=None):
     if not id:
         id = request.GET.get("id")
     aim = request.GET.get("aim")
-    # else:
-    #     aim = None
     ss = Snapshot.objects.filter(id=id)
     item = SsHtml.objects.filter(ss_id=id)
     if not isinstance(ss, QuerySet) or not isinstance(item, QuerySet):

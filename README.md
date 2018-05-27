@@ -13,12 +13,17 @@ pexpect-4.4.0
 psutil
 pyDes
 mysqlclient（启动django-celery-beat所需，首先apt-get install libmysqlclient-dev python3-dev）
+uwsgi
 
 # 依赖工具
 
 linux下Mozilla Firefox 58.0.1
 windows下Mozilla Firefox 58.0.2
 geckodriver (路径：/usr/lib/firefox/geckodriver)
+mysql
+redis
+rabbitmq
+nginx
 
 
 # 前端框架：
