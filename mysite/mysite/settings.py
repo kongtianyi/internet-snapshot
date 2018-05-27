@@ -6,7 +6,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = '4h=q81&(l)9f6lwwk-mbk@*gsi)zb9&cfeu374j4$ohre&oa-z'
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -16,14 +16,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.staticfiles',
     'django_celery_beat',
-    'corsheaders',
     'isadmin',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -123,3 +121,5 @@ SITE_DOMAIN = 'localhost:8000'
 RETRIEVE_ADDRESS = 'http://%s/isadmin/retrieve' % (SITE_DOMAIN,)
 
 DES_KEY = b"sPp0$yve&xpuKBCY4$YGuzlS"
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'statics')
