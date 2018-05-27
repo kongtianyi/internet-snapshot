@@ -122,4 +122,4 @@ RETRIEVE_ADDRESS = 'http://%s/isadmin/retrieve' % (SITE_DOMAIN,)
 
 DES_KEY = b"sPp0$yve&xpuKBCY4$YGuzlS"
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'statics')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')

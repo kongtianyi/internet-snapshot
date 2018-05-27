@@ -42,7 +42,6 @@ urlpatterns = {
     url(r'^get_tasks$', task_views.get_tasks, name='get_tasks'),
     url(r'^edit_task$', task_views.edit_task, name='edit_task'),
     # 日志模块
-    url(r'^history_log$', log_views.history_log, name='history_log'),
     url(r'^real_time_log$', log_views.real_time_log, name='real_time_log'),
 
     # ======================================================================================
