@@ -55,6 +55,9 @@ def login_action(request):
     password = request.POST.get("password")
     remain = request.POST.get("remain")
     user = SysUser.objects.filter(nickname=nickname)
+    if user is None or len(user) == 0:
+        result = json_result("error", "用户不存在")
+        return HttpResponse(result, content_type="application/json;charset=utf-8")
     salt = user[0].salt
     real_password = user[0].pw
     # 创建md5对象
